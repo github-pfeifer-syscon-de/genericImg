@@ -1,0 +1,13 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+datarootdir=@datarootdir@
+datadir=@datadir@
+includedir=@includedir@/genericimg
+
+Name: libgenericimg
+Description: Basic inamging function support lib.
+Version: @VERSION@
+Requires:
+Libs: -L${libdir} -lgenericimg
+Cflags: -I${includedir}
