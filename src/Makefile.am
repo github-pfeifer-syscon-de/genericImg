@@ -20,6 +20,7 @@ libgenericimg_la_LDFLAGS = \
 
 libgenericimg_la_SOURCES = \
 	ConcurrentCollections.cpp \
+	LocaleContext.cpp \
 	StringUtils.cpp
 
 libgenericimg_la_LIBADD =  \
@@ -30,6 +31,7 @@ libgenericimg_la_LIBADD =  \
 ##   (include_HEADERS  will use #install#/include)
 pkginclude_HEADERS = \
 	ConcurrentCollections.hpp \
+	LocaleContext.hpp \
 	StringUtils.hpp
 
 pkgconfigdir = $(libdir)/pkgconfig
