@@ -11,7 +11,8 @@ For Raspi e.g.:
 <pre>
   ./configure --prefix=/usr --with-gles
 </pre>
-For windows (get msys2 https://www.msys2.org/) the files shoud adapt use e.g.<br>
+For windows (get msys2 https://www.msys2.org/) the files shoud adapt use e.g.
+(use "msys2 mingw64" window/shell see tooltip)<br>
 <pre>
   ./configure --prefix=/mingw64
 </pre>
