@@ -21,6 +21,10 @@
 #include <glibmm.h>
 #include <string>
 #include <vector>
+#ifdef __WIN32__
+#include <windows.h>
+#include <wchar.h>
+#endif
 
 class StringUtils {
 public:
@@ -53,7 +57,7 @@ public:
     }
     #ifdef __WIN32__
     // Convert a wide Unicode string to an UTF8 string
-    static std::string utf8_encode(const std::wstring &wstr);
+    static std::string utf8_encode(const BSTR& wstr);
     #endif
 private:
     StringUtils() = default;

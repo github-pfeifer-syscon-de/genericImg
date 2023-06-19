@@ -166,16 +166,16 @@ StringUtils::replaceAll(const Glib::ustring& text, const Glib::ustring& replace,
 }
 
 #ifdef __WIN32__
-#include <windows.h>
-#include <wchar.h>
 // Convert a wide Unicode string to an UTF8 string windows style...
 std::string
-StringUtils::utf8_encode(const std::wstring &wstr)
+StringUtils::utf8_encode(const BSTR& bstr)
 {
-    if( wstr.empty() ) return std::string();
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    if(bstr == nullptr)
+        return std::string();
+    auto len = static_cast<int>(wcslen(bstr)) + 1;    // will cut at first null char.
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, bstr, len, NULL, 0, NULL, NULL);
     std::string strTo( size_needed, 0 );
-    WideCharToMultiByte                  (CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, bstr, len, &strTo[0], size_needed, NULL, NULL);
     return strTo;
 }
 #endif
