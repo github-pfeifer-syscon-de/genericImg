@@ -172,7 +172,7 @@ StringUtils::utf8_encode(const BSTR& bstr)
 {
     if(bstr == nullptr)
         return std::string();
-    auto len = static_cast<int>(wcslen(bstr)) + 1;    // will cut at first null char.
+    auto len = static_cast<int>(wcslen(bstr));    // will cut at first null char.
     int size_needed = WideCharToMultiByte(CP_UTF8, 0, bstr, len, NULL, 0, NULL, NULL);
     std::string strTo( size_needed, 0 );
     WideCharToMultiByte(CP_UTF8, 0, bstr, len, &strTo[0], size_needed, NULL, NULL);
