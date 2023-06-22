@@ -37,10 +37,10 @@ ImageUtils::grayscalePng(Glib::RefPtr<Gdk::Pixbuf>& pixbuf, const Glib::ustring&
     if (graydata && rowptr) {
         //   create packed grayscale buffer
         auto bytePerPixel = pixbuf->get_n_channels();
-        std::cout << "width " << width
-                  << " height " << height
-                  << " bytePerPixel " << bytePerPixel
-                  << std::endl;
+        //std::cout << "width " << width
+        //          << " height " << height
+        //          << " bytePerPixel " << bytePerPixel
+        //          << std::endl;
         for (int32_t y = 0; y < height; ++y) {
             //std::cout << "Convertring row " << y << std::endl;
             // use add 2 to use green
