@@ -27,6 +27,7 @@ public:
 
     // convert pixbuf to grayscale png, presumes monochrome source (no color calculation)
     static bool grayscalePng(Glib::RefPtr<Gdk::Pixbuf>& pxibuf, const Glib::ustring& filename);
+    static bool blackandwhitePng(Glib::RefPtr<Gdk::Pixbuf>& pixbuf, const Glib::ustring& filename);
 private:
     ImageUtils();
 

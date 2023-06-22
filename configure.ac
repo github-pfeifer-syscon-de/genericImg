@@ -48,7 +48,7 @@ fi
 
 AC_CONFIG_FILES([
 Makefile
-src/genericimg-${VERSION}.pc
+src/genericimg.pc
 src/Makefile
 ])
 AC_OUTPUT

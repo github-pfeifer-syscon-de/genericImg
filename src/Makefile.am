@@ -41,7 +41,7 @@ pkginclude_HEADERS = \
 	StringUtils.hpp
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = genericimg-$(VERSION).pc
+pkgconfig_DATA = genericimg.pc
 
 EXTRA_DIST = \
-	genericimg-$(VERSION).pc.in
+	genericimg.pc.in
