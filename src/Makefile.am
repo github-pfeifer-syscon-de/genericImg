@@ -4,6 +4,8 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir). "\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
+	$(LIBPNG_CFLAGS) \
+	$(GTKMM_CFLAGS) \
 	$(GLIBMM_CFLAGS)
 
 libgenericimg_la_CFLAGS = \
@@ -21,9 +23,12 @@ libgenericimg_la_LDFLAGS = \
 libgenericimg_la_SOURCES = \
 	ConcurrentCollections.cpp \
 	LocaleContext.cpp \
+	ImageUtils.cpp \
 	StringUtils.cpp
 
 libgenericimg_la_LIBADD =  \
+	$(LIBPNG_LIBS) \
+	$(GTKMM_LIBS) \
 	$(GLIBMM_LIBS)
 
 
@@ -32,6 +37,7 @@ libgenericimg_la_LIBADD =  \
 pkginclude_HEADERS = \
 	ConcurrentCollections.hpp \
 	LocaleContext.hpp \
+	ImageUtils.hpp \
 	StringUtils.hpp
 
 pkgconfigdir = $(libdir)/pkgconfig

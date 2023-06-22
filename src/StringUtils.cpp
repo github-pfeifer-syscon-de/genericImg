@@ -20,6 +20,7 @@
 #include <codecvt>
 #include <algorithm>
 #include <cctype>
+#include <string>
 
 
 #include "StringUtils.hpp"
@@ -179,3 +180,15 @@ StringUtils::utf8_encode(const BSTR& bstr)
     return strTo;
 }
 #endif
+
+bool
+StringUtils::endsWith(const Glib::ustring& str, const Glib::ustring& suffix)
+{
+    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
+}
+
+bool
+StringUtils::startsWith(const Glib::ustring& str, const Glib::ustring& prefix)
+{
+    return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
+}

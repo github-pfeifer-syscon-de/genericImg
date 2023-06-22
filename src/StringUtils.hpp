@@ -59,6 +59,9 @@ public:
     // Convert a wide Unicode string to an UTF8 string
     static std::string utf8_encode(const BSTR& wstr);
     #endif
+    static bool endsWith(const Glib::ustring& str, const Glib::ustring& suffix);
+    static bool startsWith(const Glib::ustring& str, const Glib::ustring& prefix);
+
 private:
     StringUtils() = default;
 

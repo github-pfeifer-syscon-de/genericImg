@@ -34,8 +34,9 @@ LT_INIT
 AC_CANONICAL_HOST
 AC_MSG_NOTICE([host_os $host_os])
 
+PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0])
 
-dnl PKG_CHECK_MODULES(GTKMM,gtkmm-3.0)
+PKG_CHECK_MODULES([LIBPNG], [libpng])
 
 PKG_CHECK_MODULES([GLIBMM], [glibmm-2.4 giomm-2.4])
 
