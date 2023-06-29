@@ -55,3 +55,15 @@
 /ltmain.sh
 /nbproject/
 /src/genericimg.pc
+/src/configure.ac
+/PKGBUILD
+/src/.libs/libgenericimg.so.0
+/m4/ltsugar.m4
+/pkg/genericimg/.BUILDINFO
+/m4/ltversion.m4
+/m4/libtool.m4
+/pkg/genericimg/.MTREE
+/src/.libs/libgenericimg.so.0.2.0
+/m4/ltoptions.m4
+/m4/lt~obsolete.m4
+/pkg/genericimg/.PKGINFO
