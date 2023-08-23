@@ -41,15 +41,24 @@ private:
     Gdk::PixbufFormat m_format;
 };
 
+
 class BinView;
 class DisplayImage;
 
-class ImageView
-: public Gtk::ApplicationWindow
-, public ViewIntf
+class ImageViewIntf
 {
 public:
-    ImageView(BaseObjectType* cobject
+    virtual void updateImageInfos(Glib::RefPtr<DisplayImage>& displayImage) = 0;
+};
+
+template<class T,typename G>
+class ImageView
+: public T
+, public ViewIntf
+, public ImageViewIntf
+{
+public:
+    ImageView(G* cobject
             , const Glib::RefPtr<Gtk::Builder>& builder
             , std::shared_ptr<Mode> mode
             , ApplicationSupport& appSupport
@@ -58,7 +67,7 @@ public:
 
     virtual void on_hide() override;
     void showFront();
-    void updateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf);
+    void updateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf) override;
     void setFile(const Glib::RefPtr<Gio::File>& file) override;
     void setDisplayImage(Glib::RefPtr<DisplayImage>& displayImage);
 
@@ -104,3 +113,5 @@ protected:
     static constexpr auto CONF_GROUP_MAIN{"main"};
 };
 
+template class ImageView<Gtk::ApplicationWindow,GtkApplicationWindow>;
+template class ImageView<Gtk::Window,GtkWindow>;

@@ -17,15 +17,12 @@
 
 #include <iostream>
 #include <iomanip>
-#include <glibmm-2.4/glibmm/keyfile.h>
-#include <glibmm-2.4/glibmm/miscutils.h>
 
 #include "BinView.hpp"
 #include "ImageView.hpp"
 #include "ImageOptionDialog.hpp"
 #include "DisplayImage.hpp"
 
-class ImageView;
 
 ImageFilter::ImageFilter(Gdk::PixbufFormat &format)
 : Gtk::FileFilter()
@@ -68,14 +65,14 @@ ImageFilter::addFormats(Gtk::FileChooserDialog &dialog, Glib::ustring &prefForma
     }
 }
 
-
-ImageView::ImageView(
-    BaseObjectType* cobject
+template<class T,typename G>
+ImageView<T,G>::ImageView(
+    G* cobject
     , const Glib::RefPtr<Gtk::Builder>& builder
     , std::shared_ptr<Mode> mode
     , ApplicationSupport& appSupport
     , bool instantiateImageview )
-: Gtk::ApplicationWindow(cobject)
+: T(cobject)
 , m_mode{mode}
 , m_appSupport{&appSupport}
 {
@@ -114,27 +111,27 @@ ImageView::ImageView(
 
     // will be fired for actived & deactivated ... so one handler will suffice. Have to check if n > 2
     m_nativRadio->signal_toggled().connect(
-        sigc::bind(sigc::mem_fun(*this, &ImageView::on_menu_view), ViewMode::NATIVE));
+        sigc::bind(sigc::mem_fun(*this, &ImageView<T,G>::on_menu_view), ViewMode::NATIVE));
     //fitRadio->signal_clicked().connect(
-    //    sigc::bind(sigc::mem_fun(*this, &ImageView::on_menu_view), ViewMode::FIT));
+    //    sigc::bind(sigc::mem_fun(*this, &ImageView<T,G>::on_menu_view), ViewMode::FIT));
 
     builder->get_widget("prev", m_prevBtn);
     m_prevBtn->signal_clicked().connect(
-        sigc::mem_fun(*this, &ImageView::on_menu_prev));
+        sigc::mem_fun(*this, &ImageView<T,G>::on_menu_prev));
     m_prevBtn->set_sensitive(mode->hasNavigation());
     builder->get_widget("next", m_nextBtn);
     m_nextBtn->signal_clicked().connect(
-        sigc::mem_fun(*this, &ImageView::on_menu_next));
+        sigc::mem_fun(*this, &ImageView<T,G>::on_menu_next));
     m_nextBtn->set_sensitive(mode->hasNavigation());
 
     //show_all_children();
-    add_events(Gdk::EventMask::BUTTON_PRESS_MASK
+    T::add_events(Gdk::EventMask::BUTTON_PRESS_MASK
              | Gdk::EventMask::BUTTON_RELEASE_MASK
              | Gdk::EventMask::SCROLL_MASK
              | Gdk::EventMask::BUTTON_MOTION_MASK
              | Gdk::EventMask::POINTER_MOTION_MASK);
 
-    signal_show().connect(      // delay until fully initialized
+    T::signal_show().connect(      // delay until fully initialized
         [this,config] () {
             ViewMode viewMode;
             if (config->has_group(CONF_GROUP)
@@ -159,14 +156,15 @@ ImageView::ImageView(
         });
 }
 
+template<class T, typename G>
 void
-ImageView::showView(int32_t front, std::vector<Glib::RefPtr<Gio::File>>& picts, ApplicationSupport& m_appSupport)
+ImageView<T,G>::showView(int32_t front, std::vector<Glib::RefPtr<Gio::File>>& picts, ApplicationSupport& m_appSupport)
 {
     auto builder = Gtk::Builder::create();
     try {
         Gtk::Application* appl = m_appSupport.getApplication();
         builder->add_from_resource(appl->get_resource_base_path() + "/view.ui");
-        ImageView* viewWin;
+        ImageView<Gtk::Window,GtkWindow>* viewWin;
         auto mode = std::make_shared<PagingMode>(front, picts);
         builder->get_widget_derived("ImageView", viewWin, mode, m_appSupport);
         viewWin->show();
@@ -176,8 +174,9 @@ ImageView::showView(int32_t front, std::vector<Glib::RefPtr<Gio::File>>& picts, 
     }
 }
 
+template<class T, typename G>
 Glib::RefPtr<Gio::File>
-ImageView::getDefaultDir()
+ImageView<T,G>::getDefaultDir()
 {
     Glib::KeyFile* config = m_appSupport.getConfig();
     Glib::RefPtr<Gio::File> f;
@@ -208,9 +207,9 @@ ImageView::getDefaultDir()
     return f;
 }
 
-
+template<class T, typename G>
 std::shared_ptr<Mode>
-ImageView::createDirMode()
+ImageView<T,G>::createDirMode()
 {
     auto f = getDefaultDir();
     if (!f) {
@@ -253,16 +252,18 @@ ImageView::createDirMode()
     return std::make_shared<PagingMode>(0, fs);
 }
 
+template<class T, typename G>
 void
-ImageView::setFile(const Glib::RefPtr<Gio::File>& file)
+ImageView<T,G>::setFile(const Glib::RefPtr<Gio::File>& file)
 {
-    set_title(file->get_basename());
+    T::set_title(file->get_basename());
     m_content->setFile(file);
     m_listStore->fillList(file);
 }
 
+template<class T, typename G>
 void
-ImageView::showFront()
+ImageView<T,G>::showFront()
 {
     if (!m_mode->isComplete()) {
         auto mode = createDirMode();
@@ -278,23 +279,26 @@ ImageView::showFront()
     m_mode->show(this);
 }
 
+template<class T, typename G>
 void
-ImageView::setDisplayImage(Glib::RefPtr<DisplayImage>& displayImage)
+ImageView<T,G>::setDisplayImage(Glib::RefPtr<DisplayImage>& displayImage)
 {
-    set_title("Edit");
+    T::set_title("Edit");
     m_content->setPixbuf(displayImage);
 }
 
+template<class T, typename G>
 void
-ImageView::updateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf)
+ImageView<T,G>::updateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf)
 {
 	m_binView->setPixbuf(pixbuf);
 	m_listStore->fillList(pixbuf);
 	m_table->expand_all();
 }
 
+template<class T, typename G>
 void
-ImageView::on_hide()
+ImageView<T,G>::on_hide()
 {
     Glib::KeyFile* config = m_appSupport.getConfig();
     gint iDivPos = m_paned->get_position();
@@ -307,8 +311,9 @@ ImageView::on_hide()
     //delete this;    // this might not be the nicest way, but it works
 }
 
+template<class T, typename G>
 bool
-ImageView::on_motion_notify_event(GdkEventMotion* event)
+ImageView<T,G>::on_motion_notify_event(GdkEventMotion* event)
 {
     //std::cout << "motion state 0x" <<  std::hex << event->state
     //          << "btn1 0x" << Gdk::ModifierType::BUTTON1_MASK
@@ -318,9 +323,9 @@ ImageView::on_motion_notify_event(GdkEventMotion* event)
     if (m_select) {
 		auto cursor = m_content->mouse_pressed(event->x, event->y, drag);
 		if (!cursor) {
-			cursor = Gdk::Cursor::create(get_display(), Gdk::ARROW);
+			cursor = Gdk::Cursor::create(T::get_display(), Gdk::ARROW);
 		}
-		get_window()->set_cursor(cursor);
+		T::get_window()->set_cursor(cursor);
         return true;
     }
 	else if (drag) {
@@ -340,8 +345,9 @@ ImageView::on_motion_notify_event(GdkEventMotion* event)
     return false;
 }
 
+template<class T, typename G>
 bool
-ImageView::on_scroll_event(GdkEventScroll* scroll_event)
+ImageView<T,G>::on_scroll_event(GdkEventScroll* scroll_event)
 {
     // may work for devices supporting scroll (tablet?)
     //std::cout << "scroll dx " << scroll_event->delta_x << " dy " << scroll_event->delta_y << std::endl;
@@ -358,8 +364,9 @@ ImageView::on_scroll_event(GdkEventScroll* scroll_event)
     //return false;
 }
 
+template<class T, typename G>
 bool
-ImageView::on_button_press_event(GdkEventButton* event)
+ImageView<T,G>::on_button_press_event(GdkEventButton* event)
 {
     if (event->button == GDK_BUTTON_PRIMARY) {
         m_dragStartX = event->x;
@@ -378,15 +385,16 @@ ImageView::on_button_press_event(GdkEventButton* event)
     return false;
 }
 
+template<class T, typename G>
 Gtk::Menu *
-ImageView::build_popup()
+ImageView<T,G>::build_popup()
 {
-    std::cout << "ImageView::build_popup" << std::endl;
+    std::cout << "ImageView<T,G>::build_popup" << std::endl;
     // managed works when used with attach ...
     auto pMenuPopup = Gtk::make_managed<Gtk::Menu>();
     if (m_content->getDisplayImage()) {
         auto save = Gtk::make_managed<Gtk::MenuItem>("_Save", true);
-        save->signal_activate().connect(sigc::mem_fun(*this, &ImageView::on_menu_save));
+        save->signal_activate().connect(sigc::mem_fun(*this, &ImageView<T,G>::on_menu_save));
         pMenuPopup->append(*save);
     }
     if (m_mode->hasNavigation()) {
@@ -398,14 +406,15 @@ ImageView::build_popup()
     }
     auto select = Gtk::make_managed<Gtk::CheckMenuItem>("_Select", true);
     select->set_active(m_select);
-    select->signal_activate().connect(sigc::mem_fun(*this, &ImageView::on_select));
+    select->signal_activate().connect(sigc::mem_fun(*this, &ImageView<T,G>::on_select));
     pMenuPopup->append(*select);
 
     return pMenuPopup;
 }
 
+template<class T, typename G>
 void
-ImageView::on_select()
+ImageView<T,G>::on_select()
 {
     m_select = !m_select;
 	if (!m_select) {
@@ -416,8 +425,9 @@ ImageView::on_select()
     m_content->setSelected(m_select);
 }
 
+template<class T, typename G>
 void
-ImageView::on_menu_save()
+ImageView<T,G>::on_menu_save()
 {
     Gtk::FileChooserDialog dialog("Save file"
 								, Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE);
@@ -459,8 +469,9 @@ ImageView::on_menu_save()
     }
 }
 
+template<class T, typename G>
 void
-ImageView::save_image(Glib::ustring filename, Gdk::PixbufFormat& format)
+ImageView<T,G>::save_image(Glib::ustring filename, Gdk::PixbufFormat& format)
 {
     //cout << "on save " << filename << " format " << filter->get_name() << endl;
     auto config = m_appSupport.getConfig();
@@ -486,47 +497,53 @@ ImageView::save_image(Glib::ustring filename, Gdk::PixbufFormat& format)
     }
 }
 
+template<class T, typename G>
 void
-ImageView::on_menu_next()
+ImageView<T,G>::on_menu_next()
 {
     m_mode->next();
     showFront();
 }
 
+template<class T, typename G>
 void
-ImageView::on_menu_prev()
+ImageView<T,G>::on_menu_prev()
 {
     m_mode->prev();
     showFront();
 }
 
+template<class T, typename G>
 void
-ImageView::refresh()
+ImageView<T,G>::refresh()
 {
     m_mode->show(this);
 }
 
+template<class T, typename G>
 void
-ImageView::on_menu_n(int32_t n)
+ImageView<T,G>::on_menu_n(int32_t n)
 {
     m_mode->set(n);
     showFront();
 }
 
+template<class T, typename G>
 void
-ImageView::on_menu_view(ViewMode viewMode)
+ImageView<T,G>::on_menu_view(ViewMode viewMode)
 {
     // as the signal itself does not give actual activation
     viewMode = m_fitRadio->get_active() ? ViewMode::FIT : ViewMode::NATIVE;
-    //std::cout << "ImageView::on_menu_view" << (int)viewMode << std::endl;
+    //std::cout << "ImageView<T,G>::on_menu_view" << (int)viewMode << std::endl;
     m_content->setViewMode(viewMode);
     Glib::KeyFile* config = m_appSupport.getConfig();
     auto iViewMode = static_cast<gint>(viewMode);
     config->set_integer(CONF_GROUP, CONF_VIEW, iViewMode);
 }
 
+template<class T, typename G>
 bool
-ImageView::is_mime_gdk_readable(const Glib::ustring& mime)
+ImageView<T,G>::is_mime_gdk_readable(const Glib::ustring& mime)
 {
 	std::vector<Gdk::PixbufFormat> formats = Gdk::Pixbuf::get_formats();
 	bool supported = false;
@@ -542,8 +559,9 @@ ImageView::is_mime_gdk_readable(const Glib::ustring& mime)
 	return supported;
 }
 
+template<class T, typename G>
 std::shared_ptr<Mode>
-ImageView::getMode()
+ImageView<T,G>::getMode()
 {
     return m_mode;
 }

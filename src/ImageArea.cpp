@@ -23,7 +23,7 @@
 #include "ImageView.hpp"
 
 ImageArea::ImageArea(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder
-        , ApplicationSupport& applicationSupport, ImageView *imageView)
+        , ApplicationSupport& applicationSupport, ImageViewIntf *imageView)
 : Gtk::DrawingArea(cobject)
 , m_file()
 , m_displayImage()

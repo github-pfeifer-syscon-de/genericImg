@@ -31,14 +31,14 @@ enum class ViewMode
 };
 
 class BinView;
-class ImageView;
+class ImageViewIntf;
 class DisplayImage;
 
 class ImageArea
 : public Gtk::DrawingArea
 {
 public:
-    ImageArea(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder, ApplicationSupport& appSupport, ImageView *imageView);
+    ImageArea(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder, ApplicationSupport& appSupport, ImageViewIntf* imageView);
     virtual ~ImageArea() = default;
     void setFile(const Glib::RefPtr<Gio::File> file);
     Glib::RefPtr<DisplayImage> getDisplayImage();
@@ -71,7 +71,7 @@ protected:
     std::future<Glib::RefPtr<Gdk::Pixbuf> > m_pictureReader;
     ApplicationSupport& m_appSupport;
     ViewMode m_viewMode{ViewMode::FIT};
-    ImageView* m_imageView{nullptr};
+    ImageViewIntf* m_imageView{nullptr};
     double x0{0.0},y0{0.0},x1{0.0},y1{0.0}; // selection in picture coords
     bool x0Move{false},y0Move{false},x1Move{false},y1Move{false};   // selection value dragged by mouse
 };

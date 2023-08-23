@@ -22,7 +22,8 @@
 #include <memory>
 #include <gtkmm.h>
 
-class ImageView;
+//template<class T,T::BaseObjectType>
+//class ImageView;
 class DisplayImage;
 
 class ViewIntf

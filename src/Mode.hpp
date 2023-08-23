@@ -22,7 +22,6 @@
 #include <memory>
 #include <gtkmm.h>
 
-class ImageView;
 class DisplayImage;
 
 class ViewIntf
