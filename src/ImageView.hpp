@@ -49,6 +49,7 @@ class ImageViewIntf
 {
 public:
     virtual void updateImageInfos(Glib::RefPtr<DisplayImage>& displayImage) = 0;
+    virtual void clearUpdateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf) = 0;
 };
 
 template<class T,typename G>
@@ -68,6 +69,7 @@ public:
     virtual void on_hide() override;
     void showFront();
     void updateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf) override;
+    void clearUpdateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf) override;
     void setFile(const Glib::RefPtr<Gio::File>& file) override;
     void setDisplayImage(Glib::RefPtr<DisplayImage>& displayImage);
 
