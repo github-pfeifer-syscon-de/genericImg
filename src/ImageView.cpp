@@ -291,6 +291,7 @@ template<class T, typename G>
 void
 ImageView<T,G>::updateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf)
 {
+    m_listStore->clear();
 	m_binView->setPixbuf(pixbuf);
 	m_listStore->fillList(pixbuf);
 	m_table->expand_all();
