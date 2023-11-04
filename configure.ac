@@ -42,6 +42,8 @@ PKG_CHECK_MODULES([GLIBMM], [glibmm-2.4 giomm-2.4])
 
 PKG_CHECK_MODULES([LIBEXIF], [libexif])
 
+PKG_CHECK_MODULES(JSONGLIB1, [json-glib-1.0])
+
 if test "$host_os" = "mingw32" ; then
     AC_SUBST(EXTRA_LDFLAGS, "-no-undefined")
 else

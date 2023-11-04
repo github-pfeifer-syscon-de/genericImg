@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
 	$(LIBPNG_CFLAGS) \
 	$(LIBEXIF_CFLAGS) \
+	$(JSONGLIB1_CFLAGS) \
 	$(GTKMM_CFLAGS) \
 	$(GLIBMM_CFLAGS)
 
@@ -37,11 +38,13 @@ libgenericimg_la_SOURCES = \
 	DisplayImage.cpp \
 	ApplicationSupport.cpp \
 	Mode.cpp \
+	JsonHelper.cpp \
 	StringUtils.cpp
 
 libgenericimg_la_LIBADD =  \
 	$(LIBPNG_LIBS) \
 	$(LIBEXIF_LIBS) \
+	$(JSONGLIB1_LIBS) \
 	$(GTKMM_LIBS) \
 	$(GLIBMM_LIBS)
 
@@ -64,6 +67,7 @@ pkginclude_HEADERS = \
 	DisplayImage.hpp \
 	ApplicationSupport.hpp \
 	Mode.hpp \
+	JsonHelper.cpp \
 	StringUtils.hpp
 
 pkgconfigdir = $(libdir)/pkgconfig

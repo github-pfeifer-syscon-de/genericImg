@@ -284,6 +284,7 @@ void
 ImageView<T,G>::setDisplayImage(Glib::RefPtr<DisplayImage>& displayImage)
 {
     T::set_title("Edit");
+    m_listStore->clear();
     m_content->setPixbuf(displayImage);
 }
 
@@ -381,7 +382,9 @@ ImageView<T,G>::on_button_press_event(GdkEventButton* event)
         m_dragStartY = event->y;
     }
     if (gdk_event_triggers_context_menu((GdkEvent*)event))  {       // event->button == GDK_BUTTON_SECONDARY
-        Gtk::Menu* popupMenu = build_popup();
+        int x = static_cast<int>(event->x);
+        int y = static_cast<int>(event->y);
+        Gtk::Menu* popupMenu = build_popup(x, y);
         popupMenu->show_all();
         // deactivate prevent item signals to get generated ...
         // signal_unrealize will never get generated
@@ -395,9 +398,9 @@ ImageView<T,G>::on_button_press_event(GdkEventButton* event)
 
 template<class T, typename G>
 Gtk::Menu *
-ImageView<T,G>::build_popup()
+ImageView<T,G>::build_popup(int x, int y)
 {
-    std::cout << "ImageView<T,G>::build_popup" << std::endl;
+    //std::cout << "ImageView<T,G>::build_popup" << std::endl;
     // managed works when used with attach ...
     auto pMenuPopup = Gtk::make_managed<Gtk::Menu>();
     if (m_content->getDisplayImage()) {

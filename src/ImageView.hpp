@@ -90,7 +90,7 @@ protected:
     void on_menu_n(gint n) override;
     void on_menu_view(ViewMode viewMode);
     void on_select();
-    virtual Gtk::Menu* build_popup();
+    virtual Gtk::Menu* build_popup(int x, int y);
 
     ImageArea* m_content{nullptr};
     std::shared_ptr<Mode> m_mode;
