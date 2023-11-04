@@ -67,7 +67,7 @@ pkginclude_HEADERS = \
 	DisplayImage.hpp \
 	ApplicationSupport.hpp \
 	Mode.hpp \
-	JsonHelper.cpp \
+	JsonHelper.hpp \
 	StringUtils.hpp
 
 pkgconfigdir = $(libdir)/pkgconfig
