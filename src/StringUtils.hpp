@@ -50,6 +50,9 @@ public:
 
     static const char *weekday(int day);
     static void split(const Glib::ustring &line, char delim, std::vector<Glib::ustring> &ret);
+    // like split but works with repeated delimiters
+    static void splitRepeat(const Glib::ustring &line, gunichar delim, std::vector<Glib::ustring> &ret);
+
     static Glib::ustring replaceAll(const Glib::ustring& text, const Glib::ustring& replace, const Glib::ustring& with);
    // simple fix for the ustring <-> char8_t incompatibility
     static inline Glib::ustring u8str(const char8_t* cnst) {

@@ -154,6 +154,40 @@ StringUtils::split(const Glib::ustring &line, char delim, std::vector<Glib::ustr
     }
 }
 
+void
+StringUtils::splitRepeat(const Glib::ustring &line, gunichar delim, std::vector<Glib::ustring> &ret)
+{
+    size_t pos = 0;
+    while (pos < line.length()) {
+        while (line[pos] == delim
+            && pos < line.length()) {
+            ++pos;
+        }
+        if (pos < line.length()) {
+            auto next = line.find(delim, pos);
+            if (next != Glib::ustring::npos) {
+                auto fld = line.substr(pos, next - pos);
+                ret.push_back(fld);
+            }
+            else {
+                if (pos < line.length()) {
+                    size_t end = line.length();
+                    if (line.at(end-1) == '\n') {
+                        --end;
+                    }
+                    if (end - pos > 0) {
+                        auto fld = line.substr(pos, end - pos);
+                        ret.push_back(fld);
+                    }
+                }
+                break;
+            }
+            pos = next;
+        }
+    }
+}
+
+
 Glib::ustring
 StringUtils::replaceAll(const Glib::ustring& text, const Glib::ustring& replace, const Glib::ustring& with)
 {
