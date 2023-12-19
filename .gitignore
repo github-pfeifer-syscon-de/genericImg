@@ -69,3 +69,4 @@
 /pkg/genericimg/.PKGINFO
 /pkg/
 /src/.libs/libgenericimg.so.0.2.1
+/src/.libs/libgenericimg.so.0.2.2

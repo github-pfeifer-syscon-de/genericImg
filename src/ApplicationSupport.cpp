@@ -18,6 +18,7 @@
 #include <iostream>
 
 #include "ApplicationSupport.hpp"
+#include "StringUtils.hpp"
 
 ApplicationSupport::ApplicationSupport(Glib::ustring configName)
 : m_parent{nullptr}
@@ -117,7 +118,7 @@ ApplicationSupport::removeWindow(Gtk::Window *window, const Glib::ustring confKe
         }
     }
     else {
-        std::cerr << "Try to remove non matching window"
+        std::cerr << std::source_location::current() << " try to remove non matching window"
                   << " expecting " << (m_window != nullptr ? m_window->get_title() : "null")
                   << " got " << (window != nullptr ? window->get_title() : "null")
                   << std::endl;
@@ -127,7 +128,8 @@ ApplicationSupport::removeWindow(Gtk::Window *window, const Glib::ustring confKe
 std::string
 ApplicationSupport::getConfigName()
 {
-    std::string fullPath = Glib::canonicalize_filename(m_configName.c_str(), Glib::get_user_config_dir());
+    auto fullPath = Glib::canonicalize_filename(
+        static_cast<std::string>(m_configName), Glib::get_user_config_dir());
     return fullPath;
 }
 

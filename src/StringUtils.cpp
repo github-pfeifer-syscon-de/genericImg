@@ -226,3 +226,29 @@ StringUtils::startsWith(const Glib::ustring& str, const Glib::ustring& prefix)
 {
     return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
 }
+
+std::ostream&
+operator<< (std::ostream& os, const std::source_location& location)
+{
+    os << location.file_name() << "("
+       << location.line() << ":"
+       << location.column() << ") "
+       << location.function_name() << ";";
+    return os;
+}
+
+#if __cplusplus >= 202302L
+
+std::ostream&
+operator<< (std::ostream& os, const std::stacktrace& trace)
+{
+    for (auto iter = trace.begin(); iter != tract.end(); ++iter) {
+        os << iter->source_file() <<
+           << "(" << iter->source_line()
+           << ")" << iter->description()
+           << "\n";
+    }
+    return os;
+}
+
+#endif

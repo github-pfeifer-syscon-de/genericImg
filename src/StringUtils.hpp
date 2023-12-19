@@ -25,6 +25,8 @@
 #include <windows.h>
 #include <wchar.h>
 #endif
+#include <source_location>
+#include <iostream>
 
 class StringUtils {
 public:
@@ -74,3 +76,15 @@ private:
 #define ARRAYSIZE(arr) (sizeof(arr)/sizeof(arr[0]))
 #endif
 
+// does not fit exactly, but no need for separate header
+
+std::ostream&
+operator<< (std::ostream& os, const std::source_location& location);
+
+#if __cplusplus >= 202302L
+#include <stacktrace>
+
+std::ostream&
+operator<< (std::ostream& os, const std::stacktrace& trace);
+
+#endif
