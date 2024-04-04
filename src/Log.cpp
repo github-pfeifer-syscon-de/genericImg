@@ -51,7 +51,14 @@ Log::create()
     auto fullPath = Glib::canonicalize_filename(name.c_str(), logPath);
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(fullPath);
     if (file->query_exists()) {
-        m_outstream = file->append_to();
+        auto fileAttr = file->query_info(G_FILE_ATTRIBUTE_STANDARD_SIZE);
+        if (fileAttr->get_size() > m_sizeLimit) {
+            file->remove();
+            m_outstream = file->create_file(Gio::FileCreateFlags::FILE_CREATE_REPLACE_DESTINATION);
+        }
+        else {
+            m_outstream = file->append_to();
+        }
     }
     else {
         // trunc existing alterantive rolling
@@ -71,6 +78,17 @@ Log::setLevel(Level level)
     m_level = level;
 }
 
+void
+Log::setSizeLimit(goffset sizeLimit)
+{
+    m_sizeLimit = sizeLimit;
+}
+
+goffset
+Log::getSizeLimit()
+{
+    return m_sizeLimit;
+}
 
 void
 Log::error(const Glib::ustring& msg

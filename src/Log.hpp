@@ -55,6 +55,8 @@ public:
             , const std::source_location location = std::source_location::current());
     Level getLevel();
     void setLevel(Level level);
+    void setSizeLimit(goffset sizeLimit);
+    goffset getSizeLimit();
 protected:
     void close();
     void create();
@@ -63,6 +65,7 @@ private:
     Glib::ustring m_prefix;
     Level m_level;
     Glib::RefPtr<Gio::FileOutputStream> m_outstream;
+    goffset m_sizeLimit{1024000ul};
 };
 
 
