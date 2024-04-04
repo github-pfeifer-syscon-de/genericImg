@@ -3,8 +3,8 @@ dnl Process this file with autoconf to produce a configure script.
 AC_CONFIG_MACRO_DIR([m4])
 
 m4_define([v_maj], [0])
-m4_define([v_min], [2])
-m4_define([v_mic], [2])
+m4_define([v_min], [3])
+m4_define([v_mic], [0])
 m4_define([project_version], [v_maj.v_min.v_mic])
 m4_define([lt_cur], m4_eval(v_maj + v_min))
 m4_define([lt_rev], [v_mic])

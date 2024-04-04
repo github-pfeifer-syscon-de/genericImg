@@ -77,7 +77,7 @@ private:
 #endif
 
 // does not fit exactly, but no need for separate header
-
+//  see Peter Muldoon https://www.youtube.com/watch?v=HXJmrMnnDYQ&t=2795s
 std::ostream&
 operator<< (std::ostream& os, const std::source_location& location);
 

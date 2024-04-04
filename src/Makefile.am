@@ -39,6 +39,7 @@ libgenericimg_la_SOURCES = \
 	ApplicationSupport.cpp \
 	Mode.cpp \
 	JsonHelper.cpp \
+	Log.cpp \
 	StringUtils.cpp
 
 libgenericimg_la_LIBADD =  \
@@ -68,6 +69,7 @@ pkginclude_HEADERS = \
 	ApplicationSupport.hpp \
 	Mode.hpp \
 	JsonHelper.hpp \
+	Log.hpp \
 	StringUtils.hpp
 
 pkgconfigdir = $(libdir)/pkgconfig
