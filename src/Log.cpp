@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <ctime>
 
 #include "Log.hpp"
 
@@ -152,8 +153,19 @@ Log::log(Level level
             create();
         }
         auto dateTime = Glib::DateTime::create_now_local();
-        Glib::ustring time{dateTime.format("%F %T.%f")};
-        time = time.substr(0, time.length() - 3);   // cut us
+        Glib::ustring time;
+        if (dateTime) {
+            time = dateTime.format("%F %T.%f");
+            time = time.substr(0, time.length() - 3);   // cut us
+        }
+//        else {
+//            time_t rawtime;
+//            std::time(&rawtime);
+//            struct tm* timeinfo = std::localtime(&rawtime);
+//            char buffer[80];
+//            std::strftime(buffer, sizeof(buffer), "%F %T", timeinfo);
+//            time = buffer;
+//        }
         if (level >= Level::Debug) {
             Glib::ustring fn{location.function_name()};
             m_outstream->write(fn + "\n");
