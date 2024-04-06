@@ -26,7 +26,8 @@
 namespace psc {
 namespace log {
 
-enum class Level {
+enum class Level
+{
     Error,
     Warn,
     Info,
@@ -56,16 +57,17 @@ public:
     Level getLevel();
     void setLevel(Level level);
     void setSizeLimit(goffset sizeLimit);
+    static Level getLevel(const Glib::ustring& level);
     goffset getSizeLimit();
 protected:
     void close();
     void create();
-    Glib::ustring getLevel(Level level);
+    static Glib::ustring getLevel(Level level);
 private:
     Glib::ustring m_prefix;
     Level m_level;
     Glib::RefPtr<Gio::FileOutputStream> m_outstream;
-    goffset m_sizeLimit{1024000ul};
+    goffset m_sizeLimit{102400ul};
 };
 
 

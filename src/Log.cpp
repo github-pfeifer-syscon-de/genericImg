@@ -48,6 +48,10 @@ void
 Log::create()
 {
     auto logPath = Glib::canonicalize_filename("log", Glib::get_home_dir());
+    Glib::RefPtr<Gio::File> fileLogPath = Gio::File::create_for_path(logPath);
+    if (!fileLogPath->query_exists()) {
+        fileLogPath->make_directory();
+    }
     auto name = m_prefix + ".log";
     auto fullPath = Glib::canonicalize_filename(name.c_str(), logPath);
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(fullPath);
@@ -180,6 +184,25 @@ Log::log(Level level
     }
 }
 
+Level
+Log::getLevel(const Glib::ustring& level)
+{
+    if (level.size() > 0) {
+        switch (level.lowercase().at(0)) {
+        case 'e':
+            return Level::Error;
+        case 'w':
+            return Level::Warn;
+        case 'i':
+            return Level::Info;
+        case 'd':
+            return Level::Debug;
+        case 't':
+            return Level::Trace;
+        }
+    }
+    return Level::Info; // presume info if anything goes wrong
+}
 
 
 } /* namespace log */
