@@ -123,28 +123,22 @@ Log::debug(const Glib::ustring& msg
     log(Level::Debug, msg, location);
 }
 
-Glib::ustring
+const char*
 Log::getLevel(Level level)
 {
-    Glib::ustring slevel;
     switch (level) {
     case Level::Error:
-        slevel = "Err";
-        break;
+        return "Err";
     case Level::Warn:
-        slevel = "Wrn";
-        break;
+        return "Wrn";
     case Level::Info:
-        slevel = "Inf";
-        break;
+        return "Inf";
     case Level::Debug:
-        slevel = "Deb";
-        break;
+        return "Deb";
     case Level::Trace:
-        slevel = "Trc";
-        break;
+        return "Trc";
     }
-    return slevel;
+    return "?";
 }
 
 void

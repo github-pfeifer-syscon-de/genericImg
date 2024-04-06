@@ -62,7 +62,7 @@ public:
 protected:
     void close();
     void create();
-    static Glib::ustring getLevel(Level level);
+    static const char* getLevel(Level level);
 private:
     Glib::ustring m_prefix;
     Level m_level;
