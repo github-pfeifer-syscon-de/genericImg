@@ -39,12 +39,28 @@ enum class Type {
 
 enum class Level
 {
-    Error,
-    Warn,
-    Info,
-    Debug,
-    Trace
+    // see gd_errors.h to align with kernel
+      Severe = 0
+    , Alert
+    , Crit
+    , Error
+    , Warn
+    , Notice
+    , Info
+    , Debug
 };
+
+constexpr std::initializer_list<Level> all_Levels = {
+      Level::Severe
+    , Level::Alert
+    , Level::Crit
+    , Level::Error
+    , Level::Warn
+    , Level::Notice
+    , Level::Info
+    , Level::Debug
+};
+
 
 class LogPlugin
 {

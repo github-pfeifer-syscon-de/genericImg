@@ -273,16 +273,22 @@ const char*
 Log::getLevel(Level level)
 {
     switch (level) {
+    case Level::Severe:
+        return "Sev";
+    case Level::Alert:
+        return "Alt";
+    case Level::Crit:
+        return "Cri";
     case Level::Error:
         return "Err";
     case Level::Warn:
         return "Wrn";
+    case Level::Notice:
+        return "Not";
     case Level::Info:
         return "Inf";
     case Level::Debug:
         return "Deb";
-    case Level::Trace:
-        return "Trc";
     }
     return "?";
 }
@@ -293,16 +299,22 @@ Log::getLevel(const Glib::ustring& level)
 {
     if (level.size() > 0) {
         switch (level.lowercase().at(0)) {
+        case 's':
+            return Level::Severe;
+        case 'a':
+            return Level::Alert;
+        case 'c':
+            return Level::Crit;
         case 'e':
             return Level::Error;
         case 'w':
             return Level::Warn;
+        case 'n':
+            return Level::Notice;
         case 'i':
             return Level::Info;
         case 'd':
             return Level::Debug;
-        case 't':
-            return Level::Trace;
         }
     }
     return Level::Info; // presume info if anything goes wrong
