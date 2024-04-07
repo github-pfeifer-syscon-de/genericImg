@@ -35,7 +35,7 @@ Query with e.g.:
 <pre>
 journalctl SYSLOG_IDENTIFIER="glglobe"
 </pre>
-To change the log level the application config file may support in main section e.g.:
+To change the log level the application config file e.g. ~/.config/glglobe.conf may support in main section e.g.:
 <pre>
 logLevel=Info
 </pre>
