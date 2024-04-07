@@ -4,7 +4,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 m4_define([v_maj], [0])
 m4_define([v_min], [3])
-m4_define([v_mic], [0])
+m4_define([v_mic], [1])
 m4_define([project_version], [v_maj.v_min.v_mic])
 m4_define([lt_cur], m4_eval(v_maj + v_min))
 m4_define([lt_rev], [v_mic])
@@ -43,6 +43,14 @@ PKG_CHECK_MODULES([GLIBMM], [glibmm-2.4 giomm-2.4])
 PKG_CHECK_MODULES([LIBEXIF], [libexif])
 
 PKG_CHECK_MODULES(JSONGLIB1, [json-glib-1.0])
+
+AC_ARG_WITH([sysdlog], AS_HELP_STRING([--with-sysdlog], [Build with systemdlog otherwise user home log will be used]))
+
+AS_IF([test "x$with_sysdlog" = "xyes"], [
+    PKG_CHECK_MODULES([SYSTEMDLOG], [libsystemd])
+])
+
+AM_CONDITIONAL([SYSDLOG], test "x$with_sysdlog" = "xyes"])
 
 if test "$host_os" = "mingw32" ; then
     AC_SUBST(EXTRA_LDFLAGS, "-no-undefined")

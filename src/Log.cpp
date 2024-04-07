@@ -17,26 +17,35 @@
  */
 
 #include <ctime>
+#include <iostream>
 
 #include "Log.hpp"
-
+#ifdef SYSDLOG
+#include <systemd/sd-journal.h>
+#endif
 
 namespace psc {
 namespace log {
 
 
-Log::Log(const char* prefix)
+LogPlugin::LogPlugin(const char* prefix)
 : m_prefix{prefix}
-, m_level{Level::Info}
 {
 }
 
-Log::~Log()
+FilePlugin::FilePlugin(const char* prefix)
+: LogPlugin::LogPlugin(prefix)
+, m_sizeLimit{DEFAULT_SIZELIMITI}
+{
+}
+
+FilePlugin::~FilePlugin()
 {
     close();
 }
 
-void Log::close()
+void
+FilePlugin::close()
 {
     if (m_outstream) {
         m_outstream->close();
@@ -45,7 +54,7 @@ void Log::close()
 }
 
 void
-Log::create()
+FilePlugin::create()
 {
     auto logPath = Glib::canonicalize_filename("log", Glib::get_home_dir());
     Glib::RefPtr<Gio::File> fileLogPath = Gio::File::create_for_path(logPath);
@@ -55,19 +64,132 @@ Log::create()
     auto name = m_prefix + ".log";
     auto fullPath = Glib::canonicalize_filename(name.c_str(), logPath);
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(fullPath);
+	bool createStrm = true;
     if (file->query_exists()) {
         auto fileAttr = file->query_info(G_FILE_ATTRIBUTE_STANDARD_SIZE);
         if (fileAttr->get_size() > m_sizeLimit) {
             file->remove();
-            m_outstream = file->create_file(Gio::FileCreateFlags::FILE_CREATE_REPLACE_DESTINATION);
         }
         else {
-            m_outstream = file->append_to();
+			createStrm = false;
         }
     }
-    else {
+    if (createStrm) {
         // trunc existing alterantive rolling
         m_outstream = file->create_file(Gio::FileCreateFlags::FILE_CREATE_REPLACE_DESTINATION);
+    }
+	else {
+        m_outstream = file->append_to();
+	}
+}
+
+
+void
+FilePlugin::setSizeLimit(goffset sizeLimit)
+{
+    m_sizeLimit = sizeLimit;
+}
+
+goffset
+FilePlugin::getSizeLimit()
+{
+    return m_sizeLimit;
+}
+
+void
+FilePlugin::log(Level level
+        , const Glib::ustring& msg
+        , const std::source_location location)
+{
+    if (!m_outstream) {
+        create();
+    }
+    Glib::ustring time = Log::getTimestamp();
+    if (level >= Level::Debug) {
+        Glib::ustring fn{location.function_name()};
+        m_outstream->write(fn + "\n");
+    }
+    Glib::ustring out = Glib::ustring::sprintf("%s %s %20s:%3d %s\n"
+              , time
+              , Log::getLevel(level)
+              , location.file_name()
+              , location.line()
+              , msg) ;
+    m_outstream->write(out);
+}
+
+
+ConsolePlugin::ConsolePlugin(const char* prefix)
+: LogPlugin::LogPlugin(prefix)
+{
+}
+
+void
+ConsolePlugin::log(Level level
+        , const Glib::ustring& msg
+        , const std::source_location location)
+{
+    Glib::ustring time = Log::getTimestamp();
+    if (level >= Level::Debug) {
+        std::cout << location.function_name() << '\n';
+    }
+    std::cout << time
+              << " " << Log::getLevel(level)
+              << " " << location.file_name()
+              << ":" << location.line()
+              << " " << msg << std::endl;
+}
+
+
+#ifdef SYSDLOG
+SysPlugin::SysPlugin(const char* prefix)
+: LogPlugin::LogPlugin(prefix)
+{
+}
+
+void
+SysPlugin::log(Level level, const Glib::ustring& msg, const std::source_location location)
+{
+    Glib::ustring out0 = Glib::ustring::sprintf("MESSAGE=%s", msg);
+    Glib::ustring out1 = Glib::ustring::sprintf("CODE_FILE=%s", location.file_name());
+    Glib::ustring out2 = Glib::ustring::sprintf("CODE_LINE=%d", location.line());
+    Glib::ustring out3 = Glib::ustring::sprintf("CODE_FUNC=%s", location.function_name());
+    Glib::ustring out4 = Glib::ustring::sprintf("PRIORITY=%d", static_cast<typename std::underlying_type<Level>::type>(level));
+    sd_journal_send(out0.c_str()
+                    , out1.c_str()
+                    , out2.c_str()
+                    , out3.c_str()
+                    , out4.c_str()
+                    , nullptr);
+}
+
+
+#endif
+
+
+std::shared_ptr<Log> Log::m_log;
+
+Log::Log(const char* prefix, Type type)
+: m_level{Level::Info}
+{
+    switch (type) {
+    case Type::Default:
+    case Type::Systemd:     // if SYSDLOG udefined file ...
+        #ifdef SYSDLOG
+        m_plugin = std::make_shared<SysPlugin>(prefix);
+        #else
+        m_plugin = std::make_shared<FilePlugin>(prefix);
+        #endif
+        break;
+    case Type::File:
+        m_plugin = std::make_shared<FilePlugin>(prefix);
+        break;
+    case Type::Console:
+        m_plugin = std::make_shared<ConsolePlugin>(prefix);
+        break;
+    case Type::None:
+        m_plugin.reset();
+        break;
     }
 }
 
@@ -83,16 +205,10 @@ Log::setLevel(Level level)
     m_level = level;
 }
 
-void
-Log::setSizeLimit(goffset sizeLimit)
+std::shared_ptr<LogPlugin>
+Log::getPlugin()
 {
-    m_sizeLimit = sizeLimit;
-}
-
-goffset
-Log::getSizeLimit()
-{
-    return m_sizeLimit;
+    return m_plugin;
 }
 
 void
@@ -123,6 +239,36 @@ Log::debug(const Glib::ustring& msg
     log(Level::Debug, msg, location);
 }
 
+void
+Log::log(Level level
+        , const Glib::ustring& msg
+        , const std::source_location location)
+{
+    if (m_plugin && level <= m_level) {
+        m_plugin->log(level, msg, location);
+    }
+}
+
+Glib::ustring
+Log::getTimestamp()
+{
+    auto dateTime = Glib::DateTime::create_now_local();
+    Glib::ustring time;
+    if (dateTime) {
+        time = dateTime.format("%F %T.%f");
+        time = time.substr(0, time.length() - 3);   // cut us
+    }
+//  else {
+//       time_t rawtime;
+//       std::time(&rawtime);
+//       struct tm* timeinfo = std::localtime(&rawtime);
+//       char buffer[80];
+//       std::strftime(buffer, sizeof(buffer), "%F %T", timeinfo);
+//       time = buffer;
+//   }
+    return time;
+}
+
 const char*
 Log::getLevel(Level level)
 {
@@ -141,42 +287,6 @@ Log::getLevel(Level level)
     return "?";
 }
 
-void
-Log::log(Level level
-        , const Glib::ustring& msg
-        , const std::source_location location)
-{
-    if (level <= m_level) {
-        if (!m_outstream) {
-            create();
-        }
-        auto dateTime = Glib::DateTime::create_now_local();
-        Glib::ustring time;
-        if (dateTime) {
-            time = dateTime.format("%F %T.%f");
-            time = time.substr(0, time.length() - 3);   // cut us
-        }
-//        else {
-//            time_t rawtime;
-//            std::time(&rawtime);
-//            struct tm* timeinfo = std::localtime(&rawtime);
-//            char buffer[80];
-//            std::strftime(buffer, sizeof(buffer), "%F %T", timeinfo);
-//            time = buffer;
-//        }
-        if (level >= Level::Debug) {
-            Glib::ustring fn{location.function_name()};
-            m_outstream->write(fn + "\n");
-        }
-        Glib::ustring out = Glib::ustring::sprintf("%s %s %20s:%3d %s\n"
-                  , time
-                  , getLevel(level)
-                  , location.file_name()
-                  , location.line()
-                  , msg) ;
-        m_outstream->write(out);
-    }
-}
 
 Level
 Log::getLevel(const Glib::ustring& level)
@@ -196,6 +306,15 @@ Log::getLevel(const Glib::ustring& level)
         }
     }
     return Level::Info; // presume info if anything goes wrong
+}
+
+std::shared_ptr<Log>
+Log::create(const char* prefix, Type type)
+{
+    if (!m_log) {
+        m_log = std::make_shared<Log>(prefix, type);
+    }
+    return m_log;
 }
 
 

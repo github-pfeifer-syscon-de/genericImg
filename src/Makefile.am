@@ -72,6 +72,13 @@ pkginclude_HEADERS = \
 	Log.hpp \
 	StringUtils.hpp
 
+
+if SYSDLOG
+libgenericimg_la_LIBADD += $(SYSTEMDLOG_LIBS)
+AM_CPPFLAGS += $(SYSTEMDLOG_CFLAGS)
+
+endif
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = genericimg.pc
 
