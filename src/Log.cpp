@@ -107,7 +107,7 @@ FilePlugin::log(Level level
     Glib::ustring time = Log::getTimestamp();
     if (level >= Level::Debug) {
         Glib::ustring fn{location.function_name()};
-        m_outstream->write(fn + "\n");
+        m_outstream->write("                                   " + fn + "\n");
     }
     Glib::ustring out = Glib::ustring::sprintf("%s %s %20s:%3d %s\n"
               , time

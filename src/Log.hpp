@@ -54,7 +54,7 @@ public:
     virtual ~LogPlugin() = default;
     virtual void log(Level level
             , const Glib::ustring& msg
-            , const std::source_location location = std::source_location::current()) = 0;
+            , const std::source_location location) = 0;
 
 protected:
     Glib::ustring m_prefix;
@@ -109,7 +109,7 @@ public:
 
     void log(Level level
             , const Glib::ustring& msg
-            , const std::source_location location = std::source_location::current()) override;
+            , const std::source_location location) override;
 };
 #endif
 

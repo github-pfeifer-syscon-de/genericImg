@@ -47,7 +47,7 @@ PKG_CHECK_MODULES(JSONGLIB1, [json-glib-1.0])
 AC_ARG_WITH([sysdlog], AS_HELP_STRING([--with-sysdlog], [Build with systemdlog otherwise user home log will be used]))
 
 AS_IF([test "x$with_sysdlog" = "xyes"], [
-    PKG_CHECK_MODULES([SYSTEMDLOG], [libsystemd])
+    PKG_CHECK_MODULES([SYSTEMDLOG], [libsystemd], [AC_DEFINE([SYSDLOG], [1], [Using systemd journal])])
 ])
 
 AM_CONDITIONAL([SYSDLOG], test "x$with_sysdlog" = "xyes"])
