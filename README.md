@@ -30,7 +30,13 @@ If configured with:
 <pre>
 --with-sysdlog
 </pre>
-systemd journal will be used as default log query with e.g.:
+systemd journal will be used as default log.
+Query with e.g.:
 <pre>
 journalctl SYSLOG_IDENTIFIER="glglobe"
 </pre>
+To change the log level the application config file may support in main section e.g.:
+<pre>
+logLevel=Info
+</pre>
+For the Levels see Log.hpp at the moment Error,Warn,Info,Debug,Trace .
