@@ -248,7 +248,22 @@ Log::log(Level level
         m_plugin->log(level, msg, location);
     }
 }
-
+	
+void
+Log::logNow(Level level
+        , const Glib::ustring& msg
+        , const std::source_location location)
+{
+	if (m_log) {
+		m_log->log(level, msg, location);
+	}
+	else {
+		std::cout << getTimestamp()
+			      << " " << getLevel(level)
+				  << " " << msg << std::endl;
+	}
+}
+	
 Glib::ustring
 Log::getTimestamp()
 {
@@ -290,7 +305,7 @@ Log::getLevel(Level level)
     case Level::Debug:
         return "Deb";
     }
-    return "?";
+    return "???";
 }
 
 

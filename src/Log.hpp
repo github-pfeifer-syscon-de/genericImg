@@ -148,7 +148,11 @@ public:
     void log(Level level
             , const Glib::ustring& msg
             , const std::source_location location = std::source_location::current());
-    Level getLevel();
+	// convience logs to defined logger
+    static void logNow(Level level
+            , const Glib::ustring& msg
+		    , const std::source_location location = std::source_location::current());
+	Level getLevel();
     void setLevel(Level level);
     std::shared_ptr<LogPlugin> getPlugin();
     static Glib::ustring getTimestamp();
