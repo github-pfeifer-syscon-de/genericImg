@@ -148,7 +148,7 @@ public:
     void log(Level level
             , const Glib::ustring& msg
             , const std::source_location location = std::source_location::current());
-	// convience logs to defined logger
+    // convenience function, logs to previously created logger
     static void logNow(Level level
             , const Glib::ustring& msg
 		    , const std::source_location location = std::source_location::current());

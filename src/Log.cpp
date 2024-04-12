@@ -68,14 +68,13 @@ FilePlugin::create()
     if (file->query_exists()) {
         auto fileAttr = file->query_info(G_FILE_ATTRIBUTE_STANDARD_SIZE);
         if (fileAttr->get_size() > m_sizeLimit) {
-            file->remove();
+            file->remove(); // trunc existing alternative rolling
         }
         else {
 			createStrm = false;
         }
     }
     if (createStrm) {
-        // trunc existing alterantive rolling
         m_outstream = file->create_file(Gio::FileCreateFlags::FILE_CREATE_REPLACE_DESTINATION);
     }
 	else {
@@ -248,7 +247,7 @@ Log::log(Level level
         m_plugin->log(level, msg, location);
     }
 }
-	
+
 void
 Log::logNow(Level level
         , const Glib::ustring& msg
@@ -263,7 +262,7 @@ Log::logNow(Level level
 				  << " " << msg << std::endl;
 	}
 }
-	
+
 Glib::ustring
 Log::getTimestamp()
 {

@@ -8,6 +8,6 @@ includedir=@includedir@/genericimg
 Name: libgenericimg
 Description: Basic inamging function support lib.
 Version: @VERSION@
-Requires:
+Requires: gtkmm-3.0 libpng glibmm-2.4 giomm-2.4 libexif json-glib-1.0
 Libs: -L${libdir} -lgenericimg
 Cflags: -I${includedir}
