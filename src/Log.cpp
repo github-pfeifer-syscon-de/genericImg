@@ -249,7 +249,25 @@ Log::log(Level level
 }
 
 void
+Log::logAdd(const Glib::ustring& msg
+        , const std::source_location location
+        , int debug)
+{
+    if (debug > 0) {
+        logAdd(Level::Debug, msg, location);
+    }
+}
+
+void
 Log::logNow(Level level
+        , const Glib::ustring& msg
+        , const std::source_location location)
+{
+    logAdd(level, msg, location);
+}
+
+void
+Log::logAdd(Level level
         , const Glib::ustring& msg
         , const std::source_location location)
 {

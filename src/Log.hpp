@@ -148,11 +148,19 @@ public:
     void log(Level level
             , const Glib::ustring& msg
             , const std::source_location location = std::source_location::current());
-    // convenience function, logs to previously created logger
+    [[deprecated("see logAdd")]]
     static void logNow(Level level
             , const Glib::ustring& msg
-		    , const std::source_location location = std::source_location::current());
-	Level getLevel();
+	    , const std::source_location location = std::source_location::current());
+    // convenience function, logs to previously created logger
+    static void logAdd(Level level
+            , const Glib::ustring& msg
+	    , const std::source_location location = std::source_location::current());
+    // build to work with autotools DEBUG
+    static void logAdd(const Glib::ustring& msg
+	    , const std::source_location location = std::source_location::current()
+            , int debug = 0);
+    Level getLevel();
     void setLevel(Level level);
     std::shared_ptr<LogPlugin> getPlugin();
     static Glib::ustring getTimestamp();
