@@ -158,8 +158,8 @@ public:
 	    , const std::source_location location = std::source_location::current());
     // build to work with autotools DEBUG
     static void logAdd(const Glib::ustring& msg
-	    , const std::source_location location = std::source_location::current()
-            , int debug = 0);
+            , int debug = 0
+	    , const std::source_location location = std::source_location::current());
     Level getLevel();
     void setLevel(Level level);
     std::shared_ptr<LogPlugin> getPlugin();

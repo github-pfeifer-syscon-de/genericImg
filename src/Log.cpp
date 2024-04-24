@@ -250,8 +250,9 @@ Log::log(Level level
 
 void
 Log::logAdd(const Glib::ustring& msg
+        , int debug
         , const std::source_location location
-        , int debug)
+        )
 {
     if (debug > 0) {
         logAdd(Level::Debug, msg, location);
