@@ -67,6 +67,14 @@ public:
         } );
     }
 
+    template<typename... Args>
+    void push_back( Args&&... args )
+    {
+        addData_protected( [&] {
+            _collection.push_back(std::forward<Args>(args)...);
+        } );
+    }
+
     /** @brief  Returns the front element and removes it from the collection
                 No exception is ever returned as we garanty that the deque is not empty
                 before trying to return data.
