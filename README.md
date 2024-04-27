@@ -10,6 +10,7 @@ make
 Using usr is a suggestion, as other locations may require some path tweaking
 for later steps to find this lib, so use it,
 unless you know what your are doing, as always ;)
+
 For Raspi e.g.:
 <pre>
   ./configure --prefix=/usr
