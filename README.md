@@ -46,9 +46,9 @@ logLevel=Info
 For the Levels see Log.hpp at the moment Error,Warn,Info,Debug,Trace .
 But this is a work in progress so there might still be messages spilled on stdout...
 
-<pre>
 the structure of the libs used here is:
-genericImg (use alomost everywhere i think)
+<pre>
+genericImg (used alomost everywhere i think)
 + genericGlm
 | + monglmm
 | + picnic
