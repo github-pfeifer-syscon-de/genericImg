@@ -4,9 +4,12 @@ Some basic functions (primarily related to imaging) used by my projects.
 To build use any (lin)ux:
 <pre>
 autoreconf -fis
-./configure ...
+./configure --prefix=/usr...
 make
 </pre>
+Using usr is a suggestion, as other locations may require some path tweaking
+for later steps to find this lib, so use it,
+unless you know what your are doing, as always ;)
 For Raspi e.g.:
 <pre>
   ./configure --prefix=/usr
@@ -41,3 +44,13 @@ logLevel=Info
 </pre>
 For the Levels see Log.hpp at the moment Error,Warn,Info,Debug,Trace .
 But this is a work in progress so there might still be messages spilled on stdout...
+
+<pre>
+the structure of the libs used here is:
+genericImg (use alomost everywhere i think)
++ genericGlm
+| + monglmm
+| + picnic
+| + geodata
+|   + glglobe
+</pre>
