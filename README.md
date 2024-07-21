@@ -48,7 +48,7 @@ But this is a work in progress so there might still be messages spilled on stdou
 
 the structure of the libs used here is:
 <pre>
-genericImg (used alomost everywhere i think)
+genericImg (used almost everywhere i think)
 + genericGlm
 | + monglmm
 | + picnic

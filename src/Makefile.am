@@ -23,6 +23,7 @@ libgenericimg_la_LDFLAGS = \
 	-version-info @version_info@
 
 libgenericimg_la_SOURCES = \
+	resources.c \
 	ConcurrentCollections.cpp \
 	LocaleContext.cpp \
 	ImageUtils.cpp \
@@ -40,6 +41,9 @@ libgenericimg_la_SOURCES = \
 	Mode.cpp \
 	JsonHelper.cpp \
 	Log.cpp \
+	AbstractTableManager.cpp \
+	KeyfileTableManager.cpp \
+	TableProperties.cpp \
 	StringUtils.cpp
 
 libgenericimg_la_LIBADD =  \
@@ -70,6 +74,9 @@ pkginclude_HEADERS = \
 	Mode.hpp \
 	JsonHelper.hpp \
 	Log.hpp \
+	AbstractTableManager.hpp \
+	KeyfileTableManager.hpp \
+	TableProperties.hpp \
 	StringUtils.hpp
 
 
