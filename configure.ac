@@ -34,15 +34,25 @@ LT_INIT
 AC_CANONICAL_HOST
 AC_MSG_NOTICE([host_os $host_os])
 
-PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0])
+depend_gtkmm="gtkmm-3.0"
+AC_SUBST([depend_gtkmm])
+PKG_CHECK_MODULES([GTKMM], [$depend_gtkmm])
 
-PKG_CHECK_MODULES([LIBPNG], [libpng])
+depend_libpng="libpng"
+AC_SUBST([depend_libpng])
+PKG_CHECK_MODULES([LIBPNG], [$depend_libpng])
 
-PKG_CHECK_MODULES([GLIBMM], [glibmm-2.4 giomm-2.4])
+depend_glibmm="glibmm-2.4 giomm-2.4"
+AC_SUBST([depend_glibmm])
+PKG_CHECK_MODULES([GLIBMM], [$depend_glibmm])
 
-PKG_CHECK_MODULES([LIBEXIF], [libexif])
+depend_libexif="libexif"
+AC_SUBST([depend_libexif])
+PKG_CHECK_MODULES([LIBEXIF], [$depend_libexif])
 
-PKG_CHECK_MODULES(JSONGLIB1, [json-glib-1.0])
+depend_jsonglib1="json-glib-1.0"
+AC_SUBST([depend_jsonglib1])
+PKG_CHECK_MODULES(JSONGLIB1, [$depend_jsonglib1])
 
 AC_ARG_WITH([sysdlog], AS_HELP_STRING([--with-sysdlog], [Build with systemdlog otherwise user home log will be used]))
 
