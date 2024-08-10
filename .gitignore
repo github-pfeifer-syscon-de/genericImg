@@ -75,3 +75,4 @@
 /res/Makefile
 /src/resources.c
 /src/.libs/libgenericimg.so.0.3.2
+/src/.libs/libgenericimg.so.0.3.3

@@ -44,7 +44,8 @@ libgenericimg_la_SOURCES = \
 	AbstractTableManager.cpp \
 	KeyfileTableManager.cpp \
 	TableProperties.cpp \
-	StringUtils.cpp
+	StringUtils.cpp \
+	KeyConfig.cpp
 
 libgenericimg_la_LIBADD =  \
 	$(LIBPNG_LIBS) \
@@ -77,8 +78,8 @@ pkginclude_HEADERS = \
 	AbstractTableManager.hpp \
 	KeyfileTableManager.hpp \
 	TableProperties.hpp \
-	StringUtils.hpp
-
+	StringUtils.hpp \
+	KeyConfig.hpp
 
 if SYSDLOG
 libgenericimg_la_LIBADD += $(SYSTEMDLOG_LIBS)

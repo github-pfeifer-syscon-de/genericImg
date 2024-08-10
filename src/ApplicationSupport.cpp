@@ -19,19 +19,15 @@
 
 #include "ApplicationSupport.hpp"
 #include "StringUtils.hpp"
+#include "KeyConfig.hpp"
 
-ApplicationSupport::ApplicationSupport(Glib::ustring configName)
-: m_parent{nullptr}
-, m_configName{configName}
-, m_config{nullptr}
-, m_application{nullptr}
-, m_window{nullptr}
+ApplicationSupport::ApplicationSupport(const std::shared_ptr<KeyConfig>& keyConfig)
+: m_config{keyConfig}
 {
 }
 
 ApplicationSupport::ApplicationSupport(ApplicationSupport* parent)
 : m_parent(parent)
-, m_configName(parent->m_configName)
 , m_config(parent->m_config)
 , m_application(parent->m_application)
 , m_window(nullptr)
@@ -41,15 +37,10 @@ ApplicationSupport::ApplicationSupport(ApplicationSupport* parent)
 
 ApplicationSupport::~ApplicationSupport()
 {
-    if (m_parent == nullptr
-     && m_config) {
-        delete m_config;
-        m_config = nullptr;
-    }
 }
 
 void
-ApplicationSupport::addWindow(Gtk::Window *window, const Glib::ustring confKeyPref, int width, int height, const char* confGrp)
+ApplicationSupport::addWindow(Gtk::Window *window, const Glib::ustring& confKeyPref, int width, int height, const char* confGrp)
 {
     if (m_parent != nullptr) {
         Gtk::Window* parentWindow = getTopWindow();
@@ -59,18 +50,16 @@ ApplicationSupport::addWindow(Gtk::Window *window, const Glib::ustring confKeyPr
     }
     m_window = window;
 
-    auto config = getConfig();
     if (confGrp) {
-        if (config->has_group(confGrp)
-         && config->has_key(confGrp, confKeyPref + CONF_POSX)) {
-            int width = config->get_integer(confGrp, confKeyPref + CONF_WIDTH);
-            int height = config->get_integer(confGrp, confKeyPref + CONF_HEIGHT);
+        if (m_config->hasKey(confGrp, confKeyPref + CONF_POSX)) {
+            int width = m_config->getInteger(confGrp, confKeyPref + CONF_WIDTH);
+            int height = m_config->getInteger(confGrp, confKeyPref + CONF_HEIGHT);
             if (width > 0
              && height > 0) {
                 window->set_default_size(width, height);
             }
-            int posx = config->get_integer(confGrp, confKeyPref + CONF_POSX);
-            int posy = config->get_integer(confGrp, confKeyPref + CONF_POSY);
+            int posx = m_config->getInteger(confGrp, confKeyPref + CONF_POSX);
+            int posy = m_config->getInteger(confGrp, confKeyPref + CONF_POSY);
             if (posx > 0
              && posy > 0) {
                 window->move(posx, posy);
@@ -90,7 +79,7 @@ ApplicationSupport::addWindow(Gtk::Window *window, const Glib::ustring confKeyPr
 }
 
 void
-ApplicationSupport::removeWindow(Gtk::Window *window, const Glib::ustring confKeyPref, const char* confGrp)
+ApplicationSupport::removeWindow(Gtk::Window *window, const Glib::ustring& confKeyPref, const char* confGrp)
 {
     if (m_window != nullptr
      && m_window == window) {
@@ -110,10 +99,10 @@ ApplicationSupport::removeWindow(Gtk::Window *window, const Glib::ustring confKe
             //          << " height " << height
             //          << " posx " << posx
             //          << " posy " << posy << std::endl;
-            config->set_integer(confGrp, confKeyPref + CONF_WIDTH, width);
-            config->set_integer(confGrp, confKeyPref + CONF_HEIGHT, height);
-            config->set_integer(confGrp, confKeyPref + CONF_POSX, posx);
-            config->set_integer(confGrp, confKeyPref + CONF_POSY, posy);
+            config->setInteger(confGrp, confKeyPref + CONF_WIDTH, width);
+            config->setInteger(confGrp, confKeyPref + CONF_HEIGHT, height);
+            config->setInteger(confGrp, confKeyPref + CONF_POSX, posx);
+            config->setInteger(confGrp, confKeyPref + CONF_POSY, posy);
             saveConfig();
         }
     }
@@ -125,34 +114,18 @@ ApplicationSupport::removeWindow(Gtk::Window *window, const Glib::ustring confKe
     }
 }
 
-std::string
-ApplicationSupport::getConfigName()
-{
-    auto fullPath = Glib::canonicalize_filename(
-        static_cast<std::string>(m_configName), Glib::get_user_config_dir());
-    return fullPath;
-}
 
 void
 ApplicationSupport::saveConfig()
 {
     if (m_config) {
-        m_config->save_to_file(getConfigName());
+        m_config->saveConfig();
     }
 }
 
-Glib::KeyFile*
+std::shared_ptr<KeyConfig>
 ApplicationSupport::getConfig()
 {
-    if (!m_config) {
-        m_config = new Glib::KeyFile();
-        try {
-            m_config->load_from_file(getConfigName());
-        }
-        catch (const Glib::FileError& exc) {
-            std::cerr << "Cound not read " << exc.what() << " config " << m_configName << " (it may not yet exist and will be created)." << std::endl;
-        }
-    }
     return m_config;
 }
 

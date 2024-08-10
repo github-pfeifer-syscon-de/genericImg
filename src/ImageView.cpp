@@ -22,6 +22,7 @@
 #include "ImageView.hpp"
 #include "ImageOptionDialog.hpp"
 #include "DisplayImage.hpp"
+#include "KeyConfig.hpp"
 
 
 ImageFilter::ImageFilter(Gdk::PixbufFormat &format)
@@ -93,7 +94,7 @@ ImageView<T,G>::ImageView(
     m_table->append_column("Value", ImageList::m_variableColumns.m_value);
     m_table->set_model(m_listStore);
 
-    Glib::KeyFile* config = m_appSupport.getConfig();
+    auto config = m_appSupport.getConfig();
     auto fitObj = builder->get_object("fit");
     m_fitRadio = Glib::RefPtr<Gtk::RadioButton>::cast_dynamic(fitObj);
     m_fitRadio->set_sensitive(true);
@@ -103,9 +104,8 @@ ImageView<T,G>::ImageView(
     Gtk::RadioButtonGroup viewGroup;
     m_nativRadio->set_group(viewGroup);
     m_fitRadio->set_group(viewGroup);
-    if (config->has_group(CONF_GROUP)
-     && config->has_key(CONF_GROUP, CONF_PANED)) {
-        gint iDivPos = config->get_integer(CONF_GROUP, CONF_PANED);
+    if (config->hasKey(CONF_GROUP, CONF_PANED)) {
+        gint iDivPos = config->getInteger(CONF_GROUP, CONF_PANED);
         m_paned->set_position(iDivPos);
     }
 
@@ -134,9 +134,8 @@ ImageView<T,G>::ImageView(
     T::signal_show().connect(      // delay until fully initialized
         [this,config] () {
             ViewMode viewMode;
-            if (config->has_group(CONF_GROUP)
-             && config->has_key(CONF_GROUP, CONF_VIEW)) {
-                gint iViewMode = config->get_integer(CONF_GROUP, CONF_VIEW);
+            if (config->hasKey(CONF_GROUP, CONF_VIEW)) {
+                gint iViewMode = config->getInteger(CONF_GROUP, CONF_VIEW);
                 viewMode = (ViewMode)iViewMode;
                 m_content->setViewMode(viewMode);
             }
@@ -178,11 +177,10 @@ template<class T, typename G>
 Glib::RefPtr<Gio::File>
 ImageView<T,G>::getDefaultDir()
 {
-    Glib::KeyFile* config = m_appSupport.getConfig();
+    auto config = m_appSupport.getConfig();
     Glib::RefPtr<Gio::File> f;
-    if (config->has_group(CONF_GROUP_MAIN)
-     && config->has_key(CONF_GROUP_MAIN, CONF_PATH)) {
-        Glib::ustring path = config->get_string(CONF_GROUP_MAIN, CONF_PATH);
+    if (config->hasKey(CONF_GROUP_MAIN, CONF_PATH)) {
+        Glib::ustring path = config->getString(CONF_GROUP_MAIN, CONF_PATH);
         f = Gio::File::create_for_path(path);
     }
     else {
@@ -202,7 +200,7 @@ ImageView<T,G>::getDefaultDir()
                 return f;
             }
         } while (retry);
-        config->set_string(CONF_GROUP_MAIN, CONF_PATH, f->get_path());
+        config->setString(CONF_GROUP_MAIN, CONF_PATH, f->get_path());
     }
     return f;
 }
@@ -309,9 +307,9 @@ template<class T, typename G>
 void
 ImageView<T,G>::on_hide()
 {
-    Glib::KeyFile* config = m_appSupport.getConfig();
+    auto config = m_appSupport.getConfig();
     gint iDivPos = m_paned->get_position();
-    config->set_integer(CONF_GROUP, CONF_PANED, iDivPos);   // will be saved with window
+    config->setInteger(CONF_GROUP, CONF_PANED, iDivPos);   // will be saved with window
     m_appSupport.saveConfig();
 
     m_appSupport.removeWindow(this, CONF_PREFIX, CONF_GROUP);
@@ -445,9 +443,8 @@ ImageView<T,G>::on_menu_save()
     m_appSupport.addDialogYesNo(dialog);
 
     auto config = m_appSupport.getConfig();
-    if (config->has_group(CONF_GROUP)
-     && config->has_key(CONF_GROUP, CONF_PATH)) {
-        Glib::ustring path = config->get_string(CONF_GROUP, CONF_PATH);
+    if (config->hasKey(CONF_GROUP, CONF_PATH)) {
+        Glib::ustring path = config->getString(CONF_GROUP, CONF_PATH);
         Glib::RefPtr<Gio::File> fPath = Gio::File::create_for_path(path);
         Glib::RefPtr<Gio::File> fParent = fPath->get_parent();     // as we stored selected file
         if (fParent->query_exists()) {
@@ -456,14 +453,7 @@ ImageView<T,G>::on_menu_save()
     }
 
     //Add filters, so that only certain file types can be selected:
-    Glib::ustring prefFormat;
-    if (config->has_group(CONF_GROUP)
-     && config->has_key(CONF_GROUP, CONF_FILTER)) {
-        prefFormat = config->get_string(CONF_GROUP, CONF_FILTER);
-    }
-    if (prefFormat.empty()) {   // otherwise we will get bmp argh...
-        prefFormat = "jpeg";
-    }
+    Glib::ustring prefFormat = config->getString(CONF_GROUP, CONF_FILTER, "jpeg");
     ImageFilter::addFormats(dialog, prefFormat);
     int result = dialog.run();
 	dialog.hide();	// only one open dialog at a time (prevent hiding newer instance)
@@ -486,7 +476,7 @@ ImageView<T,G>::save_image(Glib::ustring filename, Gdk::PixbufFormat& format)
 {
     //cout << "on save " << filename << " format " << filter->get_name() << endl;
     auto config = m_appSupport.getConfig();
-    config->set_string(CONF_GROUP, CONF_PATH, filename);
+    config->setString(CONF_GROUP, CONF_PATH, filename);
 
     Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(filename);
 	std::vector<Glib::ustring> keys;
@@ -500,7 +490,7 @@ ImageView<T,G>::save_image(Glib::ustring filename, Gdk::PixbufFormat& format)
 		optDlg.addOptions(keys, opts);
 	}
     try {
-        config->set_string(CONF_GROUP, CONF_FILTER, format.get_name());
+        config->setString(CONF_GROUP, CONF_FILTER, format.get_name());
         m_content->getDisplayImage()->getPixbuf()->save(filename, format.get_name(), keys, opts);
     }
     catch (const Glib::Error &ex) {
@@ -547,9 +537,9 @@ ImageView<T,G>::on_menu_view(ViewMode viewMode)
     viewMode = m_fitRadio->get_active() ? ViewMode::FIT : ViewMode::NATIVE;
     //std::cout << "ImageView<T,G>::on_menu_view" << (int)viewMode << std::endl;
     m_content->setViewMode(viewMode);
-    Glib::KeyFile* config = m_appSupport.getConfig();
+    auto config = m_appSupport.getConfig();
     auto iViewMode = static_cast<gint>(viewMode);
-    config->set_integer(CONF_GROUP, CONF_VIEW, iViewMode);
+    config->setInteger(CONF_GROUP, CONF_VIEW, iViewMode);
 }
 
 template<class T, typename G>
