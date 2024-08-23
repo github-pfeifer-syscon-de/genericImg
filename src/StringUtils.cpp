@@ -258,29 +258,15 @@ operator<< (std::ostream& os, const std::stacktrace& trace)
 double
 StringUtils::parseCDouble(const Glib::ustring& val)
 {
-    double value{0.0};
-    auto sval = std::find_if(val.begin(), val.end(), [](gunichar ch) {  // allow parsing "  3.14"
-        return !g_unichar_isspace(ch);
-    });
-    if (sval == val.end()) {
-        psc::log::Log::logAdd(psc::log::Level::Warn, "Parsing empty string as double failed ");
-    }
-    else {
-        if (*sval == '+') {     // allow parsing "+3.14"
-            ++sval;
-        }
-        auto pos = std::distance(val.begin(), sval);
-        auto [ptr, ec] = std::from_chars(val.c_str() + pos, val.c_str() + val.length(), value);
-        if (ec != std::errc()) {
-            psc::log::Log::logAdd(psc::log::Level::Warn, Glib::ustring::sprintf("Parsing %s as double failed ", sval));
-        }
-    }
+    double value = Glib::Ascii::strtod(val);
     return value;
 }
 
 Glib::ustring
 StringUtils::formatCDouble(double val, std::chars_format fmt, int precision)
 {
+    // just some alternative:
+    // auto spi = Glib::Ascii::dtostr(pi); // this creates many decimal places (for some cases e.g. 3.14)
     std::array<char, 64> str;
     auto [ptr, ec] = std::to_chars(str.data(), str.data() + str.size(), val, fmt, precision);
     if (ec == std::errc()) {
