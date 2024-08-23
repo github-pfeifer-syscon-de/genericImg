@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2021 rpf
  *
@@ -27,6 +28,7 @@
 #endif
 #include <source_location>
 #include <iostream>
+#include <charconv>
 
 class StringUtils {
 public:
@@ -66,6 +68,9 @@ public:
     #endif
     static bool endsWith(const Glib::ustring& str, const Glib::ustring& suffix);
     static bool startsWith(const Glib::ustring& str, const Glib::ustring& prefix);
+    // improved conversion functions that do not depend on LocaleContext "magic"
+    static double parseCDouble(const Glib::ustring& sval);
+    static Glib::ustring formatCDouble(double val, std::chars_format fmt = std::chars_format::fixed, int precision = 4);
 
 private:
     StringUtils() = default;

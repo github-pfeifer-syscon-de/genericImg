@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2023 RPf <gpl3@pfeifer-syscon.de>
  *
@@ -98,7 +99,7 @@ JsonHelper::get_array(JsonObject* obj, const Glib::ustring& name)
 {
     JsonArray* arr = json_object_get_array_member(obj, name.c_str());
     if (!arr) {
-        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a array as expected ", m_file);
+        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a array named %s as expected ", m_file, name);
         throw JsonException(msg);
     }
     return arr;
@@ -120,7 +121,7 @@ JsonHelper::get_object(JsonObject* obj, const Glib::ustring& name)
 {
     JsonObject* member = json_object_get_object_member(obj, name.c_str());
     if (!member) {
-        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a object form name %s ", m_file, name);
+        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a object for name %s ", m_file, name);
         throw JsonException(msg);
     }
     return member;

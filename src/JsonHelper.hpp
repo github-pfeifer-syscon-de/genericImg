@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2023 RPf <gpl3@pfeifer-syscon.de>
  *
@@ -23,7 +24,6 @@
 #include <exception>
 #include <vector>
 
-/* taken from geodata may worth to unify ...*/
 
 class JsonException : public std::exception
 {

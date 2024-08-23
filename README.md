@@ -25,7 +25,7 @@ Requires to be installed before use so (run as root):
 cd .../genericImg
 make install
 </pre>
-If you run into trouble with the used c++20 change configure.ac AX_CXX_COMPILE_STDCXX([20]... to ...[17]...
+If you run into trouble with the used c++20 change configure.ac AX_CXX_COMPILE_STDCXX([20]... to ...[17] (may need some adaptions)
 
 Now included is some basic logging support.
 The default logging will be written to user home into the log directory.
