@@ -77,3 +77,12 @@
 /src/.libs/libgenericimg.so.0.3.3
 /src/.libs/libgenericimg.so.0.3.4
 /pkg/
+/test/Makefile
+/test/unic_test.log
+/test/test-suite.log
+/test/unic_test.trs
+/test/Makefile.in
+/test/unic_test
+/test/.libs/
+/test/.deps/
+/test-driver

@@ -70,7 +70,9 @@ public:
     static bool startsWith(const Glib::ustring& str, const Glib::ustring& prefix);
     // improved conversion functions that do not depend on LocaleContext "magic"
     static double parseCDouble(const Glib::ustring& sval);
-    static Glib::ustring formatCDouble(double val, std::chars_format fmt = std::chars_format::fixed, int precision = 4);
+    // std::chars_format::general formats 3.14 to "3.14"
+    // std::chars_format::fixed formats 3.14 to "3.1400" (precision 4)
+    static Glib::ustring formatCDouble(double val, std::chars_format fmt = std::chars_format::general, int precision = 4);
 
 private:
     StringUtils() = default;

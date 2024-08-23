@@ -73,5 +73,6 @@ Makefile
 res/Makefile
 src/genericimg.pc
 src/Makefile
+test/Makefile
 ])
 AC_OUTPUT
