@@ -44,13 +44,13 @@ private:
 
 class ImageOptions {
 public :
-    virtual ~ImageOptions();
+    virtual ~ImageOptions() = default;
     static std::shared_ptr<ImageOptions> getOptions(Gdk::PixbufFormat& format, std::map<Glib::ustring, Glib::ustring>& opts);
     const std::map<Glib::ustring, std::shared_ptr<ImageOption>>& getOptions();
     void add(std::map<Glib::ustring, Glib::ustring>& opts);
 protected :
-    ImageOptions();
-    ImageOptions(const ImageOptions& other);
+    ImageOptions() = default;
+    ImageOptions(const ImageOptions& other) = default;
 
     virtual bool matches(Gdk::PixbufFormat& format) = 0;
 
@@ -61,7 +61,7 @@ protected :
 class AdjustmentImageOption : public ImageOption {
 public:
     AdjustmentImageOption(bool exp);
-    virtual ~AdjustmentImageOption();
+    virtual ~AdjustmentImageOption() = default;
     Glib::RefPtr<Gtk::Adjustment> getAdjustment();
     virtual int getMin() = 0;
     virtual int getMax() = 0;
@@ -77,7 +77,7 @@ private:
 class QualityImageOption : public AdjustmentImageOption {
 public:
     QualityImageOption();
-    virtual ~QualityImageOption();
+    virtual ~QualityImageOption() = default;
     int getMin() override;
     int getMax() override;
     int getDefault() override;
@@ -89,7 +89,7 @@ public:
 class JpegImageOptions : public ImageOptions {
 public :
     JpegImageOptions();
-    virtual ~JpegImageOptions();
+    virtual ~JpegImageOptions() = default;
 
     bool matches(Gdk::PixbufFormat& format) override;
 
@@ -98,7 +98,7 @@ public :
 class TextImageOption : public ImageOption {
 public:
     TextImageOption(bool exp);
-    virtual ~TextImageOption();
+    virtual ~TextImageOption() = default;
 
     Glib::RefPtr<Gtk::EntryBuffer> getBuffer();
     virtual int getMax() = 0;
@@ -112,7 +112,7 @@ private:
 class GenericImageOption : public TextImageOption {
 public:
     GenericImageOption(const Glib::ustring& key, const Glib::ustring& outputKey, bool exp);
-    virtual ~GenericImageOption();
+    virtual ~GenericImageOption() = default;
 
     int getMax() override;
     const Glib::ustring getName() override;
@@ -126,7 +126,7 @@ private:
 class PngImageOptions : public ImageOptions {
 public :
     PngImageOptions();
-    virtual ~PngImageOptions();
+    virtual ~PngImageOptions() = default;
 
     bool matches(Gdk::PixbufFormat& format) override;
 

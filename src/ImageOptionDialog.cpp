@@ -72,7 +72,7 @@ ImageOptionDialog::ImageOptionDialog(Gtk::Window& parent, Gdk::PixbufFormat& for
 		std::cerr << "No options for format " << format.get_name() << " use hasOptions!" << std::endl;
 	}
     if (file->query_exists()) {
-        std::string msg = Glib::ustring::sprintf("File %s exists. Overwrite?", file->get_path());
+        auto msg = Glib::ustring::sprintf("File %s exists. Overwrite?", file->get_path());
 		Gtk::CheckButton* checkOverwriteBtn = Gtk::make_managed<Gtk::CheckButton>(msg);
 		checkOverwriteBtn->signal_toggled().connect([=] () {
 			okBtn->set_sensitive(checkOverwriteBtn->get_active());

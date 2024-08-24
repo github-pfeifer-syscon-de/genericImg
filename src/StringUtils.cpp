@@ -134,7 +134,7 @@ StringUtils::split(const Glib::ustring &line, char delim, std::vector<Glib::ustr
     while (pos < line.length()) {
         size_t next = line.find(delim, pos);
         if (next != std::string::npos) {
-            std::string fld = line.substr(pos, next - pos);
+            auto fld = line.substr(pos, next - pos);
             ret.push_back(fld);
             ++next;
         }
@@ -145,7 +145,7 @@ StringUtils::split(const Glib::ustring &line, char delim, std::vector<Glib::ustr
                     --end;
                 }
                 if (end - pos > 0) {
-                    std::string fld = line.substr(pos, end - pos);
+                    auto fld = line.substr(pos, end - pos);
                     ret.push_back(fld);
                 }
             }

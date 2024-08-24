@@ -18,6 +18,7 @@
 
 
 #include "JsonHelper.hpp"
+#include "StringUtils.hpp"  // Glib::ustring format adapter
 
 JsonException::JsonException(const Glib::ustring& error)
 : std::exception()
@@ -51,7 +52,7 @@ JsonHelper::load_from_file(const Glib::ustring& file)
     m_file = file;
     json_parser_load_from_file(m_parser, (const gchar*)file.c_str(), &error);
     if (error) {
-        auto msg = Glib::ustring::sprintf("Unable to parse json file %s %s", file, error->message);
+        auto msg = std::format("Unable to parse json file {0} {1}", file, error->message);
         g_error_free(error);
         throw JsonException(msg);
     }
@@ -64,7 +65,7 @@ JsonHelper::load_data(const Glib::RefPtr<Glib::ByteArray>& data)
     m_file = "data";
     json_parser_load_from_data(m_parser, (const gchar*)data->get_data(), data->size(), &error);
     if (error) {
-        auto msg = Glib::ustring::sprintf("Unable to parse data len %d %s", data->size(), error->message);
+        auto msg = std::format("Unable to parse data len {0} {1}", data->size(), error->message);
         g_error_free(error);
         throw JsonException(msg);
     }
@@ -76,7 +77,7 @@ JsonHelper::get_root_object()
     JsonNode* root = json_parser_get_root(m_parser);
     JsonObject* rootObj = json_node_get_object(root);
     if (!rootObj) {
-        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a object as root", m_file);
+        auto msg = std::format("The json file {0} doesn't contain a object as root", m_file);
         throw JsonException(msg);
     }
     return rootObj;
@@ -88,7 +89,7 @@ JsonHelper::get_root_array()
     JsonNode* root = json_parser_get_root(m_parser);
     JsonArray* arr = json_node_get_array(root);
     if (!arr) {
-        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a array as root", m_file);
+        auto msg = std::format("The json file {0} doesn't contain a array as root", m_file);
         throw JsonException(msg);
     }
     return arr;
@@ -99,7 +100,7 @@ JsonHelper::get_array(JsonObject* obj, const Glib::ustring& name)
 {
     JsonArray* arr = json_object_get_array_member(obj, name.c_str());
     if (!arr) {
-        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a array named %s as expected ", m_file, name);
+        auto msg = std::format("The json file {0} doesn't contain a array named {1} as expected ", m_file, name);
         throw JsonException(msg);
     }
     return arr;
@@ -110,7 +111,7 @@ JsonHelper::get_array_object(JsonArray* arr, int idx)
 {
     JsonObject* obj = json_array_get_object_element(arr, idx);
     if (!obj) {
-        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a object at index %d ", m_file, idx);
+        auto msg = std::format("The json file {0} doesn't contain a object at index {1}", m_file, idx);
         throw JsonException(msg);
     }
     return obj;
@@ -121,7 +122,7 @@ JsonHelper::get_object(JsonObject* obj, const Glib::ustring& name)
 {
     JsonObject* member = json_object_get_object_member(obj, name.c_str());
     if (!member) {
-        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a object for name %s ", m_file, name);
+        auto msg = std::format("The json file {0} doesn't contain a object for name {1}", m_file, name);
         throw JsonException(msg);
     }
     return member;
@@ -132,7 +133,7 @@ JsonHelper::get_array_array(JsonArray* arr, int idx)
 {
     JsonArray* arri = json_array_get_array_element(arr, idx);
     if (!arri) {
-        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a array at index %d ", m_file, idx);
+        auto msg = std::format("The json file {0} doesn't contain a array at index {1}", m_file, idx);
         throw JsonException(msg);
     }
     return arri;

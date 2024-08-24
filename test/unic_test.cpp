@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <glibmm.h>
+#include <format>
 
 #include "StringUtils.hpp"
 
@@ -27,7 +28,7 @@
 static bool
 test_ustring() {
 
-    auto u8chr = u8"\t\r +0.314e+1";    // include white-space + sign + exponent
+    auto u8chr = u8"\t\r +0.314e+1";    // include sign, white-space and exponent
     double val = StringUtils::parseCDouble(StringUtils::u8str(u8chr));
     if (std::abs(val - 3.14) > 0.0000001) {
         std::cout << "expected value 3.14 got " << val << std::endl;
@@ -39,6 +40,62 @@ test_ustring() {
         std::cout << "expected string \"3.14\" got " << str << std::endl;
         return false;
     }
+    auto trims{StringUtils::u8str(u8" \r\t\u1680 abc \u000c ")};
+    StringUtils::trim(trims);
+    if (trims != "abc") {
+        std::cout << "trim string \"abc\" got \"" << trims << "\"" << std::endl;
+        return false;
+    }
+    auto split{StringUtils::u8str(u8"a\t\t\u1680b\tc")};
+    std::vector<Glib::ustring> parts;
+    StringUtils::split(split, '\t', parts);
+    if (parts.size() != 4
+     || parts[0] != Glib::ustring("a")
+     || parts[1] != Glib::ustring("")
+     || parts[2] != StringUtils::u8str(u8"\u1680b")
+     || parts[3] != Glib::ustring("c")) {
+        std::cout << "split expected 4 got \"" << parts.size() << "\"" << std::endl;
+        return false;
+    }
+    std::vector<Glib::ustring> rparts;
+    StringUtils::splitRepeat(split, '\t', rparts);
+    if (rparts.size() != 3
+     || rparts[0] != Glib::ustring("a")
+     || rparts[1] != StringUtils::u8str(u8"\u1680b")
+     || rparts[2] != Glib::ustring("c")) {
+        std::cout << "splitRepeat expected 3 got \"" << parts.size() << "\"" << std::endl;
+        return false;
+    }
+    auto repl{StringUtils::u8str(u8"a\t\u1680b\tc")};
+    auto res = StringUtils::replaceAll(repl, "\t", "-*-");
+    auto exp = StringUtils::u8str(u8"a-*-\u1680b-*-c");
+    if (res != exp) {
+        std::cout << "replace expected \"" << exp << "\" got \"" << res << "\"" << std::endl;
+        return false;
+    }
+    if (!StringUtils::startsWith(repl, "a\t")) {
+        std::cout << "startsWith false got true "<< std::endl;
+        return false;
+    }
+    if (!StringUtils::endsWith(repl, "\tc")) {
+        std::cout << "endsWith false got true "<< std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+static bool
+test_format()
+{
+    Glib::ustring abc{"abc"};
+    std::string std{"abc"};
+    // this has all the fancy stuff ;)
+    std::cout << std::format("Hello std::format |{0:>10}| |{1:>10}|", abc, std) << std::endl;
+    // this has no formatting abilities :( as far as i see
+    std::cout << Glib::ustring::compose("Hello Glib::compose |%1| |%2|", abc, std) << std::endl;
+    double d{123.456};
+    std::cout << std::format("{0:.0f}", d) << std::endl;
 
     return true;
 }
@@ -51,6 +108,9 @@ int main(int argc, char** argv)
     setlocale(LC_ALL, "");      // make locale dependent, and make glib accept u8 const !!!
     Glib::init();
     if (!test_ustring()) {
+        return 1;
+    }
+    if (!test_format()) {
         return 1;
     }
 
