@@ -86,3 +86,6 @@
 /test/.libs/
 /test/.deps/
 /test-driver
+/test/fmt_test.log
+/test/fmt_test
+/test/fmt_test.trs

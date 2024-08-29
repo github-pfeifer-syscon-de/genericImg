@@ -19,7 +19,6 @@
 #include <iostream>
 
 #include "ImageOptions.hpp"
-#include "StringUtils.hpp"
 
 
 ImageOption::ImageOption(bool exp)
@@ -37,6 +36,19 @@ bool
 ImageOption::isExport()
 {
 	return m_export;
+}
+
+ImageOptions::ImageOptions()
+{
+}
+
+ImageOptions::ImageOptions(const ImageOptions& other)
+: m_options(other.m_options)
+{
+}
+
+ImageOptions::~ImageOptions()
+{
 }
 
 const std::map<Glib::ustring, std::shared_ptr<ImageOption>>&
@@ -92,6 +104,10 @@ AdjustmentImageOption::AdjustmentImageOption(bool exp)
 {
 }
 
+AdjustmentImageOption::~AdjustmentImageOption()
+{
+}
+
 Glib::RefPtr<Gtk::Adjustment>
 AdjustmentImageOption::getAdjustment()
 {
@@ -101,14 +117,15 @@ AdjustmentImageOption::getAdjustment()
 Glib::ustring
 AdjustmentImageOption::getValue()
 {
-	return StringUtils::formatCDouble(m_adjustment->get_value());
+	return Glib::ustring::sprintf("%.0f", m_adjustment->get_value());
 }
 
 void
 AdjustmentImageOption::setValue(Glib::ustring& value)
 {
-	if (!value.empty()) {
-		m_adjustment->set_value(StringUtils::parseCDouble(value));
+	int val;
+	if (sscanf(value.c_str(), "%d", &val) == 1) {
+		m_adjustment->set_value(val);
 	}
 }
 
@@ -121,6 +138,10 @@ QualityImageOption::QualityImageOption()
 	m_adjustment->set_value(getDefault());
 }
 
+
+QualityImageOption::~QualityImageOption()
+{
+}
 
 int
 QualityImageOption::getMin()
@@ -158,6 +179,10 @@ JpegImageOptions::JpegImageOptions()
 	m_options.insert(std::make_pair(jpgOpt->getOutputKey(), jpgOpt));
 }
 
+JpegImageOptions::~JpegImageOptions()
+{
+}
+
 bool
 JpegImageOptions::matches(Gdk::PixbufFormat& format)
 {
@@ -170,6 +195,10 @@ JpegImageOptions::matches(Gdk::PixbufFormat& format)
 TextImageOption::TextImageOption(bool exp)
 : ImageOption(exp)
 , m_buffer(Gtk::EntryBuffer::create())
+{
+}
+
+TextImageOption::~TextImageOption()
 {
 }
 
@@ -198,6 +227,10 @@ GenericImageOption::GenericImageOption(const Glib::ustring& key, const Glib::ust
 , m_outputKey(outputKey)
 {
 	m_buffer->set_max_length(getMax());
+}
+
+GenericImageOption::~GenericImageOption()
+{
 }
 
 int
@@ -236,6 +269,10 @@ PngImageOptions::PngImageOptions()
 	//    Warning          Warning of nature of content
 	//    Source           Device used to create the image
 	//    Comment          Miscellaneous comment; conversion from GIF comment
+}
+
+PngImageOptions::~PngImageOptions()
+{
 }
 
 bool
