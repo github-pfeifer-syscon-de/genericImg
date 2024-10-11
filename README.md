@@ -43,7 +43,7 @@ To change the log level the application config file e.g. ~/.config/glglobe.conf 
 <pre>
 logLevel=Info
 </pre>
-For the Levels see Log.hpp at the moment Error,Warn,Info,Debug,Trace .
+For the Levels see Log.hpp at the moment Severe, Alert, Crit, Error, Warn, Notice, Info, Debug.
 But this is a work in progress so there might still be messages spilled on stdout...
 
 the structure of the libs used here is:

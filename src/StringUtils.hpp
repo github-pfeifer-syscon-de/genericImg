@@ -29,6 +29,7 @@
 #include <source_location>
 #include <iostream>
 #include <charconv>
+#include <format>
 
 class StringUtils {
 public:
@@ -95,3 +96,14 @@ std::ostream&
 operator<< (std::ostream& os, const std::stacktrace& trace);
 
 #endif
+
+template <>
+struct std::formatter<Glib::ustring>
+: std::formatter<std::string>
+{
+    auto format(const Glib::ustring& obj, std::format_context& ctx) const
+    {
+        return std::formatter<std::string>::format(obj, ctx);
+    }
+};
+
