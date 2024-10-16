@@ -111,3 +111,26 @@ struct std::formatter<Glib::ustring>
     }
 };
 
+template <>
+struct std::formatter<std::exception>
+: std::formatter<std::string>
+{
+    auto format(const std::exception& e, std::format_context& ctx) const
+    {
+        auto exc = std::string("exception what ") + e.what();
+        return std::formatter<std::string>::format(exc, ctx);
+    }
+};
+
+template <>
+struct std::formatter<std::ios_base::failure>
+: std::formatter<std::string>
+{
+    auto format(const std::ios_base::failure& e, std::format_context& ctx) const
+    {
+        auto exc = std::string("ios_base::failure what ") + e.what() + " val "  + std::to_string(e.code().value()) + " err " + e.code().message();
+        return std::formatter<std::string>::format(exc, ctx);
+    }
+};
+
+
