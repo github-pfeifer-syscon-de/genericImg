@@ -90,3 +90,5 @@
 /test/fmt_test
 /test/fmt_test.trs
 /src/.libs/libgenericimg.so.0.3.5
+/src/.libs/libgenericimg.so.0.3.6
+/test/log_test.trs

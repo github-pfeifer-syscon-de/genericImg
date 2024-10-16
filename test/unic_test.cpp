@@ -20,13 +20,15 @@
 #include <cstdlib>
 #include <cmath>
 #include <glibmm.h>
+#include <map>
+#include <vector>
 
 #include "StringUtils.hpp"
 
 // try to get use to the unicode "handling" / "island"
 static bool
-test_ustring() {
-
+test_ustring()
+{
     auto u8chr = u8"\t\r +0.314e+1";    // include white-space + sign + exponent
     double val = StringUtils::parseCDouble(StringUtils::u8str(u8chr));
     if (std::abs(val - 3.14) > 0.0000001) {
@@ -43,15 +45,101 @@ test_ustring() {
     return true;
 }
 
-/*
- *
- */
+static bool
+test_string_util()
+{
+    auto str = Glib::ustring("   abc   ");
+    StringUtils::rtrim(str);
+    if (str != "   abc") {
+        std::cout << "rtrim expected \"abc\" got \"" << str << "\"" << std::endl;
+        return false;
+    }
+    str = Glib::ustring("   abc   ");
+    StringUtils::ltrim(str);
+    if (str != "abc   ") {
+        std::cout << "ltrim expected \"abc   \" got \"" << str << "\"" << std::endl;
+        return false;
+    }
+    str = Glib::ustring("   abc   ");
+    StringUtils::trim(str);
+    if (str != "abc") {
+        std::cout << "trim expected \"abc\" got \"" << str << "\"" << std::endl;
+        return false;
+    }
+    str = Glib::ustring("   a  b  c");
+    std::vector<Glib::ustring> parts;
+    StringUtils::splitRepeat(str, ' ', parts);
+    if (parts.size() != 3) {
+        std::cout << "splitRepeat expected 3 got " << parts.size() << std::endl;
+        return false;
+    }
+    if (parts[0] != "a") {
+        std::cout << "splitRepeat expected \"a\" got " << parts[0] << std::endl;
+        return false;
+    }
+    if (parts[1] != "b") {
+        std::cout << "splitRepeat expected \"b\" got " << parts[1] << std::endl;
+        return false;
+    }
+    if (parts[2] != "c") {
+        std::cout << "splitRepeat expected \"c\" got " << parts[2] << std::endl;
+        return false;
+    }
+    str = Glib::ustring("a,b,c");
+    std::vector<Glib::ustring> parts2;
+    StringUtils::split(str, ',', parts2);
+    if (parts2.size() != 3) {
+        std::cout << "split expected 3 got " << parts2.size() << std::endl;
+        return false;
+    }
+    if (parts2[0] != "a") {
+        std::cout << "split expected \"a\" got " << parts2[0] << std::endl;
+        return false;
+    }
+    if (parts2[1] != "b") {
+        std::cout << "split expected \"b\" got " << parts2[1] << std::endl;
+        return false;
+    }
+    if (parts2[2] != "c") {
+        std::cout << "split expected \"c\" got " << parts2[2] << std::endl;
+        return false;
+    }
+    str = Glib::ustring("abc.def");
+    bool ends = StringUtils::endsWith(str, ".def");
+    if (!ends) {
+        std::cout << std::boolalpha << "endsWith expected \"true\" got " << ends << std::endl;
+        return false;
+    }
+    bool starts = StringUtils::startsWith(str, "abc.");
+    if (!starts) {
+        std::cout << std::boolalpha << "startsWith expected \"true\" got " << starts << std::endl;
+        return false;
+    }
+    str = Glib::ustring("ab.c.d.ef");
+    auto strrepl = StringUtils::replaceAll(str, ".e", "___");
+    if (strrepl != "ab.c.d___f") {
+        std::cout << "replaceAll expected \"ab.c.d___f\" got \"" << strrepl << "\"" << std::endl;
+        return false;
+    }
+    str = Glib::ustring(StringUtils::u8str(u8"ABCD\u00C4"));
+    auto strlow = StringUtils::lower(str, 1ul);
+    if (strlow != "Abcd\u00E4") {
+        std::cout << "lower expected \"Abcd\u00E4\" got \"" << strlow << "\"" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
 int main(int argc, char** argv)
 {
     setlocale(LC_ALL, "");      // make locale dependent, and make glib accept u8 const !!!
     Glib::init();
     if (!test_ustring()) {
         return 1;
+    }
+    if (!test_string_util()) {
+        return 2;
     }
 
     return 0;

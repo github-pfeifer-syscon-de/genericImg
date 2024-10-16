@@ -20,10 +20,9 @@
 
 #include <glibmm.h>
 
-/**
- * @Deprecated  see StringUtils::parseCDouble,formatCDouble for a simpler method
- */
-class LocaleContext
+
+class [[deprecated("see StringUtils::parseCDouble,formatCDouble for a simpler method")]]
+LocaleContext
 {
 public:
     LocaleContext(int category);

@@ -53,6 +53,7 @@ FilePlugin::close()
     }
 }
 
+
 void
 FilePlugin::create()
 {
@@ -63,7 +64,13 @@ FilePlugin::create()
     }
     auto name = m_prefix + ".log";
     auto fullPath = Glib::canonicalize_filename(name.c_str(), logPath);
-    Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(fullPath);
+    auto file = Gio::File::create_for_path(fullPath);
+    createLogFile(file);
+}
+
+void
+FilePlugin::createLogFile(const Glib::RefPtr<Gio::File>& file)
+{
 	bool createStrm = true;
     if (file->query_exists()) {
         auto fileAttr = file->query_info(G_FILE_ATTRIBUTE_STANDARD_SIZE);
@@ -81,7 +88,6 @@ FilePlugin::create()
         m_outstream = file->append_to();
 	}
 }
-
 
 void
 FilePlugin::setSizeLimit(goffset sizeLimit)
@@ -243,7 +249,7 @@ Log::log(Level level
         , const Glib::ustring& msg
         , const std::source_location location)
 {
-    if (m_plugin && level <= m_level) {
+    if (m_plugin && isLoggable(level)) {
         m_plugin->log(level, msg, location);
     }
 }
@@ -281,6 +287,26 @@ Log::logAdd(Level level
 				  << " " << msg << std::endl;
 	}
 }
+
+void
+Log::logAdd(Level level
+        , std::function< Glib::ustring(void) >&& lambda
+	    , const std::source_location location)
+{
+	if (m_log ) {
+        if (m_log->isLoggable(level)) {
+            auto msg = lambda();
+            m_log->log(level, msg, location);
+        }
+	}
+	else {
+        auto msg = lambda();
+		std::cout << getTimestamp()
+			      << " " << getLevel(level)
+				  << " " << msg << std::endl;
+	}
+}
+
 
 Glib::ustring
 Log::getTimestamp()
@@ -362,6 +388,13 @@ Log::create(const char* prefix, Type type)
     return m_log;
 }
 
+void
+Log::close()
+{
+    if (m_plugin) {
+        m_plugin->close();
+    }
+}
 
 } /* namespace log */
 } /* namespace psc */

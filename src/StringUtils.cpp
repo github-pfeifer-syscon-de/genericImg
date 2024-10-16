@@ -73,32 +73,24 @@ StringUtils::ltrim(std::string &s) {
 }
 
 void
-StringUtils::rtrim(std::string &s) {
+StringUtils::rtrim(std::string &s)
+{
     s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
         return !std::isspace(ch);
     }).base(), s.end());
 }
 
 void
-StringUtils::trim(std::string &s) {
+StringUtils::trim(std::string &s)
+{
     ltrim(s);
     rtrim(s);
 }
 
 Glib::ustring
-StringUtils::lower(const Glib::ustring &str, int start) {
-    int i = 0;
-    Glib::ustring r;
-    r.reserve(str.length());
-    for (auto s = str.begin(); s != str.end(); ++s)
-    {
-        if (i >= start)
-            r += g_unichar_tolower(*s);
-        else
-            r += *s;
-        ++i;
-    }
-    return r;
+StringUtils::lower(const Glib::ustring& str, int start)
+{
+    return Glib::ustring{str.substr(0, start) + str.substr(start).lowercase()};
 }
 
 

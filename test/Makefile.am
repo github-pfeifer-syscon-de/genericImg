@@ -1,7 +1,7 @@
 
 
 
-TESTS = unic_test
+TESTS = unic_test log_test
 
 AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
@@ -22,9 +22,12 @@ unic_test_LDADD =  \
 	-L../src/.libs -lgenericimg \
 	$(GLIBMM_LIBS)
 
-check_PROGRAMS = unic_test
+log_test_LDADD =  \
+	-L../src/.libs -lgenericimg \
+	$(GLIBMM_LIBS)
 
-unic_test_SOURCES = \
-    unic_test.cpp
+check_PROGRAMS = unic_test log_test
 
+unic_test_SOURCES = unic_test.cpp
 
+log_test_SOURCES = log_test.cpp

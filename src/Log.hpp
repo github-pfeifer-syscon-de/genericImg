@@ -71,7 +71,9 @@ public:
     virtual void log(Level level
             , const Glib::ustring& msg
             , const std::source_location location) = 0;
-
+    virtual void close()
+    {
+    }
 protected:
     Glib::ustring m_prefix;
 };
@@ -90,9 +92,10 @@ public:
     void setSizeLimit(goffset sizeLimit);
     goffset getSizeLimit();
 
-    void close();
+    void close() override;
     void create();
     static constexpr auto DEFAULT_SIZELIMITI{102400ul};
+    void createLogFile(const Glib::RefPtr<Gio::File>& file);
 
 private:
     Glib::RefPtr<Gio::FileOutputStream> m_outstream;
@@ -148,6 +151,10 @@ public:
     void log(Level level
             , const Glib::ustring& msg
             , const std::source_location location = std::source_location::current());
+    inline bool isLoggable(Level level)
+    {
+        return level <= m_level;
+    }
     [[deprecated("see logAdd")]]
     static void logNow(Level level
             , const Glib::ustring& msg
@@ -160,6 +167,10 @@ public:
     static void logAdd(const Glib::ustring& msg
             , int debug = 0
 	    , const std::source_location location = std::source_location::current());
+    // allow lazy evaluation of source string
+    static void logAdd(Level level
+            , std::function< Glib::ustring(void) >&& lambda
+	    , const std::source_location location = std::source_location::current());
     Level getLevel();
     void setLevel(Level level);
     std::shared_ptr<LogPlugin> getPlugin();
@@ -170,6 +181,7 @@ public:
     // The parameters are only honored on first invocation
     static std::shared_ptr<Log> create(const char* prefix, Type type = Type::Default);
     static const char* getLevel(Level level);
+    void close();
 private:
     Level m_level;
     std::shared_ptr<LogPlugin> m_plugin;

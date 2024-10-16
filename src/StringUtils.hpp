@@ -47,8 +47,12 @@ public:
     static void ltrim(std::string &s);
     static void rtrim(std::string &s);
     static void trim(std::string &s);
-
+    [[deprecated("see lower(size_t)")]]
     static Glib::ustring lower(const Glib::ustring &s, int start = 0);
+    static inline Glib::ustring lower(const Glib::ustring &str, size_t start = 0)
+    {
+        return Glib::ustring{str.substr(0, start) + str.substr(start).lowercase()};
+    }
 
     static std::wstring from_bytesUtf8(const char *in);
     static std::wstring from_bytesUtf8(const std::string &in);
