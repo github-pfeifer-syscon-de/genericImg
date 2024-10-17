@@ -151,6 +151,9 @@ public:
     void log(Level level
             , const Glib::ustring& msg
             , const std::source_location location = std::source_location::current());
+    void log(Level level
+            , std::function< Glib::ustring(void) >&& lambda
+            , const std::source_location location = std::source_location::current());
     inline bool isLoggable(Level level)
     {
         return level <= m_level;

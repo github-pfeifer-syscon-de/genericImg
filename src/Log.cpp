@@ -255,6 +255,16 @@ Log::log(Level level
 }
 
 void
+Log::log(Level level
+        , std::function< Glib::ustring(void) >&& lambda
+        , const std::source_location location)
+{
+    if (m_plugin && isLoggable(level)) {
+        m_plugin->log(level, lambda(), location);
+    }
+}
+
+void
 Log::logAdd(const Glib::ustring& msg
         , int debug
         , const std::source_location location
@@ -278,14 +288,14 @@ Log::logAdd(Level level
         , const Glib::ustring& msg
         , const std::source_location location)
 {
-	if (m_log) {
-		m_log->log(level, msg, location);
-	}
-	else {
-		std::cout << getTimestamp()
-			      << " " << getLevel(level)
-				  << " " << msg << std::endl;
-	}
+    if (m_log) {
+        m_log->log(level, msg, location);
+    }
+    else {
+        std::cout << getTimestamp()
+                  << " " << getLevel(level)
+                  << " " << msg << std::endl;
+    }
 }
 
 void
@@ -293,18 +303,16 @@ Log::logAdd(Level level
         , std::function< Glib::ustring(void) >&& lambda
 	    , const std::source_location location)
 {
-	if (m_log ) {
+	if (m_log) {
         if (m_log->isLoggable(level)) {
-            auto msg = lambda();
-            m_log->log(level, msg, location);
-        }
+            m_log->log(level, lambda(), location);
+    	}
 	}
-	else {
-        auto msg = lambda();
-		std::cout << getTimestamp()
-			      << " " << getLevel(level)
-				  << " " << msg << std::endl;
-	}
+    else {
+        std::cout << getTimestamp()
+                  << " " << getLevel(level)
+				  << " " << lambda() << std::endl;
+    }
 }
 
 
