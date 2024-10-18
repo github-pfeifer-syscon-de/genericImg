@@ -262,9 +262,12 @@ StringUtils::formatCDouble(double val, std::chars_format fmt, int precision)
     std::array<char, 64> str;
     auto [ptr, ec] = std::to_chars(str.data(), str.data() + str.size(), val, fmt, precision);
     if (ec == std::errc()) {
-        Glib::ustring ustr{str.data(), ptr};
+        Glib::ustring ustr{str.data(), static_cast<Glib::ustring::size_type>(std::distance(str.data(), ptr))};
         return ustr;
     }
-    psc::log::Log::logAdd(psc::log::Level::Warn, Glib::ustring::sprintf("Formating %lf failed ", val));
+    psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
+        auto erc = std::make_error_code(ec);
+        return std::format("Formating {} failed {}", val, erc.message());
+    });
     return "0";
 }
