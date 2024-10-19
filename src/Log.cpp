@@ -198,6 +198,11 @@ Log::Log(const char* prefix, Type type)
     }
 }
 
+Log::~Log()
+{
+    close();
+}
+
 Level
 Log::getLevel()
 {
@@ -395,6 +400,12 @@ Log::create(const char* prefix, Type type)
     if (!m_log) {
         m_log = std::make_shared<Log>(prefix, type);
     }
+    return m_log;
+}
+
+std::shared_ptr<Log>
+Log::getGlobalLog()
+{
     return m_log;
 }
 

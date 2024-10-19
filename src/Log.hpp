@@ -140,7 +140,7 @@ class Log
 public:
     Log(const char* prefix, Type type = Type::Default);
     explicit Log(const Log& orig) = delete;
-    virtual ~Log() = default;
+    virtual ~Log();
 
     void error(const Glib::ustring& msg
             , const std::source_location location = std::source_location::current());
@@ -185,6 +185,7 @@ public:
     //   for different parts of a application.
     // The parameters are only honored on first invocation
     static std::shared_ptr<Log> create(const char* prefix, Type type = Type::Default);
+    static std::shared_ptr<Log> getGlobalLog();
     static const char* getLevel(Level level);
     void close();
 private:
