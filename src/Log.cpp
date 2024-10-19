@@ -155,17 +155,26 @@ SysPlugin::SysPlugin(const char* prefix)
 void
 SysPlugin::log(Level level, const Glib::ustring& msg, const std::source_location location)
 {
-    Glib::ustring out0 = Glib::ustring::sprintf("MESSAGE=%s", msg);
-    Glib::ustring out1 = Glib::ustring::sprintf("CODE_FILE=%s", location.file_name());
-    Glib::ustring out2 = Glib::ustring::sprintf("CODE_LINE=%d", location.line());
-    Glib::ustring out3 = Glib::ustring::sprintf("CODE_FUNC=%s", location.function_name());
-    Glib::ustring out4 = Glib::ustring::sprintf("PRIORITY=%d", static_cast<typename std::underlying_type<Level>::type>(level));
-    sd_journal_send(out0.c_str()
-                    , out1.c_str()
-                    , out2.c_str()
-                    , out3.c_str()
-                    , out4.c_str()
-                    , nullptr);
+    std::array<Glib::ustring, 5> ustr;
+    ustr[0] = Glib::ustring::sprintf("MESSAGE=%s", msg);
+    ustr[1] = Glib::ustring::sprintf("CODE_FILE=%s", location.file_name());
+    ustr[2] = Glib::ustring::sprintf("CODE_LINE=%d", location.line());
+    ustr[3] = Glib::ustring::sprintf("CODE_FUNC=%s", location.function_name());
+    ustr[4] = Glib::ustring::sprintf("PRIORITY=%d", static_cast<typename std::underlying_type<Level>::type>(level));
+    struct iovec iov[ustr.size()];
+    for (uint32_t i = 0; i < ustr.size(); ++i) {
+        // need const cast as struct is defined as "unconst"
+        iov[i].iov_base = const_cast<void*>(static_cast<const void*>(ustr[i].c_str()));
+        iov[i].iov_len = ustr[i].length();
+    }
+    uint32_t iovcnt = ustr.size();
+    // this works best
+    int ret = sd_journal_sendv(iov, iovcnt);
+    if (ret != 0) {
+        std::cout << "error send systemd log " << strerror(ret)
+                  << " msg " << msg << std::endl;
+    }
+    //sd_journal_send is just crap
 }
 
 
