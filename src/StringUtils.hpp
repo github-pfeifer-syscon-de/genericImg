@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include <glibmm.h>
 #include <string>
 #include <vector>
 #ifdef __WIN32__
@@ -30,6 +29,7 @@
 #include <iostream>
 #include <charconv>
 #include <format>
+#include <glibmm.h>
 
 class StringUtils {
 public:

@@ -289,7 +289,9 @@ Log::logAdd(Level level
         , const std::source_location location)
 {
     if (m_log) {
-        m_log->log(level, msg, location);
+        if (m_log->isLoggable(level)) {
+            m_log->log(level, msg, location);
+        }
     }
     else {
         std::cout << getTimestamp()

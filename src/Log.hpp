@@ -18,11 +18,12 @@
 
 #pragma once
 
-#include <glibmm.h>
-#include <giomm-2.4/giomm.h>
+#include <functional>
 #include <source_location>
 #include <memory>
 #include <format>
+#include <glibmm.h>
+#include <giomm-2.4/giomm.h>
 
 #include "config.h"
 
