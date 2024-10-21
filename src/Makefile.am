@@ -41,6 +41,7 @@ libgenericimg_la_SOURCES = \
 	Mode.cpp \
 	JsonHelper.cpp \
 	Log.cpp \
+	LogImpl.cpp \
 	AbstractTableManager.cpp \
 	KeyfileTableManager.cpp \
 	TableProperties.cpp \
@@ -75,6 +76,7 @@ pkginclude_HEADERS = \
 	Mode.hpp \
 	JsonHelper.hpp \
 	Log.hpp \
+	LogImpl.hpp \
 	AbstractTableManager.hpp \
 	KeyfileTableManager.hpp \
 	TableProperties.hpp \

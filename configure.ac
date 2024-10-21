@@ -54,13 +54,21 @@ depend_jsonglib1="json-glib-1.0"
 AC_SUBST([depend_jsonglib1])
 PKG_CHECK_MODULES(JSONGLIB1, [$depend_jsonglib1])
 
-AC_ARG_WITH([sysdlog], AS_HELP_STRING([--with-sysdlog], [Build with systemdlog otherwise user home log will be used]))
+AC_ARG_WITH([sysdlog], AS_HELP_STRING([--with-sysdlog], [Build with systemdlog, if neither sysdlog or syslog will be specified user home log will be used by default]))
 
 AS_IF([test "x$with_sysdlog" = "xyes"], [
     PKG_CHECK_MODULES([SYSTEMDLOG], [libsystemd], [AC_DEFINE([SYSDLOG], [1], [Using systemd journal])])
 ])
 
 AM_CONDITIONAL([SYSDLOG], test "x$with_sysdlog" = "xyes"])
+
+AC_ARG_WITH([syslog], AS_HELP_STRING([--with-syslog], [Build with syslog (best use when systemd log is not available), if neither sysdlog or syslog will be specified user home log will be used by default]))
+
+AS_IF([test "x$with_syslog" = "xyes"], [
+    AC_DEFINE([SYSLOG], [1], [Using syslog])
+])
+
+AM_CONDITIONAL([SYSLOG], test "x$with_syslog" = "xyes"])
 
 if test "$host_os" = "mingw32" ; then
     AC_SUBST(EXTRA_LDFLAGS, "-no-undefined")

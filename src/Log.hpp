@@ -25,8 +25,6 @@
 #include <glibmm.h>
 #include <giomm-2.4/giomm.h>
 
-#include "config.h"
-
 namespace psc {
 namespace log {
 
@@ -35,13 +33,14 @@ enum class Type {
     Default,
     File,
     Systemd,
+    Syslog,
     Console,
     None
 };
 
 enum class Level
 {
-    // see gd_errors.h to align with kernel
+    // see gd_errors.h or syslog.h 
       Severe = 0
     , Alert
     , Crit
@@ -104,36 +103,6 @@ private:
     goffset m_sizeLimit;
 };
 
-class ConsolePlugin
-: public LogPlugin
-{
-public:
-    ConsolePlugin(const char* prefix);
-    explicit ConsolePlugin(const ConsolePlugin& orig) = delete;
-    ~ConsolePlugin() = default;
-
-
-    void log(Level level
-            , const Glib::ustring& msg
-            , const std::source_location location) override;
-};
-
-#ifdef SYSDLOG
-class SysPlugin
-: public LogPlugin
-{
-public:
-    SysPlugin(const char* prefix);
-    explicit SysPlugin(const SysPlugin& orig) = delete;
-    ~SysPlugin() = default;
-
-
-    void log(Level level
-            , const Glib::ustring& msg
-            , const std::source_location location) override;
-};
-#endif
-
 
 class Log
 {
@@ -185,6 +154,7 @@ public:
     //   for different parts of a application.
     // The parameters are only honored on first invocation
     static std::shared_ptr<Log> create(const char* prefix, Type type = Type::Default);
+    // get a global log if it exists
     static std::shared_ptr<Log> getGlobalLog();
     static const char* getLevel(Level level);
     void close();

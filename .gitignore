@@ -76,7 +76,6 @@
 /src/.libs/libgenericimg.so.0.3.2
 /src/.libs/libgenericimg.so.0.3.3
 /src/.libs/libgenericimg.so.0.3.4
-/pkg/
 /test/Makefile
 /test/unic_test.log
 /test/test-suite.log
@@ -92,3 +91,4 @@
 /src/.libs/libgenericimg.so.0.3.5
 /src/.libs/libgenericimg.so.0.3.6
 /test/log_test.trs
+/pkg/

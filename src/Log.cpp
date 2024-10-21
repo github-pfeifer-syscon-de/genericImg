@@ -19,14 +19,14 @@
 #include <ctime>
 #include <iostream>
 
+#include "config.h"
 #include "Log.hpp"
-#ifdef SYSDLOG
-#include <systemd/sd-journal.h>
-#endif
+#include "LogImpl.hpp"
 
 namespace psc {
 namespace log {
 
+std::shared_ptr<Log> Log::m_log;
 
 LogPlugin::LogPlugin(const char* prefix)
 : m_prefix{prefix}
@@ -124,77 +124,42 @@ FilePlugin::log(Level level
 }
 
 
-ConsolePlugin::ConsolePlugin(const char* prefix)
-: LogPlugin::LogPlugin(prefix)
-{
-}
-
-void
-ConsolePlugin::log(Level level
-        , const Glib::ustring& msg
-        , const std::source_location location)
-{
-    Glib::ustring time = Log::getTimestamp();
-    if (level >= Level::Debug) {
-        std::cout << location.function_name() << '\n';
-    }
-    std::cout << time
-              << " " << Log::getLevel(level)
-              << " " << location.file_name()
-              << ":" << location.line()
-              << " " << msg << std::endl;
-}
-
-
-#ifdef SYSDLOG
-SysPlugin::SysPlugin(const char* prefix)
-: LogPlugin::LogPlugin(prefix)
-{
-}
-
-void
-SysPlugin::log(Level level, const Glib::ustring& msg, const std::source_location location)
-{
-    std::array<Glib::ustring, 5> ustr;
-    ustr[0] = Glib::ustring::sprintf("MESSAGE=%s", msg);
-    ustr[1] = Glib::ustring::sprintf("CODE_FILE=%s", location.file_name());
-    ustr[2] = Glib::ustring::sprintf("CODE_LINE=%d", location.line());
-    ustr[3] = Glib::ustring::sprintf("CODE_FUNC=%s", location.function_name());
-    ustr[4] = Glib::ustring::sprintf("PRIORITY=%d", static_cast<typename std::underlying_type<Level>::type>(level));
-    struct iovec iov[ustr.size()];
-    for (uint32_t i = 0; i < ustr.size(); ++i) {
-        // need const cast as struct is defined as "unconst"
-        iov[i].iov_base = const_cast<void*>(static_cast<const void*>(ustr[i].c_str()));
-        iov[i].iov_len = ustr[i].length();
-    }
-    uint32_t iovcnt = ustr.size();
-    // this works best
-    int ret = sd_journal_sendv(iov, iovcnt);
-    if (ret != 0) {
-        std::cout << "error send systemd log " << strerror(ret)
-                  << " msg " << msg << std::endl;
-    }
-    //sd_journal_send is just crap
-}
-
-
-#endif
-
-
-std::shared_ptr<Log> Log::m_log;
-
 Log::Log(const char* prefix, Type type)
 : m_level{Level::Info}
 {
-    switch (type) {
-    case Type::Default:
-    case Type::Systemd:     // if SYSDLOG udefined file ...
+    Type useType = type;
+    if (type == Type::Default) {
         #ifdef SYSDLOG
-        m_plugin = std::make_shared<SysPlugin>(prefix);
+        useType = Type::Systemd;
         #else
-        m_plugin = std::make_shared<FilePlugin>(prefix);
+        #ifdef SYSLOG
+        useType = Type::Syslog;
+        #else
+        useType = Type::File;
         #endif
+        #endif
+    }
+    #ifndef SYSDLOG
+    if (type == Type::Systemd) {
+        useType = Type::File;
+    }
+    #endif
+    #ifndef SYSLOG
+    if (type == Type::Syslog) {
+        useType = Type::File;
+    }
+    #endif
+    switch (useType) {
+    #ifdef SYSDLOG
+    case Type::Systemd:
+        m_plugin = std::make_shared<SysdPlugin>(prefix);
         break;
+    #endif
+    #ifdef SYSLOG
+    case Type::Syslog:
+        m_plugin = std::make_shared<SysPlugin>(prefix);
+        break;
+    #endif
     case Type::File:
         m_plugin = std::make_shared<FilePlugin>(prefix);
         break;
@@ -203,6 +168,9 @@ Log::Log(const char* prefix, Type type)
         break;
     case Type::None:
         m_plugin.reset();
+        break;
+    default:
+        std::cerr << "No logging set!" << std::endl;
         break;
     }
 }
