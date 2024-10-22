@@ -52,11 +52,11 @@ For the Levels see Log.hpp at the moment Severe, Alert, Crit, Error, Warn, Notic
 But this is a work in progress so there might still be messages spilled on stdout...
 
 the structure of the libs used here is:
-<code>
+<pre>
 genericImg (used almost everywhere i think)
 + genericGlm
 | + monglmm
 | + picnic
 | + geodata
 |   + glglobe
-</code>
+</pre>
