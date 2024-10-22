@@ -11,10 +11,6 @@ Using usr is a suggestion, as other locations may require some path tweaking
 for later steps to find this lib, so use it,
 unless you know what your are doing, as always ;)
 
-For Raspi e.g.:
-<code>
-  ./configure --prefix=/usr
-</code>
 For windows (get msys2 https://www.msys2.org/) the files shoud adapt use e.g.
 (use "msys2 mingw64" window/shell see tooltip)<br>
 <code>
