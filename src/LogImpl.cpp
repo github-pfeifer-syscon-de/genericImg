@@ -85,8 +85,6 @@ SysdPlugin::log(Level level, const Glib::ustring& msg, const std::source_locatio
     //sd_journal_send is ... different
     //  (the prototype says "format" ... so its basically a syslog clone!)
 }
-
-
 #endif
 
 #ifdef SYSLOG
@@ -108,8 +106,6 @@ SysPlugin::log(Level level, const Glib::ustring& msg, const std::source_location
     syslog(priority, "%16s:%d %s", location.file_name(), location.line(), msg.c_str());
     // unused location.function_name()
 }
-
-
 #endif
 
 } /* namespace log */

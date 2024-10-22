@@ -1,5 +1,5 @@
 # genericImg
-Some basic functions (primarily related to imaging) used by my projects.
+Some basic functions (some related to imaging) used by my projects.
 
 To build use any (lin)ux:
 <pre>
@@ -28,7 +28,7 @@ make install
 If you run into trouble with the used c++20 change configure.ac AX_CXX_COMPILE_STDCXX([20]... to ...[17] (may need some adaptions)
 
 Now included is some basic logging support.
-The default logging will be written to user home into the log directory.
+The default logging will be written to user home into the <pre>log</pre> directory.
 
 If configured with:
 <pre>
@@ -39,7 +39,16 @@ Query with e.g.:
 <pre>
 journalctl SYSLOG_IDENTIFIER="glglobe"
 </pre>
-To change the log level the application config file e.g. ~/.config/glglobe.conf may support in main section e.g.:
+The log is created with extended fields to see these use <pre>-o verbose --output-fields=CODE_FILE,CODE_LINE,CODE_FUNC</ptr>
+(a extra constant CODE_LINE is added from where the log function is called).
+
+As a alternative:
+<pre>
+--with-syslog
+</pre>
+is supported to use syslog.
+
+To change the log level the application config file e.g. <pre>~/.config/glglobe.conf</pre> may support in main section e.g.:
 <pre>
 logLevel=Info
 </pre>
