@@ -12,7 +12,7 @@ for later steps to find this lib, so use it,
 unless you know what your are doing, as always ;)
 
 For windows (get msys2 https://www.msys2.org/) the files shoud adapt use e.g.
-(use "msys2 mingw64" window/shell see tooltip)<br>
+(use "msys2 mingw64" window/shell see tooltip)
 <code>
   ./configure --prefix=/mingw64
 </code>
