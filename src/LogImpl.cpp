@@ -22,6 +22,7 @@
 #include "config.h"
 
 #ifdef SYSDLOG
+#define SD_JOURNAL_SUPPRESS_LOCATION    // avoid default location fields
 #include <systemd/sd-journal.h>
 #endif
 #ifdef SYSLOG
