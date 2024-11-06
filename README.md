@@ -5,12 +5,25 @@ Some basic functions (some related to imaging) used by my projects.
 
 - a compiler supporting C++20 (preferable Gcc >= 13, others may work as well, check source for "gcc","GNUC" to adapt some functions for some systems)
 - Gnu autotools
+- the project can be downloaded with
+<pre>
+git clone https://github.com/github-pfeifer-syscon-de/genericImg
+</pre>
+- The configure step is where needed dependencies will popup
+(so look for "checking for ..." and see if the answer is "yes"
+if not install additional packages).
+
+## Debian
+
+Use the following commands to get the prerequisits (run with sudo or as root):
+<pre>
+apt-get install git build-essential automake libtool
+apt-get install libgtkmm-3.0-dev
+</pre>
 
 ## Any Linux
 
-For some Debian specific hints see https://github.com/github-pfeifer-syscon-de/genericGlm/README.md .
-
-To build use:
+To build use from project dir:
 <pre>
 autoreconf -fis
 ./configure --prefix=/usr...
@@ -32,18 +45,22 @@ pacman -S mingw-w64-x86_64-autotools
 pacman -S mingw-w64-x86_64-gtkmm3
 pacman -S mingw-w64-x86_64-libexif
 </pre>
-Then it should be possible to build the project:
+Then it should be possible to clone&build the project:
 <pre>
 autoreconf -fis
 ./configure --prefix=/mingw64
 make
 </pre>
 
-## Any systems
+## Any system
 
 The lib requires to be installed before use so (on linux run as root):
 <pre>
 make install
+</pre>
+If you dont like it (on linux run as root):
+<pre>
+make uninstall
 </pre>
 
 ## Logging
