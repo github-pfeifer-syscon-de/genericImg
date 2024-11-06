@@ -20,7 +20,10 @@
 #include <fstream>
 #include <cstring>
 #include <format>
+#include <chrono>
 #include <Log.hpp>
+#include <LogView.hpp>
+#include <LogViewSysd.hpp>
 
 static bool
 test_log()
@@ -65,6 +68,48 @@ test_log()
     return true;
 }
 
+static bool
+test_logview()
+{
+    auto logView = psc::log::LogView::create();
+    auto bootId = logView->getBootId();
+    std::cout << "Current boot " << bootId << std::endl;
+    auto ids = logView->getIdentifiers();
+    psc::log::pLogViewIdentifier logViewBoot;
+    for (auto& logViewId : ids) {
+        if ("_BOOT_ID" == logViewId->getType()
+         && logViewId->getQuery().ends_with(bootId)) {
+            logViewBoot = logViewId;
+        }
+    }
+    for (auto& logViewId : ids) {
+        //std::cout << "logId " << logViewId->getName() << std::endl;
+        const auto tz = std::chrono::current_zone();
+        if ("monglmm" == logViewId->getName()) {
+            if (logViewBoot) {
+                std::list<psc::log::pLogViewIdentifier> query;
+                query.push_back(logViewId);
+                query.push_back(logViewBoot);
+                logView->setQuery(query);
+                for (auto iter = logView->begin(); iter != logView->end(); iter.operator++()) {
+                    auto entry = *iter;
+                    auto local = tz->to_local(entry->getRealTimeUTC());
+                    std::cout << "   time " << local << "\n";
+                    //std::cout << "   boot " << entry->getBootId() << "\n";
+                    std::cout << "   msg " << entry->getMessage() << std::endl;
+                    std::cout << "   loc " << entry->getLocation() << std::endl;
+                }
+            }
+            else {
+                std::cout << "Boot not (yet) found!" << std::endl;
+            }
+        }
+    }
+    return true;
+}
+
+
+
 int main(int argc, char** argv)
 {
     setlocale(LC_ALL, "");      // make locale dependent, and make glib accept u8 const !!!
@@ -72,6 +117,10 @@ int main(int argc, char** argv)
     if (!test_log()) {
         return 1;
     }
+    if (!test_logview()) {
+        return 2;
+    }
+
 
     return 0;
 }

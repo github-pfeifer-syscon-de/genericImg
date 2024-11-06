@@ -92,3 +92,6 @@
 /src/.libs/libgenericimg.so.0.3.6
 /test/log_test.trs
 /pkg/
+/test/log_test
+/test/log_test.log
+/test/test.db

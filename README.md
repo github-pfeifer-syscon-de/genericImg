@@ -1,7 +1,16 @@
 # genericImg
 Some basic functions (some related to imaging) used by my projects.
 
-To build use any (lin)ux:
+## Minimum requirements
+
+- a compiler supporting C++20 (preferable Gcc >= 13, others may work as well, check source for "gcc","GNUC" to adapt some functions for some systems)
+- Gnu autotools
+
+## Any Linux
+
+For some Debian specific hints see https://github.com/github-pfeifer-syscon-de/genericGlm/README.md .
+
+To build use:
 <pre>
 autoreconf -fis
 ./configure --prefix=/usr...
@@ -11,18 +20,33 @@ Using usr is a suggestion, as other locations may require some lib/pkg/-path twe
 for later steps to find this lib, so use it,
 unless you know what your are doing, as always ;)
 
-For windows (get msys2 https://www.msys2.org/) the files shoud adapt use this modfied configure
-(start "msys2 mingw64" window/shell see tooltip)
+## Windows
+
+For windows (get msys2 https://www.msys2.org/ ).
+Use "msys2 mingw64" window/shell (see tooltip)
+First install the prerequisits:
 <pre>
-./configure --prefix=/mingw64
+pacman -S git
+pacman -S mingw-w64-x86_64-gcc
+pacman -S mingw-w64-x86_64-autotools
+pacman -S mingw-w64-x86_64-gtkmm3
+pacman -S mingw-w64-x86_64-libexif
 </pre>
-The lib requires to be installed before use so (run as root):
+Then it should be possible to build the project:
 <pre>
-cd .../genericImg
+autoreconf -fis
+./configure --prefix=/mingw64
+make
+</pre>
+
+## Any systems
+
+The lib requires to be installed before use so (on linux run as root):
+<pre>
 make install
 </pre>
 
-If you run into trouble with the used c++20 change configure.ac AX_CXX_COMPILE_STDCXX([20]... to ...[17] (this may not be an option anymore...)
+## Logging
 
 Now included is some basic logging support.
 The default logging will be written to user home into the <code>log</code> directory.
@@ -45,6 +69,8 @@ logLevel=Info
 </pre>
 For the Levels see Log.hpp at the moment Severe, Alert, Crit, Error, Warn, Notice, Info, Debug.
 But this is a work in progress so there might still be messages spilled on stdout...
+
+## Structure
 
 the structure of the libs used here is:
 <pre>
