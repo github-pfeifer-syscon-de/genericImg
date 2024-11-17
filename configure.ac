@@ -54,6 +54,11 @@ depend_jsonglib1="json-glib-1.0"
 AC_SUBST([depend_jsonglib1])
 PKG_CHECK_MODULES(JSONGLIB1, [$depend_jsonglib1])
 
+dnl uncomment for use libfmt e.g. with gcc < 13
+dnl depend_libfmt="fmt"
+dnl AC_SUBST([depend_libfmt])
+dnl PKG_CHECK_MODULES([LIBFMT], [$depend_libfmt], [AC_DEFINE([LIBFMT], [1], [Using libfmt for gcc < 13])])
+
 AC_ARG_WITH([sysdlog], AS_HELP_STRING([--with-sysdlog], [Build with systemdlog, if neither sysdlog or syslog will be specified user home log will be used by default]))
 
 AS_IF([test "x$with_sysdlog" = "xyes"], [
