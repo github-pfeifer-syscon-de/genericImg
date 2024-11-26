@@ -21,6 +21,10 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <type_traits>
+#ifndef _MSC_VER
+#   include <cxxabi.h>
+#endif
 
 
 #include "StringUtils.hpp"
@@ -93,30 +97,6 @@ StringUtils::lower(const Glib::ustring& str, int start)
     return Glib::ustring{str.substr(0, start) + str.substr(start).lowercase()};
 }
 
-
-
-const char *
-StringUtils::weekday(int day)
-{
-    switch (day%7)
-    {
-        case 0:
-            return "Sun";
-        case 1:
-            return "Mon";
-        case 2:
-            return "Tue";
-        case 3:
-            return "Wed";
-        case 4:
-            return "Thu";
-        case 5:
-            return "Fri";
-        case 6:
-            return "Sat";
-    }
-    return "?";
-}
 
 
 void
@@ -270,4 +250,14 @@ StringUtils::formatCDouble(double val, std::chars_format fmt, int precision)
         return std::format("Formating {} failed {}", val, erc.message());
     });
     return "0";
+}
+
+Glib::ustring
+StringUtils::typeName(const std::type_info& typeinfo)
+{
+#ifndef _MSC_VER
+    return abi::__cxa_demangle(typeinfo.name(), nullptr, nullptr, nullptr);
+#else
+    return typeinfo.name();
+#endif
 }

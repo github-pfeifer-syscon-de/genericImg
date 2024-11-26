@@ -123,43 +123,27 @@ FilePlugin::log(Level level
     m_outstream->write(out);
 }
 
+static std::shared_ptr<LogPlugin>
+defaultLogType(const char* prefix)
+{
+#   ifdef SYSDLOG
+        return std::make_shared<SysdPlugin>(prefix);
+#   else
+#       ifdef SYSLOG
+            return std::make_shared<SysPlugin>(prefix);
+#       else
+            return std::make_shared<FilePlugin>(prefix);
+#       endif
+#   endif
+}
 
 Log::Log(const char* prefix, Type type)
 : m_level{Level::Info}
 {
-    Type useType = type;
-    if (type == Type::Default) {
-        #ifdef SYSDLOG
-        useType = Type::Systemd;
-        #else
-        #ifdef SYSLOG
-        useType = Type::Syslog;
-        #else
-        useType = Type::File;
-        #endif
-        #endif
-    }
-    #ifndef SYSDLOG
-    if (type == Type::Systemd) {
-        useType = Type::File;
-    }
-    #endif
-    #ifndef SYSLOG
-    if (type == Type::Syslog) {
-        useType = Type::File;
-    }
-    #endif
-    switch (useType) {
-    #ifdef SYSDLOG
-    case Type::Systemd:
-        m_plugin = std::make_shared<SysdPlugin>(prefix);
+    switch (type) {
+    case Type::Default:
+        m_plugin = defaultLogType(prefix);
         break;
-    #endif
-    #ifdef SYSLOG
-    case Type::Syslog:
-        m_plugin = std::make_shared<SysPlugin>(prefix);
-        break;
-    #endif
     case Type::File:
         m_plugin = std::make_shared<FilePlugin>(prefix);
         break;

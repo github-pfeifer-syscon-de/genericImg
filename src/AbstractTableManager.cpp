@@ -159,23 +159,37 @@ AbstractTableManager::getColumnSize(guint colIdx)
     return 0;
 }
 
+void
+AbstractTableManager::setAllowSort(bool allowSort)
+{
+    m_allowSort = allowSort;
+}
+
+bool
+AbstractTableManager::getAllowSort()
+{
+    return m_allowSort;
+}
+
 Gtk::Menu*
 AbstractTableManager::create_popup(Gtk::TreeModelColumnBase* modelColumn)
 {
     auto popupMenu = Gtk::make_managed<Gtk::Menu>();
-    auto itemAscending = Gtk::make_managed<Gtk::MenuItem>("Sort _ascending", true);
-    int32_t modelIdx = modelColumn->index();
-    itemAscending->signal_activate().connect(
-                sigc::bind(
-                      sigc::mem_fun(*this, &AbstractTableManager::sort)
-                    , modelIdx, Gtk::SortType::SORT_ASCENDING));
-    popupMenu->append(*itemAscending);
-    auto itemDescending = Gtk::make_managed<Gtk::MenuItem>("Sort _decending", true);
-    itemDescending->signal_activate().connect(
-                sigc::bind(
-                      sigc::mem_fun(*this, &AbstractTableManager::sort)
-                    , modelIdx, Gtk::SortType::SORT_DESCENDING));
-    popupMenu->append(*itemDescending);
+    if (m_allowSort) {
+        auto itemAscending = Gtk::make_managed<Gtk::MenuItem>("Sort _ascending", true);
+        int32_t modelIdx = modelColumn->index();
+        itemAscending->signal_activate().connect(
+                    sigc::bind(
+                          sigc::mem_fun(*this, &AbstractTableManager::sort)
+                        , modelIdx, Gtk::SortType::SORT_ASCENDING));
+        popupMenu->append(*itemAscending);
+        auto itemDescending = Gtk::make_managed<Gtk::MenuItem>("Sort _decending", true);
+        itemDescending->signal_activate().connect(
+                    sigc::bind(
+                          sigc::mem_fun(*this, &AbstractTableManager::sort)
+                        , modelIdx, Gtk::SortType::SORT_DESCENDING));
+        popupMenu->append(*itemDescending);
+    }
     auto itemProp = Gtk::make_managed<Gtk::MenuItem>("_Properties", true);
     itemProp->signal_activate().connect(
             sigc::mem_fun(*this, &AbstractTableManager::on_table_properties) );

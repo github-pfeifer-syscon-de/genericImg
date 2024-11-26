@@ -8,6 +8,6 @@ includedir=@includedir@/genericimg
 Name: libgenericimg
 Description: Basic inamging function support lib.
 Version: @VERSION@
-Requires: @depend_gtkmm@ @depend_libpng@ @depend_glibmm@ @depend_libexif@ @depend_jsonglib1@
+Requires: @depend_gtkmm@ @depend_libpng@ @depend_glibmm@ @depend_libexif@ @depend_jsonglib1@ @depend_libfmt@
 Libs: -L${libdir} -lgenericimg
 Cflags: -I${includedir}

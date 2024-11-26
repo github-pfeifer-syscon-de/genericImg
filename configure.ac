@@ -4,7 +4,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 m4_define([v_maj], [0])
 m4_define([v_min], [3])
-m4_define([v_mic], [6])
+m4_define([v_mic], [7])
 m4_define([project_version], [v_maj.v_min.v_mic])
 m4_define([lt_cur], m4_eval(v_maj + v_min))
 m4_define([lt_rev], [v_mic])
@@ -54,10 +54,10 @@ depend_jsonglib1="json-glib-1.0"
 AC_SUBST([depend_jsonglib1])
 PKG_CHECK_MODULES(JSONGLIB1, [$depend_jsonglib1])
 
-dnl uncomment for use libfmt e.g. with gcc < 13
+dnl uncomment to use libfmt e.g. with gcc < 13 see README.md
 dnl depend_libfmt="fmt"
-dnl AC_SUBST([depend_libfmt])
 dnl PKG_CHECK_MODULES([LIBFMT], [$depend_libfmt], [AC_DEFINE([LIBFMT], [1], [Using libfmt for gcc < 13])])
+AC_SUBST([depend_libfmt])
 
 AC_ARG_WITH([sysdlog], AS_HELP_STRING([--with-sysdlog], [Build with systemdlog, if neither sysdlog or syslog will be specified user home log will be used by default]))
 

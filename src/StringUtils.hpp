@@ -30,6 +30,7 @@
 #include <charconv>
 #include <format>
 #include <glibmm.h>
+#include <typeinfo>
 
 class StringUtils {
 public:
@@ -57,7 +58,6 @@ public:
     static std::wstring from_bytesUtf8(const char *in);
     static std::wstring from_bytesUtf8(const std::string &in);
 
-    static const char *weekday(int day);
     static void split(const Glib::ustring &line, char delim, std::vector<Glib::ustring> &ret);
     // like split but works with repeated delimiters
     static void splitRepeat(const Glib::ustring &line, gunichar delim, std::vector<Glib::ustring> &ret);
@@ -79,6 +79,8 @@ public:
     // std::chars_format::fixed formats 3.14 to "3.1400" (precision 4)
     static Glib::ustring formatCDouble(double val, std::chars_format fmt = std::chars_format::general, int precision = 4);
 
+    // type to readable name
+    static Glib::ustring typeName(const std::type_info& typeinfo);
 private:
     StringUtils() = default;
 

@@ -24,6 +24,7 @@
 #include <format>
 #include <glibmm.h>
 #include <giomm-2.4/giomm.h>
+#include <StringUtils.hpp>
 
 namespace psc {
 namespace log {
@@ -32,15 +33,13 @@ namespace log {
 enum class Type {
     Default,
     File,
-    Systemd,
-    Syslog,
     Console,
     None
 };
 
 enum class Level
 {
-    // see gd_errors.h or syslog.h 
+    // see gd_errors.h or syslog.h
       Severe = 0
     , Alert
     , Crit

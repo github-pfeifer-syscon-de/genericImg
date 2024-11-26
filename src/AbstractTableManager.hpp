@@ -158,6 +158,14 @@ public:
     void saveConfig(const Gtk::Dialog* dlg);
     Glib::RefPtr<Gtk::TreeView> getTable();
     size_t getColumnSize(guint colIdx);
+    /**
+     *  Allow disable sorting
+     *   e.g. for large models and converted data
+     *   this might be too time consuming
+     *     (maybe it will be more efficient if we implement sort for raw data)
+     */
+    void setAllowSort(bool allowSort);
+    bool getAllowSort();
 
     virtual void loadColumnIdxConfig(const Glib::ustring& keyName, std::vector<int32_t>& colmns) = 0;
     virtual void loadDialogSizeConfig(int& dlgWidth, int& dlgHeight) = 0;
@@ -180,6 +188,7 @@ protected:
     Glib::RefPtr<Gtk::TreeView> m_table;
     int32_t m_sortModelIdx;
     Gtk::SortType m_sortType;
+    bool m_allowSort{true};
 
     static constexpr auto COLUMN_IDXS = "columnIdxs";
     static constexpr auto COLUMN_SIZES = "columnSizes";

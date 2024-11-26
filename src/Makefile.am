@@ -4,6 +4,7 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir). "\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
+	$(LIBFMT_CFLAGS) \
 	$(LIBPNG_CFLAGS) \
 	$(LIBEXIF_CFLAGS) \
 	$(JSONGLIB1_CFLAGS) \
@@ -42,6 +43,11 @@ libgenericimg_la_SOURCES = \
 	JsonHelper.cpp \
 	Log.cpp \
 	LogImpl.cpp \
+	LogView.cpp \
+	LogViewSysd.cpp \
+	LogViewFile.cpp \
+	LogViewSyslog.cpp \
+	DateUtils.cpp \
 	AbstractTableManager.cpp \
 	KeyfileTableManager.cpp \
 	TableProperties.cpp \
@@ -49,6 +55,7 @@ libgenericimg_la_SOURCES = \
 	KeyConfig.cpp
 
 libgenericimg_la_LIBADD =  \
+	$(LIBFMT_LIBS) \
 	$(LIBPNG_LIBS) \
 	$(LIBEXIF_LIBS) \
 	$(JSONGLIB1_LIBS) \
@@ -77,6 +84,11 @@ pkginclude_HEADERS = \
 	JsonHelper.hpp \
 	Log.hpp \
 	LogImpl.hpp \
+	LogView.hpp \
+	LogViewSysd.hpp \
+	LogViewFile.hpp \
+	LogViewSyslog.hpp \
+	DateUtils.hpp \
 	AbstractTableManager.hpp \
 	KeyfileTableManager.hpp \
 	TableProperties.hpp \
@@ -86,7 +98,6 @@ pkginclude_HEADERS = \
 if SYSDLOG
 libgenericimg_la_LIBADD += $(SYSTEMDLOG_LIBS)
 AM_CPPFLAGS += $(SYSTEMDLOG_CFLAGS)
-
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig

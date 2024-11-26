@@ -20,7 +20,7 @@ Use the following commands to get the prerequisits (run with sudo or as root):
 apt-get install git build-essential automake libtool
 apt-get install libgtkmm-3.0-dev
 apt-get install libexif-dev
-apt install libjson-glib-dev
+apt-get install libjson-glib-dev
 apt-get install libfmt-dev
 </pre>
 
@@ -29,7 +29,7 @@ and uncomment the following lines (sry coul'd not find a viable switch for these
 replace "#include <format>" with "#include <fmt/format.h>"
 replace "std::format" with fmt::format (include "formatter" in replace as well)
 replace "fmt::format_context" with "fmt::format_context"
-the replacements are needed for all depending projects, so you are really better of with gcc 13
+the replacements are needed for all depending projects, so you are really better off with gcc 13.
 
 ## Any Linux
 
@@ -96,6 +96,11 @@ logLevel=Info
 </pre>
 For the Levels see Log.hpp at the moment Severe, Alert, Crit, Error, Warn, Notice, Info, Debug.
 But this is a work in progress so there might still be messages spilled on stdout...
+
+### LogView
+
+If you wan't to use LogView with syslog:
+- As there is no universal syslog format you may need to adapt the LogViewSyslog::parse method.
 
 ## Structure
 
