@@ -112,6 +112,18 @@ LogDays::operator<(const LogDays& other) const
 }
 
 bool
+LogDays::operator>(const LogDays& other) const
+{
+    return compare(other) > 0;
+}
+
+bool
+LogDays::operator==(const LogDays& other) const
+{
+    return compare(other) == 0;
+}
+
+bool
 LogDays::isValid() const
 {
 #ifdef USE_STD_CHRONO
@@ -215,6 +227,20 @@ LogTime::parse(const char* fmt, const std::string& val, bool isLocal)
 #endif
 }
 
+LogTime
+LogTime::now()
+{
+#ifdef USE_STD_CHRONO
+    auto now = std::chrono::system_clock::now();    // as a bootId ~equivalent use current day
+    const auto tz = std::chrono::current_zone();
+    auto local = tz->to_local(now);
+    auto localPrec = std::chrono::time_point_cast<LogTimePrecision>(local);
+    return LogTime{localPrec};
+#else
+    auto local = Glib::DateTime::create_now_local();
+    return LogTime{local};
+#endif
+}
 
 LogTime
 LogTime::max()

@@ -46,9 +46,17 @@ LogViewFile::getIdentifiers()
             if (LOG_EXTENSTION == ext) {     // avoid reading binary files
                 std::string dir = entry.path().parent_path().string();
                 std::string file = entry.path().filename().string();
-                if (groupDays(entry.path(), days)) {    // only list if compatible
-                    auto id = std::make_shared<LogViewIdFile>(LogViewType::Name, dir, file);
+                std::map<LogDays, uint64_t> mapDays = groupDays(entry.path());
+                if (!mapDays.empty()) {    // only list if compatible
+                    auto id = std::make_shared<LogViewIdFile>(LogViewType::Name, dir, mapDays, file);
                     ret.emplace_back(std::move(id));
+                    for (auto& entry : mapDays) {
+                        auto mapDay = entry.first;
+                        auto day = days.find(mapDay);
+                        if (day == days.end()) {
+                            days.insert(mapDay);
+                        }
+                    }
                 }
             }
         }
@@ -58,31 +66,30 @@ LogViewFile::getIdentifiers()
     for (auto& day : days) {
         //std::cout << "day " << day << std::endl;
         auto isoDate = day.format("%F");
-        auto id = std::make_shared<LogViewIdFile>(LogViewType::Time, "", isoDate);
+        auto id = std::make_shared<LogViewIdFile>(LogViewType::Time, isoDate);
         ret.emplace_back(std::move(id));
     }
     return ret;
 }
 
-bool
-LogViewFile::groupDays(const std::filesystem::path& path, std::set<LogDays>& days)
+// as we already doing the effort of scanning the file,
+//   do not optimize (no skipping), but record the position of each day
+std::map<LogDays, uint64_t>
+LogViewFile::groupDays(const std::filesystem::path& path)
 {
-    bool inserted = false;
+    std::map<LogDays, uint64_t> map;
     std::ifstream stat;
-    std::ios_base::iostate exceptionMask = stat.exceptions() | std::ios::failbit | std::ios::badbit ;   // | std::ios::eofbit
+    std::ios_base::iostate exceptionMask = stat.exceptions() | std::ios::failbit | std::ios::badbit | std::ios::eofbit;
     stat.exceptions(exceptionMask);
     try {
-        auto size = std::filesystem::file_size(path);
+//        auto size = std::filesystem::file_size(path);
         stat.open(path.generic_string()); // open in text-mode
         //std::cout << "reading " << path << std::endl;
-        long skip = 0;
-        if (size > FULL_SCAN_LIMIT) {
-            skip = size / 128l;    // check 128 places
-        }
         while (!stat.eof()) {
+            auto pos = stat.tellg();        // capture position for start of line
             std::string line;
             std::getline(stat, line);
-            if (line.starts_with(' ')) {    // specific for LogViewFile (skip location)
+            if (line.length() >= 1 && line[0] == ' ') {    // specific for LogViewFile (skip location)
                 if (stat.eof()) {
                     break;
                 }
@@ -94,35 +101,24 @@ LogViewFile::groupDays(const std::filesystem::path& path, std::set<LogDays>& day
              && pLogViewFile->getLocalTime().isValid()) {
                 auto dayDate = pLogViewFile->getLocalTime().toDays();
                 //std::cout << "dayDate " << dayDate <<std::endl;
-                auto exist = days.find(dayDate);
-                if (exist == days.end()) {
-                    days.insert(dayDate);
-                    inserted = true;
-                }
-            }
-            if (skip > 0) {
-                stat.seekg(skip, std::ios_base::cur);
-                if (stat.tellg() >= static_cast<std::streamoff>(size)) {
-                    break;
-                }
-                while (!stat.eof()) {    // search proper line start
-                    int c = stat.get();
-                    if (c == EOF || c == '\n') {
-                        break;
-                    }
+                auto exist = map.find(dayDate);
+                if (exist == map.end()) {
+                    map.insert(std::pair(dayDate, pos));
                 }
             }
         }
     }
     catch (const std::exception& e) {
-        std::cout << "LogViewFile::groupDays"
-                  << " path " << path
-                  << " end " << e.what() << std::endl;
+        if (!stat.eof()) {
+            std::cout << "LogViewFile::groupDays"
+                      << " path " << path
+                      << " end " << e.what() << std::endl;
+        }
     }
     if (stat.is_open()) {
         stat.close();
     }
-    return inserted;
+    return map;
 }
 
 std::string
@@ -171,8 +167,8 @@ LogViewFile::create()
 std::string
 LogViewFile::getBootId()
 {
-    auto now = std::chrono::system_clock::now();    // as a bootId ~equivalent use current day
-    auto isoNow = std::format("{:%F}", now);
+    LogTime now = LogTime::now();
+    auto isoNow = now.format("%F");
     return isoNow;
 }
 
@@ -180,7 +176,7 @@ pLogViewEntryFile
 LogViewFile::parse(const std::string& line)
 {
     pLogViewEntryFile logViewEntry;
-    if (line.length() > 23 && !line.starts_with(' ')) { // if we get a blank this is out of sync
+    if (line.length() > 23 && line[0] != ' ') { // if we get a blank this is out of sync
         std::string dateTime = line.substr(0, 23);
         LogTime timestamp;
         timestamp.parseIsoDateTime(dateTime);
@@ -199,10 +195,16 @@ LogViewFile::parse(const std::string& line)
     return logViewEntry;
 }
 
-
-LogViewIdFile::LogViewIdFile(LogViewType type, const std::string& path, const std::string& name)
+LogViewIdFile::LogViewIdFile(LogViewType type, const std::string& path, const std::map<LogDays, uint64_t>& dayMap, const std::string& name)
 : LogViewIdentifier(type, name, name)
 , m_path{path}
+, m_dayMap{dayMap}
+{
+}
+
+
+LogViewIdFile::LogViewIdFile(LogViewType type, const std::string& name)
+: LogViewIdentifier(type, name, name)
 {
 }
 
@@ -210,6 +212,12 @@ std::string
 LogViewIdFile::getPath() const
 {
     return m_path;
+}
+
+std::map<LogDays, uint64_t>&
+LogViewIdFile::getDayMap()
+{
+    return m_dayMap;
 }
 
 bool
@@ -222,22 +230,31 @@ LogViewIdFile::isBootId(const std::string& bootId)
 LogViewFileIterator::LogViewFileIterator(const std::list<pLogViewIdentifier>& query, const pLogViewFile& logViewFile)
 : m_logViewFile{logViewFile}
 {
-    std::filesystem::path path;
+    pLogViewIdFile nameId;
     for (auto& id : query) {
         auto fileId = std::dynamic_pointer_cast<LogViewIdFile>(id);
         if (!fileId ) {
             throw LogViewException("Only LogViewIdFile elements are supported for query");
         }
         if (LogViewType::Name == fileId->getType()) {
-            path = std::filesystem::path{fileId->getPath()};
-            path /= fileId->getName();
+            nameId = fileId;
         }
         else if (LogViewType::Time == fileId->getType()) {
             m_viewDay.parseIsoDate(fileId->getName());
         }
     }
-    if (path.empty()) {
+    if (!nameId) {
         throw LogViewException("At least a name element is required for query");
+    }
+    std::filesystem::path path{nameId->getPath()};
+    path /= nameId->getName();
+    uint64_t pos = 0ul;
+    if (m_viewDay.isValid()) {
+        std::map<LogDays, uint64_t> mapDays = nameId->getDayMap();
+        auto posEntry = mapDays.find(m_viewDay);
+        if (posEntry != mapDays.end()) {
+            pos = (*posEntry).second;
+        }
     }
     std::ios_base::iostate exceptionMask = m_stat.exceptions() | std::ios::failbit | std::ios::badbit | std::ios::eofbit;
     m_stat.exceptions(exceptionMask);
@@ -245,15 +262,10 @@ LogViewFileIterator::LogViewFileIterator(const std::list<pLogViewIdentifier>& qu
         //auto size = std::filesystem::file_size(path);
         m_stat.open(path.string()); // open in text-mode
         m_pos = 0l;
-        // prevent spooling megabytes of logs
-        //if (size > 2l*SIZE_LIMIT) {
-        ////std::cout << "Skipping to " << size-SIZE_LIMIT << std::endl;
-        //   m_stat.seekg(size-SIZE_LIMIT, std::ios_base::beg);
-        //   int c;
-        //   while ((c = m_stat.get()) != '\n') {    // search proper line start
-        //      // keep reading eof will throw exception
-        //   }
-        //}
+        if (pos > 0ul) {
+            m_stat.seekg(pos, std::ios_base::beg);
+            m_pos = pos;
+        }
     }
     catch (const std::exception& e) {  // something went wrong "jump" to end
         //std::cout << "LogViewFileIterator::LogViewFileIterator"
@@ -285,7 +297,7 @@ LogViewFileIterator::inc()
             LogDays logDay;
             do {
                 m_logViewEntry = parse();
-                if (m_viewDay.isValid()) { 
+                if (m_viewDay.isValid()) {
                     logDay = m_logViewEntry->getLocalTime().toDays();
                     //std::cout << "LogViewFileIterator::inc"
                     //          << " logDay " << logDay
@@ -331,7 +343,7 @@ LogViewFileIterator::parse()
     //                               Glib::RefPtr<Gdk::Pixbuf> WeatherImageRequest::get_pixbuf()
     std::string line;
     std::getline(m_stat, line);
-    if (line.starts_with(' ')) {    // guess we hit a location line
+    if (line.length() >= 1 && line[0] == ' ') {    // guess we hit a location line
         std::getline(m_stat, line); // so try again
     }
     auto logViewEntry = m_logViewFile->parse(line);

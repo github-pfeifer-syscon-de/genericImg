@@ -66,7 +66,10 @@ public:
     void parseIsoDate(const std::string& date);
     int compare(const LogDays& other) const;
     bool isValid() const;
+   // for c++20 this can be done with <=>
     bool operator<(const LogDays& other) const;
+    bool operator>(const LogDays& other) const;
+    bool operator==(const LogDays& other) const;
     static constexpr auto SECONDS_PER_DAY = 24l*60l*60l;
 
 private:
@@ -89,6 +92,7 @@ public:
     LocalTime getLocalTime() const;
     int compare(const LogTime& other) const;
     void parse(const char* fmt, const std::string& val, bool isLocal);
+    static LogTime now();
     static LogTime max();
     static LogTime min();
     static LogTime create_usec(uint64_t usec);

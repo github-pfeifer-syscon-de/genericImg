@@ -60,10 +60,10 @@ public:
     // prefer this creation method
     static pLogViewFile create();
 
-    static constexpr auto FULL_SCAN_LIMIT = 1024l*1024l;
+    //static constexpr auto FULL_SCAN_LIMIT = 1024l*1024l;
     static constexpr auto LOG_EXTENSTION = ".log";
 protected:
-    bool groupDays(const std::filesystem::path& entry, std::set<LogDays>& days);
+    std::map<LogDays, uint64_t> groupDays(const std::filesystem::path& entry);
     std::list<pLogViewIdentifier> m_query;
 private:
 };
@@ -75,14 +75,17 @@ class LogViewIdFile
 : public LogViewIdentifier
 {
 public:
-    LogViewIdFile(LogViewType type, const std::string& path, const std::string& name);
-    LogViewIdFile(const LogViewIdFile& logViewIdFile) = default;
+    LogViewIdFile(LogViewType type, const std::string& path, const std::map<LogDays, uint64_t>& dayMap, const std::string& name);
+    LogViewIdFile(LogViewType type, const std::string& name);
+    explicit LogViewIdFile(const LogViewIdFile& logViewIdFile) = delete;
     ~LogViewIdFile() = default;
 
     std::string getPath() const;
+    std::map<LogDays, uint64_t>& getDayMap();
     bool isBootId(const std::string& bootId) override;
 private:
     std::string m_path;
+    std::map<LogDays, uint64_t> m_dayMap;
 };
 
 typedef std::shared_ptr<LogViewIdFile> pLogViewIdFile;
