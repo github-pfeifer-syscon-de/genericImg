@@ -75,17 +75,21 @@ class LogViewIdFile
 : public LogViewIdentifier
 {
 public:
-    LogViewIdFile(LogViewType type, const std::string& path, const std::map<LogDays, uint64_t>& dayMap, const std::string& name);
+    // add file size as well and on reading, check it is >=
+    //   if it is not the log file has been rolled over.
+    LogViewIdFile(LogViewType type, const std::string& path, const std::map<LogDays, uint64_t>& dayMap, uint64_t fileSize, const std::string& name);
     LogViewIdFile(LogViewType type, const std::string& name);
     explicit LogViewIdFile(const LogViewIdFile& logViewIdFile) = delete;
     ~LogViewIdFile() = default;
 
     std::string getPath() const;
+    uint64_t getFileSize() const;
     std::map<LogDays, uint64_t>& getDayMap();
     bool isBootId(const std::string& bootId) override;
 private:
     std::string m_path;
     std::map<LogDays, uint64_t> m_dayMap;
+    uint64_t m_fileSize;
 };
 
 typedef std::shared_ptr<LogViewIdFile> pLogViewIdFile;

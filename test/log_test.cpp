@@ -141,9 +141,10 @@ log_test_syslog()
     if (fs) {
         fs.write(line.c_str(), line.length());
         fs.close();
+        auto fileSize = std::filesystem::file_size(std::filesystem::path{logFile});
         auto logViewSyslog = psc::log::LogViewSyslog::create();
         std::map<psc::log::LogDays, uint64_t> mapDays;
-        auto logViewId = std::make_shared<psc::log::LogViewIdFile>(psc::log::LogViewType::Name, ".", mapDays, logFile);
+        auto logViewId = std::make_shared<psc::log::LogViewIdFile>(psc::log::LogViewType::Name, ".", mapDays, fileSize, logFile);
         std::list<psc::log::pLogViewIdentifier> query;
         query.emplace_back(std::move(logViewId));
         logViewSyslog->setQuery(query);
@@ -179,9 +180,10 @@ log_test_file()
     if (fs) {
         fs.write(line.c_str(), line.length());
         fs.close();
+        auto fileSize = std::filesystem::file_size(std::filesystem::path{logFile});
         auto logViewFile = psc::log::LogViewFile::create();
         std::map<psc::log::LogDays, uint64_t> mapDays;
-        auto logViewId = std::make_shared<psc::log::LogViewIdFile>(psc::log::LogViewType::Name, ".", mapDays, logFile);
+        auto logViewId = std::make_shared<psc::log::LogViewIdFile>(psc::log::LogViewType::Name, ".", mapDays, fileSize, logFile);
         auto logViewTm = std::make_shared<psc::log::LogViewIdFile>(psc::log::LogViewType::Time, "2024-10-19");
         std::list<psc::log::pLogViewIdentifier> query;
         query.emplace_back(std::move(logViewId));

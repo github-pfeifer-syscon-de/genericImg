@@ -48,7 +48,8 @@ LogViewFile::getIdentifiers()
                 std::string file = entry.path().filename().string();
                 std::map<LogDays, uint64_t> mapDays = groupDays(entry.path());
                 if (!mapDays.empty()) {    // only list if compatible
-                    auto id = std::make_shared<LogViewIdFile>(LogViewType::Name, dir, mapDays, file);
+                    auto fileSize = std::filesystem::file_size(entry.path());
+                    auto id = std::make_shared<LogViewIdFile>(LogViewType::Name, dir, mapDays, fileSize, file);
                     ret.emplace_back(std::move(id));
                     for (auto& entry : mapDays) {
                         auto mapDay = entry.first;
@@ -82,7 +83,6 @@ LogViewFile::groupDays(const std::filesystem::path& path)
     std::ios_base::iostate exceptionMask = stat.exceptions() | std::ios::failbit | std::ios::badbit | std::ios::eofbit;
     stat.exceptions(exceptionMask);
     try {
-//        auto size = std::filesystem::file_size(path);
         stat.open(path.generic_string()); // open in text-mode
         //std::cout << "reading " << path << std::endl;
         while (!stat.eof()) {
@@ -195,10 +195,11 @@ LogViewFile::parse(const std::string& line)
     return logViewEntry;
 }
 
-LogViewIdFile::LogViewIdFile(LogViewType type, const std::string& path, const std::map<LogDays, uint64_t>& dayMap, const std::string& name)
+LogViewIdFile::LogViewIdFile(LogViewType type, const std::string& path, const std::map<LogDays, uint64_t>& dayMap, uint64_t fileSize, const std::string& name)
 : LogViewIdentifier(type, name, name)
 , m_path{path}
 , m_dayMap{dayMap}
+, m_fileSize{fileSize}
 {
 }
 
@@ -212,6 +213,12 @@ std::string
 LogViewIdFile::getPath() const
 {
     return m_path;
+}
+
+uint64_t
+LogViewIdFile::getFileSize() const
+{
+    return m_fileSize;
 }
 
 std::map<LogDays, uint64_t>&
@@ -259,10 +266,11 @@ LogViewFileIterator::LogViewFileIterator(const std::list<pLogViewIdentifier>& qu
     std::ios_base::iostate exceptionMask = m_stat.exceptions() | std::ios::failbit | std::ios::badbit | std::ios::eofbit;
     m_stat.exceptions(exceptionMask);
     try {
-        //auto size = std::filesystem::file_size(path);
+        auto fileSize = std::filesystem::file_size(path);
         m_stat.open(path.string()); // open in text-mode
         m_pos = 0l;
-        if (pos > 0ul) {
+        if (pos > 0ul
+         && fileSize >= nameId->getFileSize()) {    // if file has been rolled over, don't skip
             m_stat.seekg(pos, std::ios_base::beg);
             m_pos = pos;
         }

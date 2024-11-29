@@ -46,7 +46,8 @@ depend_glibmm="glibmm-2.4 giomm-2.4"
 AC_SUBST([depend_glibmm])
 PKG_CHECK_MODULES([GLIBMM], [$depend_glibmm])
 
-depend_libexif="libexif"
+dnl added >= 0.6.21 https://nvd.nist.gov/vuln/detail/CVE-2012-2836 thanks mizuirorivi
+depend_libexif="libexif >= 0.6.21"
 AC_SUBST([depend_libexif])
 PKG_CHECK_MODULES([LIBEXIF], [$depend_libexif])
 
