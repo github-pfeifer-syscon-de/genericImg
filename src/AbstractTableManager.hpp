@@ -34,6 +34,10 @@ public:
     virtual ~BaseConverter() = default;
 
     virtual void convert(Gtk::CellRenderer* rend, const Gtk::TreeModel::iterator& iter) = 0;
+    virtual Gtk::CellRenderer* createCellRenderer()
+    {
+        return Gtk::manage<Gtk::CellRendererText>(new Gtk::CellRendererText());
+    }
 };
 
 template<typename T>
@@ -101,8 +105,9 @@ class ColumnRecord
 {
 public:
     ColumnRecord()
-    : Gtk::TreeModel::ColumnRecord() {
-
+    : Gtk::TreeModel::ColumnRecord()
+    {
+        m_columns.reserve(8);
     }
     explicit ColumnRecord(const ColumnRecord& orig) = delete;
     virtual ~ColumnRecord() = default;

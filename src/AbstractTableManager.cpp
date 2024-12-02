@@ -39,11 +39,11 @@ CustomColumn::build(bool autosizeColumns, AbstractTableManager* tableManager) co
     auto converter = getConverter();
     guint treCol;
     if (converter) {
-        auto cellRendererText = Gtk::manage<Gtk::CellRendererText>(new Gtk::CellRendererText());
-        treCol = table->append_column(name, *cellRendererText);
+        auto cellRenderer = converter->createCellRenderer();
+        treCol = table->append_column(name, *cellRenderer);
         auto* treeViewColumn = table->get_column(treCol-1);
         treeViewColumn->set_cell_data_func(
-            *cellRendererText,
+            *cellRenderer,
             sigc::mem_fun(*converter, &BaseConverter::convert));
     }
     else {

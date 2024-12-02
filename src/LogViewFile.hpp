@@ -44,6 +44,8 @@ class LogViewFile
 , public std::enable_shared_from_this<LogViewFile>
 {
 public:
+    // use LogViewFile::create instead!
+    LogViewFile();
     explicit LogViewFile(const LogViewFile& orig) = delete;
     virtual ~LogViewFile() = default;
 
@@ -65,7 +67,6 @@ protected:
     std::map<LogDays, uint64_t> groupDays(const std::filesystem::path& entry);
     std::list<pLogViewIdentifier> m_query;
 private:
-    LogViewFile();
 };
 
 
