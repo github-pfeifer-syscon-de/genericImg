@@ -137,26 +137,10 @@ defaultLogType(const char* prefix)
 #   endif
 }
 
-Log::Log(const char* prefix, Type type)
+Log::Log(const std::shared_ptr<LogPlugin>& plugin)
 : m_level{Level::Info}
+, m_plugin{plugin}
 {
-    switch (type) {
-    case Type::Default:
-        m_plugin = defaultLogType(prefix);
-        break;
-    case Type::File:
-        m_plugin = std::make_shared<FilePlugin>(prefix);
-        break;
-    case Type::Console:
-        m_plugin = std::make_shared<ConsolePlugin>(prefix);
-        break;
-    case Type::None:
-        m_plugin.reset();
-        break;
-    default:
-        std::cerr << "No logging set!" << std::endl;
-        break;
-    }
 }
 
 Log::~Log()
@@ -359,7 +343,25 @@ std::shared_ptr<Log>
 Log::create(const char* prefix, Type type)
 {
     if (!m_log) {
-        m_log = std::make_shared<Log>(prefix, type);
+        std::shared_ptr<LogPlugin> plugin;
+        switch (type) {
+        case Type::Default:
+            plugin = defaultLogType(prefix);
+            break;
+        case Type::File:
+            plugin = std::make_shared<FilePlugin>(prefix);
+            break;
+        case Type::Console:
+            plugin = std::make_shared<ConsolePlugin>(prefix);
+            break;
+        case Type::None:
+            plugin.reset();
+            break;
+        default:
+            std::cerr << "No logging set!" << std::endl;
+            break;
+        }
+        m_log = std::make_shared<Log>(plugin);
     }
     return m_log;
 }

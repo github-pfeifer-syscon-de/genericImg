@@ -73,6 +73,14 @@ If you dont like it (on linux run as root):
 make uninstall
 </pre>
 
+The autotools will not always adapt to version changes.
+e.g. when using make you might get a message like
+<pre>
+"libtool: You should recreate aclocal.m4 with macros from libtool ..."
+</pre>
+in that case remove the offending intermediate file and
+retry to build (in some cases it might help to use autoreconf).
+
 ## Logging
 
 Now included is some basic logging support.

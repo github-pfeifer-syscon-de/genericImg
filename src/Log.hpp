@@ -106,7 +106,7 @@ private:
 class Log
 {
 public:
-    Log(const char* prefix, Type type = Type::Default);
+    Log(const std::shared_ptr<LogPlugin>& plugin);
     explicit Log(const Log& orig) = delete;
     virtual ~Log();
 

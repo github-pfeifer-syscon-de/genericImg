@@ -44,7 +44,6 @@ class LogViewFile
 , public std::enable_shared_from_this<LogViewFile>
 {
 public:
-    LogViewFile();
     explicit LogViewFile(const LogViewFile& orig) = delete;
     virtual ~LogViewFile() = default;
 
@@ -57,7 +56,7 @@ public:
     virtual std::string getBasePath();
     std::string getBootId() override;
     virtual pLogViewEntryFile parse(const std::string& line);
-    // prefer this creation method
+    // required creation method to make shared_from_this work
     static pLogViewFile create();
 
     //static constexpr auto FULL_SCAN_LIMIT = 1024l*1024l;
@@ -66,6 +65,7 @@ protected:
     std::map<LogDays, uint64_t> groupDays(const std::filesystem::path& entry);
     std::list<pLogViewIdentifier> m_query;
 private:
+    LogViewFile();
 };
 
 
