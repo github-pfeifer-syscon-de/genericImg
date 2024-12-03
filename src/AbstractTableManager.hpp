@@ -138,7 +138,16 @@ protected:
             , const char* name
             , const std::shared_ptr<BaseConverter>& baseConvert
             , float halign) {
-        Gtk::TreeModel::ColumnRecord::add(col);
+        bool isnew = true;
+        for (size_t i = 0; i < m_columns.size(); ++i) {
+            if (m_columns[i].getColumn() == &col) {
+                isnew = false;
+                break;
+            }
+        }
+        if (isnew) {    // as we might use a base column again add only if unique
+            Gtk::TreeModel::ColumnRecord::add(col);
+        }
         m_columns.push_back(CustomColumn(
                   name
                 , &col
