@@ -155,7 +155,8 @@ public:
     static std::shared_ptr<Log> create(const char* prefix, Type type = Type::Default);
     // get a global log if it exists
     static std::shared_ptr<Log> getGlobalLog();
-    static const char* getLevel(Level level);
+    static const char* getLevel(Level level);   // these sames are shortened to 3
+    static const char* getLevelFull(Level level);
     void close();
 private:
     Level m_level;

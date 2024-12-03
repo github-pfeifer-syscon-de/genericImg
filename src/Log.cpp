@@ -312,6 +312,29 @@ Log::getLevel(Level level)
     return "???";
 }
 
+const char*
+Log::getLevelFull(Level level)
+{
+    switch (level) {
+    case Level::Severe:
+        return "Severe";
+    case Level::Alert:
+        return "Alert";
+    case Level::Crit:
+        return "Critical";
+    case Level::Error:
+        return "Error";
+    case Level::Warn:
+        return "Warn";
+    case Level::Notice:
+        return "Notice";
+    case Level::Info:
+        return "Info";
+    case Level::Debug:
+        return "Debug";
+    }
+    return "???";
+}
 
 Level
 Log::getLevel(const Glib::ustring& level)
