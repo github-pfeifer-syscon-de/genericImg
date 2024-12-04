@@ -1,4 +1,0 @@
-0.3.2 added support for configurable tables by
-	- AbstractTableManager
-	- KeygileTableManager
-	- TableProperties
