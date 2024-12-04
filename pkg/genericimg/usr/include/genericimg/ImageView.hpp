@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2021 rpf
  *
@@ -49,6 +50,7 @@ class ImageViewIntf
 {
 public:
     virtual void updateImageInfos(Glib::RefPtr<DisplayImage>& displayImage) = 0;
+    virtual void clearUpdateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf) = 0;
 };
 
 template<class T,typename G>
@@ -68,6 +70,7 @@ public:
     virtual void on_hide() override;
     void showFront();
     void updateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf) override;
+    void clearUpdateImageInfos(Glib::RefPtr<DisplayImage>& pixbuf) override;
     void setFile(const Glib::RefPtr<Gio::File>& file) override;
     void setDisplayImage(Glib::RefPtr<DisplayImage>& displayImage);
 
@@ -88,7 +91,7 @@ protected:
     void on_menu_n(gint n) override;
     void on_menu_view(ViewMode viewMode);
     void on_select();
-    virtual Gtk::Menu* build_popup();
+    virtual Gtk::Menu* build_popup(int x, int y);
 
     ImageArea* m_content{nullptr};
     std::shared_ptr<Mode> m_mode;

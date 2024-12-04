@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2021 rpf
  *
@@ -20,6 +21,8 @@
 #include <list>
 #include <gtkmm.h>
 
+class KeyConfig;
+
 class finally
 {
     std::function<void(void)> functor;
@@ -34,32 +37,29 @@ public:
 
 class ApplicationSupport  {
 public:
-    // configName represent base name, config dir is add internally
-    ApplicationSupport(Glib::ustring configName);
+    ApplicationSupport(const std::shared_ptr<KeyConfig>& keyConfig);
     // create a nested support (for a child window)
     ApplicationSupport(ApplicationSupport* parent);
     virtual ~ApplicationSupport();
 
-    void addWindow(Gtk::Window *window, const Glib::ustring confKeyPref, int width, int height, const char* confGrp = nullptr);
-    void removeWindow(Gtk::Window *window, const Glib::ustring confKeyPref, const char* confGrp = nullptr);
+    void addWindow(Gtk::Window *window, const Glib::ustring& confKeyPref, int width, int height, const char* confGrp = nullptr);
+    void removeWindow(Gtk::Window *window, const Glib::ustring& confKeyPref, const char* confGrp = nullptr);
     void setApplication(Gtk::Application* application);
     Gtk::Application* getApplication();
     void saveConfig();
-    Glib::KeyFile* getConfig();
+    std::shared_ptr<KeyConfig> getConfig();
 
     void showError(const std::string& msg, Gtk::MessageType type = Gtk::MESSAGE_ERROR, Gtk::ButtonsType buttons = Gtk::BUTTONS_CANCEL);
     bool askYesNo(const std::string& msg, Gtk::MessageType type = Gtk::MESSAGE_QUESTION, Gtk::ButtonsType buttons = Gtk::BUTTONS_YES_NO);
     void addDialogYesNo(Gtk::FileChooserDialog& dlg);
-    std::string getConfigName();
 protected:
     Gtk::Window* getTopWindow();
 
 private:
-    ApplicationSupport* m_parent;
-    Glib::ustring m_configName;
-    Glib::KeyFile* m_config;
-    Gtk::Application* m_application;
-    Gtk::Window *m_window;
+    ApplicationSupport* m_parent{nullptr};
+    std::shared_ptr<KeyConfig> m_config;
+    Gtk::Application* m_application{nullptr};
+    Gtk::Window* m_window{nullptr};
     static constexpr auto CONF_POSX = "PosX";
     static constexpr auto CONF_POSY = "PosY";
     static constexpr auto CONF_WIDTH = "Width";

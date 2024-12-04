@@ -107,10 +107,7 @@ But this is a work in progress so there might still be messages spilled on stdou
 
 ### LogView
 
-- if you wan't to use LogView with syslog, as there is no universal syslog format you may need to adapt the LogViewSyslog::parse method.
-- this was build with a desktop-system in mind, if your system has GBytes of logs it will probably break
-- with systemd-logging there is a overhead to assign times to bootId's,
-   this may result in some waiting period for the first invocation (depending on the used storage), but over time that should improve.
+- if you wan't to use LogView with syslog, as there is no universal syslog format you may need to adapt the LogViewSyslog::parse method
 
 ## Structure
 

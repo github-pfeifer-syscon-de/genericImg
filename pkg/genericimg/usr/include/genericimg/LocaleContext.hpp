@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2023 RPf <gpl3@pfeifer-syscon.de>
  *
@@ -19,8 +20,9 @@
 
 #include <glibmm.h>
 
-// pack the locale set/restore into a type aka raii
-class LocaleContext
+
+class [[deprecated("see StringUtils::parseCDouble,formatCDouble for a simpler method")]]
+LocaleContext
 {
 public:
     LocaleContext(int category);

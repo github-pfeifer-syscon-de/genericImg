@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2021 rpf
  *
@@ -64,6 +65,14 @@ public:
     {
         addData_protected( [&] {
             _collection.emplace_back(std::forward<Args>(args)...);
+        } );
+    }
+
+    template<typename... Args>
+    void push_back( Args&&... args )
+    {
+        addData_protected( [&] {
+            _collection.push_back(std::forward<Args>(args)...);
         } );
     }
 

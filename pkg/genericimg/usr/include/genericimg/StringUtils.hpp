@@ -1,3 +1,4 @@
+/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2021 rpf
  *
@@ -18,13 +19,18 @@
 
 #pragma once
 
-#include <glibmm.h>
 #include <string>
 #include <vector>
 #ifdef __WIN32__
 #include <windows.h>
 #include <wchar.h>
 #endif
+#include <source_location>
+#include <iostream>
+#include <charconv>
+#include <format>
+#include <glibmm.h>
+#include <typeinfo>
 
 class StringUtils {
 public:
@@ -42,14 +48,20 @@ public:
     static void ltrim(std::string &s);
     static void rtrim(std::string &s);
     static void trim(std::string &s);
-
+    [[deprecated("see lower(size_t)")]]
     static Glib::ustring lower(const Glib::ustring &s, int start = 0);
+    static inline Glib::ustring lower(const Glib::ustring &str, size_t start = 0)
+    {
+        return Glib::ustring{str.substr(0, start) + str.substr(start).lowercase()};
+    }
 
     static std::wstring from_bytesUtf8(const char *in);
     static std::wstring from_bytesUtf8(const std::string &in);
 
-    static const char *weekday(int day);
     static void split(const Glib::ustring &line, char delim, std::vector<Glib::ustring> &ret);
+    // like split but works with repeated delimiters
+    static void splitRepeat(const Glib::ustring &line, gunichar delim, std::vector<Glib::ustring> &ret);
+
     static Glib::ustring replaceAll(const Glib::ustring& text, const Glib::ustring& replace, const Glib::ustring& with);
    // simple fix for the ustring <-> char8_t incompatibility
     static inline Glib::ustring u8str(const char8_t* cnst) {
@@ -61,7 +73,14 @@ public:
     #endif
     static bool endsWith(const Glib::ustring& str, const Glib::ustring& suffix);
     static bool startsWith(const Glib::ustring& str, const Glib::ustring& prefix);
+    // improved conversion functions that do not depend on LocaleContext "magic"
+    static double parseCDouble(const Glib::ustring& sval);
+    // std::chars_format::general formats 3.14 to "3.14"
+    // std::chars_format::fixed formats 3.14 to "3.1400" (precision 4)
+    static Glib::ustring formatCDouble(double val, std::chars_format fmt = std::chars_format::general, int precision = 4);
 
+    // type to readable name
+    static Glib::ustring typeName(const std::type_info& typeinfo);
 private:
     StringUtils() = default;
 
@@ -70,4 +89,27 @@ private:
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(arr) (sizeof(arr)/sizeof(arr[0]))
 #endif
+
+// does not fit exactly, but no need for separate header
+//  see Peter Muldoon https://www.youtube.com/watch?v=HXJmrMnnDYQ&t=2795s
+std::ostream&
+operator<< (std::ostream& os, const std::source_location& location);
+
+#if __cplusplus >= 202302L
+#include <stacktrace>
+
+std::ostream&
+operator<< (std::ostream& os, const std::stacktrace& trace);
+
+#endif
+
+template <>
+struct std::formatter<Glib::ustring>
+: std::formatter<std::string>
+{
+    auto format(const Glib::ustring& obj, std::format_context& ctx) const
+    {
+        return std::formatter<std::string>::format(obj, ctx);
+    }
+};
 
