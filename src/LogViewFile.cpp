@@ -96,10 +96,9 @@ LogViewFile::groupDays(const std::filesystem::path& path)
                 std::getline(stat, line);
             }
             //std::cout << "parsing " << line << std::endl;
-            auto pLogViewFile = parse(line);
-            if (pLogViewFile
-             && pLogViewFile->getLocalTime().isValid()) {
-                auto dayDate = pLogViewFile->getLocalTime().toDays();
+            auto logViewFile = parse(line);
+            if (logViewFile.getLocalTime().isValid()) {
+                auto dayDate = logViewFile.getLocalTime().toDays();
                 //std::cout << "dayDate " << dayDate <<std::endl;
                 auto exist = map.find(dayDate);
                 if (exist == map.end()) {
@@ -172,10 +171,10 @@ LogViewFile::getBootId()
     return isoNow;
 }
 
-pLogViewEntryFile
+LogViewEntry
 LogViewFile::parse(const std::string& line)
 {
-    pLogViewEntryFile logViewEntry;
+    LogViewEntry logViewEntry;
     if (line.length() > 23 && line[0] != ' ') { // if we get a blank this is out of sync
         std::string dateTime = line.substr(0, 23);
         LogTime timestamp;
@@ -189,7 +188,9 @@ LogViewFile::parse(const std::string& line)
             ++levelEnd;
             std::string message = line.substr(levelEnd);
             StringUtils::ltrim(message);
-            logViewEntry = std::make_shared<LogViewEntryFile>("", timestamp, message, level);
+            logViewEntry.setLocalTime(timestamp);
+            logViewEntry.setMessage(message);
+            logViewEntry.setLevel(level);
         }
     }
     return logViewEntry;
@@ -306,7 +307,7 @@ LogViewFileIterator::inc()
             do {
                 m_logViewEntry = parse();
                 if (m_viewDay.isValid()) {
-                    logDay = m_logViewEntry->getLocalTime().toDays();
+                    logDay = m_logViewEntry.getLocalTime().toDays();
                     //std::cout << "LogViewFileIterator::inc"
                     //          << " logDay " << logDay
                     //          << " m_viewDay " << m_viewDay << std::endl;
@@ -344,7 +345,7 @@ LogViewFileIterator::equal(const std::shared_ptr<LogViewIterInner>& b)
 }
 
 
-pLogViewEntry
+LogViewEntry
 LogViewFileIterator::parse()
 {
     //2024-10-19 17:22:05.996 Deb          Weather.cpp: 45 pixbuf stream 0x5dd68664f480
@@ -355,59 +356,14 @@ LogViewFileIterator::parse()
         std::getline(m_stat, line); // so try again
     }
     auto logViewEntry = m_logViewFile->parse(line);
-    if (logViewEntry && m_stat.peek() == ' ') {
+    if (m_stat.peek() == ' ') {
         std::getline(m_stat, line);
         StringUtils::ltrim(line);
-        logViewEntry->setLocation(line);
+        logViewEntry.setLocation(line);
     }
     return logViewEntry;
 }
 
-
-
-LogViewEntryFile::LogViewEntryFile(const std::string& location, const LogTime& timestamp, const std::string& message, Level level)
-: LogViewEntry()
-, m_message{message}
-, m_timestamp{timestamp}
-, m_location{location}
-, m_level{level}
-{
-}
-
-const std::string&
-LogViewEntryFile::getMessage()
-{
-    return m_message;
-}
-
-const LogTime&
-LogViewEntryFile::getLocalTime()
-{
-    return m_timestamp;
-}
-
-const std::string&
-LogViewEntryFile::getBootId()
-{
-    return m_bootId;
-}
-
-const std::string&
-LogViewEntryFile::getLocation()
-{
-    return m_location;
-}
-
-void
-LogViewEntryFile::setLocation(const std::string& location)
-{
-    m_location = location;
-}
-
-Level LogViewEntryFile::getLevel()
-{
-    return m_level;
-}
 
 } /* namespace log */
 } /* namespace psc */

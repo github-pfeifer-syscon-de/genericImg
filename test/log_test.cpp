@@ -122,9 +122,9 @@ test_logview()
             logView->setQuery(query);
             for (auto iter = logView->begin(); iter != logView->end(); iter.operator++()) {
                 auto entry = *iter;
-                std::cout << "   time " << entry->getLocalTime() << "\n"
-                          << "   msg " << entry->getMessage() << "\n"
-                          << "   loc " << entry->getLocation() << std::endl;
+                std::cout << "   time " << entry.getLocalTime() << "\n"
+                          << "   msg " << entry.getMessage() << "\n"
+                          << "   loc " << entry.getLocation() << std::endl;
             }
         }
     }
@@ -151,10 +151,10 @@ log_test_syslog()
         auto cnt = 0u;
         for (auto iter = logViewSyslog->begin(); iter != logViewSyslog->end(); ++iter) {
             auto entry = *iter;
-            std::cout << "Level " << psc::log::Log::getLevel(entry->getLevel()) << "\n"
-                  << " message " << entry->getMessage() << "\n"
-                  << " time " << entry->getLocalTime()  << "\n"
-                  << " location " << entry->getLocation() << std::endl;
+            std::cout << "Level " << psc::log::Log::getLevel(entry.getLevel()) << "\n"
+                  << " message " << entry.getMessage() << "\n"
+                  << " time " << entry.getLocalTime()  << "\n"
+                  << " location " << entry.getLocation() << std::endl;
             ++cnt;
         }
         std::remove(logFile.c_str());
@@ -192,10 +192,10 @@ log_test_file()
         auto cnt = 0u;
         for (auto iter = logViewFile->begin(); iter != logViewFile->end(); ++iter) {
             auto entry = *iter;
-            std::cout << "Level " << psc::log::Log::getLevel(entry->getLevel()) << "\n"
-                  << " message " << entry->getMessage() << "\n"
-                  << " time " << entry->getLocalTime()  << "\n"
-                  << " location " << entry->getLocation() << std::endl;
+            std::cout << "Level " << psc::log::Log::getLevel(entry.getLevel()) << "\n"
+                  << " message " << entry.getMessage() << "\n"
+                  << " time " << entry.getLocalTime()  << "\n"
+                  << " location " << entry.getLocation() << std::endl;
             ++cnt;
         }
         std::remove(logFile.c_str());

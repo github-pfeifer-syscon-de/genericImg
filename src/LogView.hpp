@@ -151,15 +151,32 @@ private:
 class LogViewEntry
 {
 public:
-    LogViewEntry() = default;
-    explicit LogViewEntry(const LogViewEntry& orig) = delete;
+    LogViewEntry();
+    LogViewEntry(
+              const std::string& msg
+            , const LogTime& logTime
+            , const std::string& bootId
+            , const std::string& location
+            , Level level);
+    LogViewEntry(const LogViewEntry& orig) = default;
     virtual ~LogViewEntry() = default;
 
-    virtual const std::string& getMessage() = 0;
-    virtual const LogTime& getLocalTime() = 0;
-    virtual const std::string& getBootId() = 0;
-    virtual const std::string& getLocation() = 0;
-    virtual Level getLevel() = 0;
+    const std::string& getMessage();
+    void setMessage(const std::string& message);
+    const LogTime& getLocalTime();
+    void setLocalTime(const LogTime& logTime);
+    const std::string& getBootId();
+    void setBootId(const std::string& bootId);
+    const std::string& getLocation();
+    void setLocation(const std::string& location);
+    Level getLevel();
+    void setLevel(Level level);
+private:
+    std::string m_message;
+    LogTime m_logTime;
+    std::string m_bootId;
+    std::string m_location;
+    Level m_level;
 };
 
 
@@ -169,7 +186,7 @@ struct LogViewIterInner
     // operator members are not possible with virtual
     virtual void inc() = 0;
     virtual bool equal(const std::shared_ptr<LogViewIterInner>& a) = 0;
-    virtual pLogViewEntry get() const = 0;
+    virtual LogViewEntry get() const = 0;
 };
 
 typedef std::shared_ptr<LogViewIterInner> pLogViewIterInner;
@@ -178,9 +195,9 @@ typedef std::shared_ptr<LogViewIterInner> pLogViewIterInner;
 class LogViewIterator {
     using iterator_category = std::forward_iterator_tag;
     using difference_type   = int64_t;
-    using value_type        = pLogViewEntry;
+    using value_type        = LogViewEntry;
     using pointer           = pLogViewEntry;    // or also value_type*
-    using reference         = pLogViewEntry&;   // or also value_type&
+    using reference         = LogViewEntry&;   // or also value_type&
 
 public:
     LogViewIterator(pLogViewIterInner iterInner)
@@ -206,7 +223,9 @@ public:
     }
     pointer operator->()
     {
-        return m_iterInner->get();
+        auto logEntry =m_iterInner->get();
+        auto ptr = std::make_shared<LogViewEntry>(logEntry);
+        return ptr;
     }
     friend bool operator== (const LogViewIterator& a, const LogViewIterator& b)
     {

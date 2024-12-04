@@ -325,7 +325,7 @@ Log::getLevelFull(Level level)
     case Level::Error:
         return "Error";
     case Level::Warn:
-        return "Warn";
+        return "Warning";
     case Level::Notice:
         return "Notice";
     case Level::Info:

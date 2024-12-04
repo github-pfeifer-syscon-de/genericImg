@@ -96,7 +96,7 @@ struct LogViewSysdJournalIterator
 : public LogViewIterInner
 {
     using iterator_category = std::forward_iterator_tag;
-    using value_type        = pLogViewEntry;
+    using value_type        = LogViewEntry;
     // constructor
     LogViewSysdJournalIterator()
     : m_pos{std::numeric_limits<uint64_t>::max()}    // use the maximum allowed value as end mark
@@ -149,35 +149,6 @@ private:
 };
 
 
-class LogViewEntrySysd;
-
-
-
-
-class LogViewEntrySysd
-: public LogViewEntry
-{
-public:
-    LogViewEntrySysd(const pLogViewSysdJournal& journal);
-    explicit LogViewEntrySysd(const LogViewEntrySysd& orig) = delete;
-    virtual ~LogViewEntrySysd() = default;
-
-    const std::string& getMessage() override;
-    const LogTime& getLocalTime() override;
-    const std::string& getBootId() override;
-    const std::string& getLocation() override;
-    Level getLevel() override;
-protected:
-
-private:
-    std::string m_message;
-    LogTime m_timestamp;
-    std::string m_bootId;
-    std::string m_location;
-    Level m_level;
-};
-
-typedef std::shared_ptr<LogViewEntrySysd> pLogViewEntrySysd;
 
 } /* namespace log */
 } /* namespace psc */

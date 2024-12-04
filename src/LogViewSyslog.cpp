@@ -54,10 +54,10 @@ LogViewSyslog::getBasePath()
     return "/var/log";
 }
 
-pLogViewEntryFile
+LogViewEntry
 LogViewSyslog::parse(const std::string& line)
 {
-    pLogViewEntryFile logViewEntry;
+    LogViewEntry logViewEntry;
     if (line.length() > 16) {
         // will most likely not match any syslog style...
         if (line.starts_with('[')) {    // variant used with pacman
@@ -67,16 +67,17 @@ LogViewSyslog::parse(const std::string& line)
                 std::string in{line.substr(1, timeEnd-1)};
                 LogTime timestamp;
                 timestamp.parse("%FT%T%z", in, false);
+                logViewEntry.setLocalTime(timestamp);
                 timeEnd +=2;
                 auto groupStart = line.find('[', timeEnd);
                 if (groupStart != line.npos) {
                     ++groupStart;
                     auto groupEnd = line.find(']', groupStart);
                     if (groupEnd != line.npos) {
-                        std::string location = line.substr(groupStart, groupEnd - groupStart);
+                        logViewEntry.setLocation(line.substr(groupStart, groupEnd - groupStart));
                         groupEnd += 2;
-                        std::string message = line.substr(groupEnd);
-                        logViewEntry = std::make_shared<LogViewEntryFile>(location, timestamp, message, Level::Info);
+                        logViewEntry.setMessage(line.substr(groupEnd));
+                        logViewEntry.setLevel(Level::Info);
                     }
                 }
             }
@@ -90,6 +91,7 @@ LogViewSyslog::parse(const std::string& line)
             std::string dateTime{date + year + time};
             LogTime timestamp;
             timestamp.parse("%b %d %Y %T", dateTime, true);
+            logViewEntry.setLocalTime(timestamp);
             size_t hostPos = line.find(' ', 16);
             if (hostPos != line.npos) {
                 std::string host;
@@ -117,8 +119,9 @@ LogViewSyslog::parse(const std::string& line)
                             location += " " + id;
                         }
                         ++idPos;
-                        std::string message = line.substr(idPos);
-                        logViewEntry = std::make_shared<LogViewEntryFile>(location, timestamp, message, level);
+                        logViewEntry.setMessage(line.substr(idPos));
+                        logViewEntry.setLocation(location);
+                        logViewEntry.setLevel(level);
                     }
                 }
             }
@@ -134,7 +137,7 @@ LogViewSyslog::create()
 }
 
 
-pLogViewEntry
+LogViewEntry
 LogViewSyslogIterator::parse()
 {
     std::string line;

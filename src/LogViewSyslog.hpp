@@ -45,7 +45,7 @@ public:
 
     std::string getBasePath() override;
     // if the format doesn't fit (as there is no universal syslog format) you may need to adapt this method
-    pLogViewEntryFile parse(const std::string& line) override;
+    LogViewEntry parse(const std::string& line) override;
     // prefer this creation method
     static pLogViewSyslog create();
 protected:
@@ -66,7 +66,7 @@ struct LogViewSyslogIterator
     {
     }
 
-    pLogViewEntry parse() override;
+    LogViewEntry parse() override;
 protected:
 };
 

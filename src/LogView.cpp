@@ -308,6 +308,85 @@ LogView::create()
 #   endif
 }
 
+LogViewEntry::LogViewEntry()
+: m_level{Level::Severe}
+{
+}
+
+LogViewEntry::LogViewEntry(
+          const std::string& message
+        , const LogTime& logTime
+        , const std::string& bootId
+        , const std::string& location
+        , Level level)
+: m_message{message}
+, m_logTime{logTime}
+, m_bootId{bootId}
+, m_location{location}
+, m_level{level}
+{
+}
+
+const std::string&
+LogViewEntry::getMessage()
+{
+    return m_message;
+}
+
+void
+LogViewEntry::setMessage(const std::string& message)
+{
+    m_message = message;
+}
+
+
+const LogTime&
+LogViewEntry::getLocalTime()
+{
+    return m_logTime;
+}
+
+void
+LogViewEntry::setLocalTime(const LogTime& logTime)
+{
+    m_logTime = logTime;
+}
+
+const std::string&
+LogViewEntry::getBootId()
+{
+    return m_bootId;
+}
+
+void
+LogViewEntry::setBootId(const std::string& bootId)
+{
+    m_bootId = bootId;
+}
+
+const std::string&
+LogViewEntry::getLocation()
+{
+    return m_location;
+}
+
+void
+LogViewEntry::setLocation(const std::string& location)
+{
+    m_location = location;
+}
+
+Level
+LogViewEntry::getLevel()
+{
+    return m_level;
+}
+
+void
+LogViewEntry::setLevel(Level level)
+{
+    m_level = level;
+}
 
 } /* namespace log */
 } /* namespace psc */

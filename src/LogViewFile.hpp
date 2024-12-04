@@ -57,7 +57,7 @@ public:
     virtual LogViewIterator end() override;
     virtual std::string getBasePath();
     std::string getBootId() override;
-    virtual pLogViewEntryFile parse(const std::string& line);
+    virtual LogViewEntry parse(const std::string& line);
     // required creation method to make shared_from_this work
     static pLogViewFile create();
 
@@ -99,7 +99,7 @@ struct LogViewFileIterator
 : public LogViewIterInner
 {
     using iterator_category = std::forward_iterator_tag;
-    using value_type        = pLogViewEntry;
+    using value_type        = LogViewEntry;
     // constructor
     LogViewFileIterator()
     : m_pos{std::numeric_limits<uint64_t>::max()}    // use the maximum allowed value as end mark
@@ -112,38 +112,14 @@ struct LogViewFileIterator
 
     void inc() override;
     bool equal(const std::shared_ptr<LogViewIterInner>& b) override;
-    virtual pLogViewEntry parse();
+    virtual LogViewEntry parse();
     static constexpr auto SIZE_LIMIT = 32l*1024l;
 protected:
     uint64_t m_pos;
     std::ifstream m_stat;
-    pLogViewEntry m_logViewEntry;
+    LogViewEntry m_logViewEntry;
     pLogViewFile m_logViewFile;
     LogDays m_viewDay;
-};
-
-
-class LogViewEntryFile
-: public LogViewEntry
-{
-public:
-    LogViewEntryFile(const std::string& location, const LogTime& timestamp, const std::string& message, Level level);
-    explicit LogViewEntryFile(const LogViewEntryFile& other) = delete;
-    ~LogViewEntryFile() = default;
-
-    const std::string& getMessage() override;
-    const LogTime& getLocalTime() override;
-    const std::string& getBootId() override;
-    const std::string& getLocation() override;
-    void setLocation(const std::string& location);
-    Level getLevel() override;
-
-private:
-    std::string m_message;
-    std::string m_bootId;
-    LogTime m_timestamp;
-    std::string m_location;
-    Level m_level;
 };
 
 

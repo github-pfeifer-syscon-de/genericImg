@@ -203,7 +203,7 @@ LogViewSysd::boot_info(std::vector<pLogViewIdentifier>& vecBootId)
             auto max = LogTime::min();
             for (auto iter = logView.begin(); iter != logView.end(); ++iter) {
                 auto entry = *iter;
-                auto& time = entry->getLocalTime();
+                auto& time = entry.getLocalTime();
                 if (min.compare(time) > 0) {
                     min = time;
                 }
@@ -356,64 +356,32 @@ LogViewSysdJournalIterator::LogViewSysdJournalIterator(const std::list<pLogViewI
 LogViewSysdJournalIterator::value_type
 LogViewSysdJournalIterator::get() const
 {
-    return std::make_shared<LogViewEntrySysd>(m_logViewSysdJournal);
-}
-
-LogViewEntrySysd::LogViewEntrySysd(const pLogViewSysdJournal& journal)
-: LogViewEntry()
-{
+    LogViewEntry logViewEntry;
     // sd_journal_enumerate_available_data()
     // all at once SD_JOURNAL_FOREACH_DATA()
-    m_message = journal->getFieldValue("MESSAGE");
-    m_timestamp = journal->getLocalTime();
-    m_bootId = journal->getFieldValue("_BOOT_ID");
-    auto prio = journal->getFieldValue("PRIORITY"); // between 0 ("emerg") and 7 ("debug")
+    logViewEntry.setMessage(m_logViewSysdJournal->getFieldValue("MESSAGE"));
+    logViewEntry.setLocalTime(m_logViewSysdJournal->getLocalTime());
+    logViewEntry.setBootId(m_logViewSysdJournal->getFieldValue("_BOOT_ID"));
+    auto prio = m_logViewSysdJournal->getFieldValue("PRIORITY"); // between 0 ("emerg") and 7 ("debug")
     int nprio = std::stoi(prio);
-    m_level = Level(nprio);
-    const auto locationFile = journal->getFieldValue("CODE_FILE");
-    const auto locationLine = journal->getFieldValue("CODE_LINE");
-    const auto locationFunc = journal->getFieldValue("CODE_FUNC");
+    logViewEntry.setLevel(static_cast<Level>(nprio));
+    const auto locationFile = m_logViewSysdJournal->getFieldValue("CODE_FILE");
+    const auto locationLine = m_logViewSysdJournal->getFieldValue("CODE_LINE");
+    const auto locationFunc = m_logViewSysdJournal->getFieldValue("CODE_FUNC");
 
+    std::string location;
     if (!locationFile.empty()) {
-        m_location.reserve(64);
-        m_location = locationFile;
+        location.reserve(64);
+        location = locationFile;
     }
     if (!locationLine.empty()) {
-        m_location += ":" + locationLine;
+        location += ":" + locationLine;
     }
     if (!locationFunc.empty()) {
-        m_location += " " + locationFunc;
+        location += " " + locationFunc;
     }
-}
-
-const std::string&
-LogViewEntrySysd::getMessage()
-{
-    return m_message;
-}
-
-const LogTime&
-LogViewEntrySysd::getLocalTime()
-{
-    return m_timestamp;
-}
-
-const std::string&
-LogViewEntrySysd::getBootId()
-{
-    return m_bootId;
-}
-
-const std::string&
-LogViewEntrySysd::getLocation()
-{
-    return m_location;
-}
-
-Level
-LogViewEntrySysd::getLevel()
-{
-    return m_level;
+    logViewEntry.setLocation(location);
+    return logViewEntry;
 }
 
 
