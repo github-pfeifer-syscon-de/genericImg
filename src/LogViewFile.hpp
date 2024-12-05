@@ -100,6 +100,7 @@ struct LogViewFileIterator
 {
     using iterator_category = std::forward_iterator_tag;
     using value_type        = LogViewEntry;
+    using reference_type    = LogViewEntry&;
     // constructor
     LogViewFileIterator()
     : m_pos{std::numeric_limits<uint64_t>::max()}    // use the maximum allowed value as end mark

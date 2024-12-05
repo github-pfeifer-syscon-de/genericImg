@@ -161,15 +161,15 @@ public:
     LogViewEntry(const LogViewEntry& orig) = default;
     virtual ~LogViewEntry() = default;
 
-    const std::string& getMessage();
+    const std::string& getMessage() const;
     void setMessage(const std::string& message);
-    const LogTime& getLocalTime();
+    const LogTime& getLocalTime() const;
     void setLocalTime(const LogTime& logTime);
-    const std::string& getBootId();
+    const std::string& getBootId() const;
     void setBootId(const std::string& bootId);
-    const std::string& getLocation();
+    const std::string& getLocation() const;
     void setLocation(const std::string& location);
-    Level getLevel();
+    Level getLevel() const;
     void setLevel(Level level);
 private:
     std::string m_message;
@@ -196,8 +196,8 @@ class LogViewIterator {
     using iterator_category = std::forward_iterator_tag;
     using difference_type   = int64_t;
     using value_type        = LogViewEntry;
-    using pointer           = pLogViewEntry;    // or also value_type*
-    using reference         = LogViewEntry&;   // or also value_type&
+    using pointer_type      = pLogViewEntry;
+    using reference_type    = LogViewEntry&;
 
 public:
     LogViewIterator(pLogViewIterInner iterInner)
@@ -209,23 +209,26 @@ public:
     LogViewIterator operator++()
     {
         m_iterInner->inc();
+        m_logEntry.reset();
         return *this;
     }
     LogViewIterator operator++(int)
     {
         LogViewIterator temp = *this;
         m_iterInner->inc();
+        m_logEntry.reset();
         return temp;
     }
     value_type operator*()
     {
         return m_iterInner->get();
     }
-    pointer operator->()
+    pointer_type operator->()
     {
-        auto logEntry =m_iterInner->get();
-        auto ptr = std::make_shared<LogViewEntry>(logEntry);
-        return ptr;
+        if (!m_logEntry) {
+            m_logEntry = std::make_shared<LogViewEntry>(std::move(m_iterInner->get()));
+        }
+        return m_logEntry;
     }
     friend bool operator== (const LogViewIterator& a, const LogViewIterator& b)
     {
@@ -237,6 +240,7 @@ public:
     }
 private:
     pLogViewIterInner m_iterInner;
+    pointer_type m_logEntry;
 };
 
 enum class LogViewType

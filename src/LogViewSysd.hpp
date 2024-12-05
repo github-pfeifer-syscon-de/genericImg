@@ -97,6 +97,7 @@ struct LogViewSysdJournalIterator
 {
     using iterator_category = std::forward_iterator_tag;
     using value_type        = LogViewEntry;
+    using reference_type    = LogViewEntry&;
     // constructor
     LogViewSysdJournalIterator()
     : m_pos{std::numeric_limits<uint64_t>::max()}    // use the maximum allowed value as end mark

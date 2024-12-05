@@ -328,7 +328,7 @@ LogViewEntry::LogViewEntry(
 }
 
 const std::string&
-LogViewEntry::getMessage()
+LogViewEntry::getMessage() const
 {
     return m_message;
 }
@@ -341,7 +341,7 @@ LogViewEntry::setMessage(const std::string& message)
 
 
 const LogTime&
-LogViewEntry::getLocalTime()
+LogViewEntry::getLocalTime() const
 {
     return m_logTime;
 }
@@ -353,7 +353,7 @@ LogViewEntry::setLocalTime(const LogTime& logTime)
 }
 
 const std::string&
-LogViewEntry::getBootId()
+LogViewEntry::getBootId() const
 {
     return m_bootId;
 }
@@ -365,7 +365,7 @@ LogViewEntry::setBootId(const std::string& bootId)
 }
 
 const std::string&
-LogViewEntry::getLocation()
+LogViewEntry::getLocation() const
 {
     return m_location;
 }
@@ -377,7 +377,7 @@ LogViewEntry::setLocation(const std::string& location)
 }
 
 Level
-LogViewEntry::getLevel()
+LogViewEntry::getLevel() const
 {
     return m_level;
 }
