@@ -26,10 +26,9 @@ apt-get install libfmt-dev
 
 check configure.ac for "dnl uncomment for use libfmt e.g. with gcc < 13"
 and uncomment the following lines (sry coul'd not find a viable switch for these)
-replace "#include <format>" with "#include <fmt/format.h>"
-replace "std::format" with fmt::format (include "formatter" in replace as well)
-replace "fmt::format_context" with "fmt::format_context"
-the replacements are needed for all depending projects, so you are really better off with gcc 13.
+the header "psc_format.hpp" provides a switch between format variants,
+the adaption may not have been done for all dependent projects ...
+(use above header and use any format with psc::fmt:: namespace).
 
 ## Any Linux
 
