@@ -28,9 +28,10 @@
 #include <source_location>
 #include <iostream>
 #include <charconv>
-#include <format>
 #include <glibmm.h>
 #include <typeinfo>
+
+#include "psc_format.hpp"
 
 class StringUtils {
 public:
@@ -104,12 +105,12 @@ operator<< (std::ostream& os, const std::stacktrace& trace);
 #endif
 
 template <>
-struct std::formatter<Glib::ustring>
-: std::formatter<std::string>
+struct psc::fmt::formatter<Glib::ustring>
+: psc::fmt::formatter<std::string>
 {
-    auto format(const Glib::ustring& obj, std::format_context& ctx) const
+    auto format(const Glib::ustring& obj, psc::fmt::format_context& ctx) const
     {
-        return std::formatter<std::string>::format(obj, ctx);
+        return psc::fmt::formatter<std::string>::format(obj, ctx);
     }
 };
 

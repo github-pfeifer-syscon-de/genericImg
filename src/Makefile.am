@@ -89,6 +89,8 @@ pkginclude_HEADERS = \
 	LogViewFile.hpp \
 	LogViewSyslog.hpp \
 	DateUtils.hpp \
+	psc_format.hpp \
+	psc_i18n.hpp \
 	AbstractTableManager.hpp \
 	KeyfileTableManager.hpp \
 	TableProperties.hpp \

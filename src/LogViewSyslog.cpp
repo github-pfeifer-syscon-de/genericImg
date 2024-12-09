@@ -20,6 +20,7 @@
 
 
 #include "Log.hpp"
+#include "psc_format.hpp"
 #include "LogViewSyslog.hpp"
 //#ifdef SYSLOG
 
@@ -87,7 +88,7 @@ LogViewSyslog::parse(const std::string& line)
             std::string date = line.substr(0, 7);
             std::string time = line.substr(7, 8);
             std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-            auto year = std::format("{:%Y} ", now);   // fill in current year to make it a complete date
+            auto year = psc::fmt::format("{:%Y} ", now);   // fill in current year to make it a complete date
             std::string dateTime{date + year + time};
             LogTime timestamp;
             timestamp.parse("%b %d %Y %T", dateTime, true);

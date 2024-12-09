@@ -95,3 +95,4 @@
 /test/log_test
 /test/log_test.log
 /test/test.db
+/src/.libs/

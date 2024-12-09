@@ -17,7 +17,6 @@
  */
 
 #include <iostream>
-#include <format>
 #include <sys/types.h>
 #include <pwd.h>
 

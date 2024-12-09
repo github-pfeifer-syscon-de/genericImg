@@ -26,7 +26,7 @@
 #   include <cxxabi.h>
 #endif
 
-
+#include "psc_format.hpp"
 #include "StringUtils.hpp"
 #include "Log.hpp"
 
@@ -247,7 +247,7 @@ StringUtils::formatCDouble(double val, std::chars_format fmt, int precision)
     }
     psc::log::Log::logAdd(psc::log::Level::Warn, [&] {
         auto erc = std::make_error_code(ec);
-        return std::format("Formating {} failed {}", val, erc.message());
+        return psc::fmt::format("Formating {} failed {}", val, erc.message());
     });
     return "0";
 }

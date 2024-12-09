@@ -19,12 +19,12 @@
 #ifdef SYSDLOG
 
 #include <iostream>
-#include <format>
 #include <ctime>
 #include <string>
 #include <glibmm.h>
 #include <giomm/file.h>
 
+#include "psc_format.hpp"
 #include "StringUtils.hpp"
 #include "LogViewSysd.hpp"
 
@@ -38,7 +38,7 @@ LogViewSysdJournal::LogViewSysdJournal(int flags)
     m_ret = sd_journal_open(&m_j, flags);
     if (m_ret != 0) {
         m_j = nullptr;
-        throw LogViewException(std::format("Error on open_journal {}", strerror(m_ret)));
+        throw LogViewException(psc::fmt::format("Error on open_journal {}", strerror(m_ret)));
     }
 }
 
@@ -132,7 +132,7 @@ LogViewSysd::queryUnique(const char* type, std::vector<pLogViewIdentifier>& vecI
     LogViewSysdJournal journal(getFlags());
     int ret = sd_journal_query_unique(journal.getJournal(), type);
     if (ret < 0) {
-        throw LogViewException(std::format("Error on sd_journal_query_unique {}", strerror(journal.getError())));
+        throw LogViewException(psc::fmt::format("Error on sd_journal_query_unique {}", strerror(journal.getError())));
     }
     const void *d;
     size_t l;
@@ -283,7 +283,7 @@ LogViewSysd::getBootId()
     //char *sd_id128_to_string(	sd_id128_t id, char s[static SD_ID128_STRING_MAX]);
     strBootId.reserve(32);
     for (uint32_t i = 0; i < sizeof(bootId.bytes); ++i) {
-        strBootId += std::format("{:02x}", bootId.bytes[i]);
+        strBootId += psc::fmt::format("{:02x}", bootId.bytes[i]);
     }
     return strBootId;
 }
@@ -342,7 +342,7 @@ LogViewSysdJournalIterator::LogViewSysdJournalIterator(const std::list<pLogViewI
         auto match = sysDId->getQuery();
         int ret = sd_journal_add_match(m_logViewSysdJournal->getJournal(), match.c_str(), 0);
         if (ret != 0) {
-            throw LogViewException(std::format("Error on sd_journal_add_match {}", strerror(ret)));
+            throw LogViewException(psc::fmt::format("Error on sd_journal_add_match {}", strerror(ret)));
         }
     }
     if (m_logViewSysdJournal->seekHead()) {
