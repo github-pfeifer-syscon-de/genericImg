@@ -45,7 +45,7 @@ namespace fmt {
     using fmt::formatter;
     using fmt::format_context;
     using fmt::vformat;
-    using makefmt::make_format_args;
+    using fmt::make_format_args;
 #endif
 
 } /* namespace fmt */

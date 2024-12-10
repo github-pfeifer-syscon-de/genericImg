@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
 	$(LIBEXIF_CFLAGS) \
 	$(JSONGLIB1_CFLAGS) \
 	$(GTKMM_CFLAGS) \
+	$(LIBFMT_CFLAGS) \
 	$(GLIBMM_CFLAGS)
 
 libgenericimg_la_CFLAGS = \
@@ -60,6 +61,7 @@ libgenericimg_la_LIBADD =  \
 	$(LIBEXIF_LIBS) \
 	$(JSONGLIB1_LIBS) \
 	$(GTKMM_LIBS) \
+	$(LIBFMT_LIBS) \
 	$(GLIBMM_LIBS)
 
 
