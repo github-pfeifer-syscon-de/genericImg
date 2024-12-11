@@ -87,9 +87,8 @@ LogViewSyslog::parse(const std::string& line)
             //May 11 10:40:48 scrooge disk-health-nurse[26783]: [ID 702911 user.error] m:SY-mon-full-500 c:H : partition health
             std::string date = line.substr(0, 7);
             std::string time = line.substr(7, 8);
-            std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-            auto year = psc::fmt::format("{:%Y} ", now);   // fill in current year to make it a complete date
-            std::string dateTime{date + year + time};
+            auto year = LogTime::now().format("%Y ");
+            std::string dateTime(date + year + time);
             LogTime timestamp;
             timestamp.parse("%b %d %Y %T", dateTime, true);
             logViewEntry.setLocalTime(timestamp);

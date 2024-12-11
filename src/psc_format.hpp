@@ -32,21 +32,19 @@
 #endif
 
 namespace psc {
-namespace fmt {
 
 #if __GNUC__ >= 13
+namespace fmt {
     using std::format;
     using std::formatter;
     using std::format_context;
     using std::vformat;
     using std::make_format_args;
+} /* namespace fmt */
 #else
-    using fmt::format;
-    using fmt::formatter;
-    using fmt::format_context;
-    using fmt::vformat;
-    using fmt::make_format_args;
+namepace {
+     namepace fmt = fmt;
+}
 #endif
 
-} /* namespace fmt */
 } /* namespace psc */
