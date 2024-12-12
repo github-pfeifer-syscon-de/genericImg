@@ -41,7 +41,8 @@ LogViewFile::getIdentifiers()
     std::set<LogDays> days;
     for (const auto& entry : std::filesystem::directory_iterator(getBasePath())) {
         if (entry.is_regular_file()) {
-            std::string ext = entry.path().extension();
+            auto path = entry.path();
+            auto ext = path.extension();
             if (LOG_EXTENSTION == ext) {     // avoid reading binary files
                 std::string dir = entry.path().parent_path().string();
                 std::string file = entry.path().filename().string();
@@ -122,9 +123,8 @@ LogViewFile::groupDays(const std::filesystem::path& path)
 std::string
 LogViewFile::getBasePath()
 {
-    std::filesystem::path path{Glib::get_home_dir()};
-    path /= "log";
-    return path.string();
+    auto logPath = Glib::canonicalize_filename("log", Glib::get_home_dir());
+    return logPath;
 }
 
 
