@@ -18,7 +18,7 @@
 
 #include <iostream>
 #include <sys/types.h>
-#include <pwd.h>
+#include <glibmm.h>     // using Glib::get_home_dir
 
 #include "StringUtils.hpp"
 #include "LogViewFile.hpp"
@@ -122,8 +122,7 @@ LogViewFile::groupDays(const std::filesystem::path& path)
 std::string
 LogViewFile::getBasePath()
 {
-    const char *homedir = getpwuid(getuid())->pw_dir;
-    std::filesystem::path path{homedir};
+    std::filesystem::path path{Glib::get_home_dir()};
     path /= "log";
     return path.string();
 }
