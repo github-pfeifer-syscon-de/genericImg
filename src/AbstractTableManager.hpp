@@ -166,10 +166,12 @@ public:
     virtual ~AbstractTableManager() = default;
 
     void setup(Gtk::Dialog* dlg);
+    void setup(Gtk::Window* win);
     void setup(const Glib::RefPtr<Gtk::TreeView>& table);
     void build(bool autosizeColumns);
     void menu(Gtk::TreeModelColumnBase* modelColumn);
     void saveConfig(const Gtk::Dialog* dlg);
+    void saveConfig(const Gtk::Window* win);
     Glib::RefPtr<Gtk::TreeView> getTable();
     size_t getColumnSize(guint colIdx);
     /**

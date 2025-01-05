@@ -100,6 +100,16 @@ AbstractTableManager::setup(Gtk::Dialog* dlg)
 }
 
 void
+AbstractTableManager::setup(Gtk::Window* win)
+{
+    int width{0}, height{0};
+    loadDialogSizeConfig(width, height);
+    if (width > 0 && height > 0) {
+        win->set_default_size(width, height);
+    }
+}
+
+void
 AbstractTableManager::setup(const Glib::RefPtr<Gtk::TreeView>& table)
 {
     m_table = table;
@@ -138,6 +148,16 @@ AbstractTableManager::saveConfig(const Gtk::Dialog* dlg)
     saveColumnIdxConfig(COLUMN_IDXS,  m_visible);
     saveColumnIdxConfig(COLUMN_SIZES, m_columnSizes);
     saveDialogSizeConfig(dlg->get_width(), dlg->get_height());
+    saveColumnSortConfig(m_sortModelIdx, m_sortType);
+}
+
+void
+AbstractTableManager::saveConfig(const Gtk::Window* win)
+{
+    m_columnSizes = getTableColumnSizes();    // get the actual size into the model
+    saveColumnIdxConfig(COLUMN_IDXS,  m_visible);
+    saveColumnIdxConfig(COLUMN_SIZES, m_columnSizes);
+    saveDialogSizeConfig(win->get_width(), win->get_height());
     saveColumnSortConfig(m_sortModelIdx, m_sortType);
 }
 
