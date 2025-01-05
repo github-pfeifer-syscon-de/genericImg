@@ -191,7 +191,7 @@ struct LogViewIterInner
 
 typedef std::shared_ptr<LogViewIterInner> pLogViewIterInner;
 
-// as inherences won't allow flexible typing use Inner
+// as inheritance won't allow flexible typing use a inner instance
 class LogViewIterator {
     using iterator_category = std::forward_iterator_tag;
     using difference_type   = int64_t;
@@ -205,7 +205,7 @@ public:
     {
     }
     LogViewIterator(const LogViewIterator& other) = default;
-    ~LogViewIterator() = default;
+    virtual ~LogViewIterator() = default;
     LogViewIterator operator++()
     {
         m_iterInner->inc();
