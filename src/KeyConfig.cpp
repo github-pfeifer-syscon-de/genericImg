@@ -22,6 +22,7 @@
 
 KeyConfig::KeyConfig(const char* configName)
 : m_configName{configName}
+, m_config{new Glib::KeyFile()}     // there should be a create ... but the doc is wrong on this
 {
     loadConfig();
 }
@@ -93,17 +94,20 @@ KeyConfig::getConfigName()
     return fullPath;
 }
 
+Glib::KeyFile*
+KeyConfig::getConfig()
+{
+    return m_config;
+}
+
 void
 KeyConfig::loadConfig()
 {
-    if (!m_config) {
-        m_config = new Glib::KeyFile();     // there should be a create ... but the doc is wrong on this
-        try {
-            m_config->load_from_file(getConfigName());
-        }
-        catch (const Glib::FileError& exc) {
-            std::cerr << "Cound not read " << exc.what() << " config " << m_configName << " (it may not yet exist and will be created)." << std::endl;
-        }
+    try {
+        m_config->load_from_file(getConfigName());
+    }
+    catch (const Glib::FileError& exc) {
+        std::cerr << "Cound not read " << exc.what() << " config " << m_configName << " (it may not yet exist and will be created)." << std::endl;
     }
 }
 
