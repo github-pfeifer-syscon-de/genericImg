@@ -60,6 +60,13 @@ autoreconf -fis
 ./configure --prefix=/mingw64
 make
 </pre>
+Msys2 support multiple prefixes so ucrt64 works as well,
+but if you decide to use this ensure:
+<pre>
+Use the matching shell see https://www.msys2.org/docs/package-naming/
+Install all the packages with the correct prefix e.g. pacman -S mingw-w64-ucrt-x86_64-gcc
+Use the prefix for all libs/programs consistently e.g. ./configure --prefix=/ucrt64
+</pre>
 
 ## Any system
 
