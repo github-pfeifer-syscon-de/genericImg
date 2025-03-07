@@ -125,4 +125,6 @@ genericImg (used almost everywhere i think)
 | + picnic
 | + geodata
 |   + glglobe
++ calcpp
++ nomad
 </pre>
