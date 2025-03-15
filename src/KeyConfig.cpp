@@ -18,6 +18,7 @@
 
 #include <iostream>
 
+#include "psc_format.hpp"
 #include "KeyConfig.hpp"
 
 KeyConfig::KeyConfig(const char* configName)
@@ -117,4 +118,43 @@ KeyConfig::saveConfig()
     if (m_config) {
         m_config->save_to_file(getConfigName());
     }
+}
+
+Gdk::RGBA
+KeyConfig::getColor(const char* grp, const Glib::ustring& key)
+{
+    auto str = getString(grp, key, COLOR_BLACK); // default to simple black
+    Gdk::RGBA rgba;
+    if (str.length() == 17) {   // read back our custom variant
+        rgba.set(str.substr(0, 13));
+        gushort alpha = static_cast<gushort>(std::stoul(str.substr(13, 4), nullptr, 16));
+        rgba.set_alpha_u(alpha);
+    }
+    else {
+        rgba.set(str);
+    }
+    return rgba;
+}
+
+void
+KeyConfig::setColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& rgba)
+{
+    std::string colorRgb;
+    if (rgba.get_alpha() != 1.0) {
+        // use custom format seems to be the only option to store 16bit precision  with alpha
+        colorRgb = psc::fmt::format("#{:04x}{:04x}{:04x}{:04x}",
+                                   rgba.get_red_u()
+                                 , rgba.get_green_u()
+                                 , rgba.get_blue_u()
+                                 , rgba.get_alpha_u());
+    }
+    else {
+        // use 16bit precision to_string may reduce this
+        colorRgb = psc::fmt::format("#{:04x}{:04x}{:04x}",
+                                   rgba.get_red_u()
+                                 , rgba.get_green_u()
+                                 , rgba.get_blue_u());
+
+    }
+    setString(grp, key, colorRgb);
 }

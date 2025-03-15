@@ -53,6 +53,7 @@ libgenericimg_la_SOURCES = \
 	KeyfileTableManager.cpp \
 	TableProperties.cpp \
 	StringUtils.cpp \
+	ThreadWorker.cpp \
 	KeyConfig.cpp
 
 libgenericimg_la_LIBADD =  \
@@ -97,6 +98,7 @@ pkginclude_HEADERS = \
 	KeyfileTableManager.hpp \
 	TableProperties.hpp \
 	StringUtils.hpp \
+	ThreadWorker.hpp \
 	KeyConfig.hpp
 
 if SYSDLOG

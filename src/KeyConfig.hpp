@@ -19,6 +19,7 @@
 #pragma once
 
 #include <glibmm.h>
+#include <gdkmm.h>
 
 class KeyConfig
 {
@@ -37,6 +38,11 @@ public:
     virtual void saveConfig();
     Glib::KeyFile* getConfig();
     std::string getConfigName();
+    Gdk::RGBA getColor(const char* grp, const Glib::ustring& key);
+    void setColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& rgba);
+
+    static constexpr auto COLOR_BLACK = "rgb(0,0,0)";
+
 protected:
     virtual void loadConfig();  // is called on creation
 

@@ -49,6 +49,7 @@ Use "msys2 mingw64" window/shell (see tooltip)
 First install the prerequisits:
 <pre>
 pacman -S git
+pacman -S base-devel                (for completness)
 pacman -S mingw-w64-x86_64-gcc
 pacman -S mingw-w64-x86_64-autotools
 pacman -S mingw-w64-x86_64-gtkmm3
