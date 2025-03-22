@@ -98,3 +98,10 @@
 /src/.libs/
 /test.txt
 /make2ccls.sh
+/test/worker_test
+/test/worker_test.log
+/test/worker_test.trs
+/.ccls
+/test/json_test
+/test/json_test.log
+/test/json_test.trs

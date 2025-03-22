@@ -1,4 +1,4 @@
-/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
+/* -*- Mode: c++; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2021 rpf
  *
@@ -103,7 +103,7 @@ ExifReader::decode(const Glib::ustring& exifStr)
 			//exif_data_dump(exifData);
 			exif_data_free(exifData);
 		}
-		delete buf;
+		delete[] buf;
 	}
 }
 

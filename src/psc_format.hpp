@@ -1,4 +1,4 @@
-/* -*- Mode: c++; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*-  */
+/* -*- Mode: c++; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
  * Copyright (C) 2024 RPf <gpl3@pfeifer-syscon.de>
  *
@@ -21,19 +21,19 @@
 #include <iostream>
 
 // simplify format switching,
-// alias them with out namespace
+// alias them with our namespace
 
 
-#if __GNUC__ >= 13
+#if __cplusplus >= 202002L
 #include <format>
 #else
-// to make this work enable in genericImg the depend_libfmt definition and usages
+// to make this work enable in genericImg/configure.ac the depend_libfmt definition and usages (and install package)
 #include <fmt/format.h>
 #endif
 
 namespace psc {
 
-#if __GNUC__ >= 13
+#if __cplusplus >= 202002L
 namespace fmt {
     using std::format;
     using std::formatter;
@@ -42,8 +42,8 @@ namespace fmt {
     using std::make_format_args;
 } /* namespace fmt */
 #else
-namepace {
-     namepace fmt = fmt;
+namespace {
+     namespace fmt = fmt;
 }
 #endif
 

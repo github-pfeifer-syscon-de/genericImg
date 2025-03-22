@@ -42,6 +42,7 @@ libgenericimg_la_SOURCES = \
 	ApplicationSupport.cpp \
 	Mode.cpp \
 	JsonHelper.cpp \
+	JsonObj.cpp \
 	Log.cpp \
 	LogImpl.cpp \
 	LogView.cpp \
@@ -85,6 +86,7 @@ pkginclude_HEADERS = \
 	ApplicationSupport.hpp \
 	Mode.hpp \
 	JsonHelper.hpp \
+	JsonObj.hpp \
 	Log.hpp \
 	LogImpl.hpp \
 	LogView.hpp \

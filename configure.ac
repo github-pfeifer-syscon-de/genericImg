@@ -4,7 +4,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 m4_define([v_maj], [0])
 m4_define([v_min], [4])
-m4_define([v_mic], [1])
+m4_define([v_mic], [2])
 m4_define([project_version], [v_maj.v_min.v_mic])
 m4_define([lt_cur], m4_eval(v_maj + v_min))
 m4_define([lt_rev], [v_mic])
@@ -51,7 +51,7 @@ depend_libexif="libexif >= 0.6.21"
 AC_SUBST([depend_libexif])
 PKG_CHECK_MODULES([LIBEXIF], [$depend_libexif])
 
-depend_jsonglib1="json-glib-1.0"
+depend_jsonglib1="json-glib-1.0 >= 0.8"
 AC_SUBST([depend_jsonglib1])
 PKG_CHECK_MODULES(JSONGLIB1, [$depend_jsonglib1])
 

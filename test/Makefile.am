@@ -1,13 +1,15 @@
 
 
 
-TESTS = unic_test log_test
+TESTS = unic_test log_test worker_test json_test
 
 AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)."\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
 	$(GLIBMM_CFLAGS) \
+	$(GTKMM_CFLAGS) \
+	$(JSONGLIB1_CFLAGS) \
 	-I ../src
 
 AM_CFLAGS= \
@@ -18,16 +20,32 @@ AM_CXXFLAGS = \
 
 AM_LDFLAGS =
 
+check_PROGRAMS = unic_test log_test worker_test json_test
+
 unic_test_LDADD =  \
 	-L../src/.libs -lgenericimg \
 	$(GLIBMM_LIBS)
+
+unic_test_SOURCES = unic_test.cpp
 
 log_test_LDADD =  \
 	-L../src/.libs -lgenericimg \
 	$(GLIBMM_LIBS)
 
-check_PROGRAMS = unic_test log_test
-
-unic_test_SOURCES = unic_test.cpp
-
 log_test_SOURCES = log_test.cpp
+
+worker_test_LDADD = \
+	-L../src/.libs -lgenericimg \
+	$(GLIBMM_LIBS) \
+	$(GTKMM_LIBS) \
+	$(GENERICIMG_LIBS)
+
+worker_test_SOURCES = WorkerTest.cpp
+
+json_test_LDADD = \
+	-L../src/.libs -lgenericimg \
+	$(GLIBMM_LIBS) \
+	$(JSONGLIB1_LIBS)
+	$(GENERICIMG_LIBS)
+
+json_test_SOURCES = JsonTest.cpp

@@ -1,6 +1,6 @@
-/* -*- Mode: c++; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
+/* -*- Mode: c++; c-basic-offset: 4; tab-width: 4 -*-  */
 /*
- * Copyright (C) 2021 rpf
+ * Copyright (C) 2025 RPf <gpl3@pfeifer-syscon.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,25 +18,17 @@
 
 #pragma once
 
-#include <gtkmm.h>
-
-class ImageList;
-
-class ExifReader {
+class JsonTest
+{
 public:
-    ExifReader(ImageList& imageList);
-    virtual ~ExifReader() = default;
+    JsonTest();
+    explicit JsonTest(const JsonTest& orig) = delete;
+    virtual ~JsonTest() = default;
 
-    void decode(const Glib::ustring& exifStr);
-    void append2IdfList(const char *name, Glib::ustring& value);
-    void append2ExifList(const char *ifdName);
+    bool readTest();
+    bool createTest();
+    bool valueTest();
 
-protected:
-    uint8_t* toBuffer(const Glib::ustring& exifStr, uint32_t &retLen);
-
-    ImageList& m_imageList;
-    Gtk::TreeIter m_iterExif;
-    Gtk::TreeIter m_chldsIdf;
 private:
 };
 
