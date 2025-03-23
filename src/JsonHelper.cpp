@@ -70,6 +70,21 @@ JsonHelper::load_data(const Glib::RefPtr<Glib::ByteArray>& data)
     }
 }
 
+void
+JsonHelper::load_data(const gchar* data)
+{
+    GError *error = nullptr;
+    m_file = "data";
+    auto len = strlen(data);
+    json_parser_load_from_data(m_parser, data, len, &error);
+    if (error) {
+        auto msg = Glib::ustring::sprintf("Unable to parse data len %d %s", len, error->message);
+        g_error_free(error);
+        throw JsonException(msg);
+    }
+}
+
+
 JsonObject*
 JsonHelper::get_root_object()
 {

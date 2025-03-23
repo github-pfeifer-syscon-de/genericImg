@@ -105,3 +105,5 @@
 /test/json_test
 /test/json_test.log
 /test/json_test.trs
+/analyze.sh
+/.ccls-cache/

@@ -45,6 +45,7 @@ public:
 
     void load_from_file(const Glib::ustring& file);
     void load_data(const Glib::RefPtr<Glib::ByteArray>& data);
+    void load_data(const gchar* data);
     JsonObject* get_root_object();
     JsonArray* get_root_array();
     JsonArray* get_array(JsonObject* obj, const Glib::ustring& name);
