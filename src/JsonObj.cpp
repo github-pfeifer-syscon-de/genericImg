@@ -285,6 +285,14 @@ JsonObj::set(Glib::UStringView key, const std::shared_ptr<JsonObj>& value)
     json_object_set_object_member(m_jsonObj, key.c_str(), refObj);
 }
 
+std::shared_ptr<JsonObj>
+JsonObj::createObj(Glib::UStringView key)
+{
+    auto obj = std::make_shared<JsonObj>();
+    set(key.c_str(), obj);
+    return obj;
+}
+
 void
 JsonObj::set(Glib::UStringView key, const std::shared_ptr<JsonArr>& arr)
 {
@@ -293,6 +301,13 @@ JsonObj::set(Glib::UStringView key, const std::shared_ptr<JsonArr>& arr)
     json_object_set_array_member(m_jsonObj, key.c_str(), refArr);
 }
 
+std::shared_ptr<JsonArr>
+JsonObj::createArr(Glib::UStringView key, guint size)
+{
+    auto arr = std::make_shared<JsonArr>(size);
+    set(key.c_str(), arr);
+    return arr;
+}
 
 std::shared_ptr<JsonValue>
 JsonObj::getValue(Glib::UStringView key)

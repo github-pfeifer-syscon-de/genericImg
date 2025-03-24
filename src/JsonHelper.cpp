@@ -18,6 +18,7 @@
 
 
 #include "JsonHelper.hpp"
+#include "JsonObj.hpp"
 
 JsonException::JsonException(const Glib::ustring& error)
 : std::exception()
@@ -95,6 +96,18 @@ JsonHelper::get_root_object()
         throw JsonException(msg);
     }
     return rootObj;
+}
+
+std::shared_ptr<JsonObj>
+JsonHelper::getRootObj()
+{
+    JsonNode* root = json_parser_get_root(m_parser);
+    JsonObject* rootObj = json_node_get_object(root);
+    if (!rootObj) {
+        auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a object as root", m_file);
+        throw JsonException(msg);
+    }
+    return std::make_shared<JsonObj>(rootObj);
 }
 
 JsonArray*
