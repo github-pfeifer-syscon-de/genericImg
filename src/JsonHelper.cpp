@@ -98,7 +98,7 @@ JsonHelper::get_root_object()
     return rootObj;
 }
 
-std::shared_ptr<JsonObj>
+std::shared_ptr<psc::json::JsonObj>
 JsonHelper::getRootObj()
 {
     JsonNode* root = json_parser_get_root(m_parser);
@@ -107,7 +107,7 @@ JsonHelper::getRootObj()
         auto msg = Glib::ustring::sprintf("The json file %s doesn't contain a object as root", m_file);
         throw JsonException(msg);
     }
-    return std::make_shared<JsonObj>(rootObj);
+    return std::make_shared<psc::json::JsonObj>(rootObj);
 }
 
 JsonArray*

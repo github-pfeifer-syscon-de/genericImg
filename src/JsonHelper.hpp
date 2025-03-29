@@ -24,7 +24,9 @@
 #include <exception>
 #include <vector>
 
-class JsonObj;
+namespace psc::json {
+    class JsonObj;
+}
 
 class JsonException : public std::exception
 {
@@ -48,7 +50,7 @@ public:
     void load_data(const Glib::RefPtr<Glib::ByteArray>& data);
     void load_data(const gchar* data);
     JsonObject* get_root_object();
-    std::shared_ptr<JsonObj> getRootObj();
+    std::shared_ptr<psc::json::JsonObj> getRootObj();
     JsonArray* get_root_array();
     JsonArray* get_array(JsonObject* obj, const Glib::ustring& name);
     JsonObject* get_array_object(JsonArray* obj, int idx);

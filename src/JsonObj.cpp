@@ -20,6 +20,9 @@
 
 #include "JsonObj.hpp"
 
+namespace psc {
+namespace json {
+
 JsonValue::JsonValue(Glib::UStringView value)
 {
     m_node = json_node_new(JSON_NODE_VALUE);
@@ -392,7 +395,29 @@ JsonArr::getSize()
     return json_array_get_length(m_jsonArr);
 }
 
-JsonArray* JsonArr::getArray()
+JsonArray*
+JsonArr::getArray()
 {
     return m_jsonArr;
 }
+
+Glib::ustring
+JsonArr::generate(uint32_t indent)
+{
+    g_autoptr(JsonGenerator) jsonGen = json_generator_new();
+    if (indent > 0) {
+        json_generator_set_indent(jsonGen, indent);
+        json_generator_set_indent_char(jsonGen, ' ');
+        json_generator_set_pretty(jsonGen, true);
+    }
+    g_autoptr(JsonNode) node = json_node_new(JSON_NODE_ARRAY);
+    json_node_init_array(node, m_jsonArr);
+    json_generator_set_root(jsonGen, node);
+    g_autofree GString* gstr = g_string_sized_new(256);
+    json_generator_to_gstring(jsonGen, gstr);
+    return Glib::ustring(gstr->str);
+}
+
+
+} /* namespace json */
+} /* namespace psc */

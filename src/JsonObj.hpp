@@ -24,6 +24,8 @@
 #include <type_traits>
 #include <json-glib/json-glib.h>
 
+namespace psc::json {
+
 class JsonObj;
 class JsonArr;
 
@@ -115,9 +117,12 @@ public:
 //        }
 //    }
 
+    Glib::ustring generate(uint32_t indent = 0);
     std::shared_ptr<JsonValue> get(guint idx);
     guint getSize();
     JsonArray* getArray();
 private:
     JsonArray* m_jsonArr;
 };
+
+} /* namespace psc::json */

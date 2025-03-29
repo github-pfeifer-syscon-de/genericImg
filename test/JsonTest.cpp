@@ -46,10 +46,10 @@ JsonTest::readTest()
 bool
 JsonTest::createTest()
 {
-    JsonObj obj;
+    psc::json::JsonObj obj;
     obj.set("root", "abc");
     {
-        auto inner = std::make_shared<JsonObj>();
+        auto inner = std::make_shared<psc::json::JsonObj>();
         inner->set("chld", "def");
         obj.set("inner", inner);
         std::cout << "after add inner" << std::endl;
@@ -62,38 +62,38 @@ JsonTest::createTest()
 bool
 JsonTest::valueTest()
 {
-    JsonValue sval("abc");
+    psc::json::JsonValue sval("abc");
     std::cout << "valueTest str " << sval.getString() << std::endl;
     if (!sval.isString() || sval.getString() != "abc") {
         return false;
     }
-    JsonValue ival(4711l);
+    psc::json::JsonValue ival(4711l);
     std::cout << "valueTest int " << ival.getInt() << std::endl;
     if (!ival.isInt() || ival.getInt() != 4711l) {
         return false;
     }
 
-    JsonValue bval(true);
+    psc::json::JsonValue bval(true);
     std::cout << "valueTest bool " << std::boolalpha << bval.getBool() << std::endl;
     if (!bval.isBool() || bval.getBool() != true) {
         return false;
     }
-    JsonValue dval(123.456);
+    psc::json::JsonValue dval(123.456);
     std::cout << "valueTest double " << dval.getDouble() << std::endl;
     if (!dval.isDouble() || dval.getDouble() != 123.456) {
         return false;
     }
-    auto obj = std::make_shared<JsonObj>();
+    auto obj = std::make_shared<psc::json::JsonObj>();
     obj->set("abc", 123l);
-    JsonValue oval(obj);
+    psc::json::JsonValue oval(obj);
     std::cout << "valueTest obj" << std::endl;
     if (!oval.isObject() || oval.getObject()->getValue("abc")->getInt() != 123) {
         return false;
     }
     std::cout << "valueTest arr" << std::endl;
-    auto arr = std::make_shared<JsonArr>(8);
+    auto arr = std::make_shared<psc::json::JsonArr>(8);
     arr->add({123, 456, 789});
-    JsonValue aval(arr);
+    psc::json::JsonValue aval(arr);
     if (!aval.isArray() || aval.getArray()->getSize() != 3 || aval.getArray()->get(2)->getInt() != 789) {
         return false;
     }
