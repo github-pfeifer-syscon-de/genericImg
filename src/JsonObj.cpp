@@ -20,8 +20,7 @@
 
 #include "JsonObj.hpp"
 
-namespace psc {
-namespace json {
+namespace psc::json {
 
 JsonValue::JsonValue(Glib::UStringView value)
 {
@@ -419,5 +418,4 @@ JsonArr::generate(uint32_t indent)
 }
 
 
-} /* namespace json */
-} /* namespace psc */
+} /* namespace psc::json */

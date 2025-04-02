@@ -82,6 +82,7 @@ public:
 
     // type to readable name
     static Glib::ustring typeName(const std::type_info& typeinfo);
+    static std::string hexdump(gchar* string, gsize size);
 private:
     StringUtils() = default;
 
