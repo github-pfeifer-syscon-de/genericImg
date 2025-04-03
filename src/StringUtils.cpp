@@ -160,6 +160,52 @@ StringUtils::splitRepeat(const Glib::ustring &line, gunichar delim, std::vector<
     }
 }
 
+std::vector<Glib::ustring> StringUtils::splitQuoted(const Glib::ustring &line, gunichar delim, gunichar quote)
+{
+    std::vector<Glib::ustring> ret;
+    ret.reserve(16);
+    bool inQuote{false};
+    size_t start{0};
+    for (Glib::ustring::size_type pos = 0; pos < line.length(); ++pos) {
+        auto c = line.at(pos);
+        bool isDelim{false};
+        if (inQuote) {
+            if (c == quote) {
+                inQuote = false;
+                isDelim = true;
+            }
+        }
+        else {
+            if (c == quote) {
+                inQuote = true;
+                start = pos + 1;
+                isDelim = true;
+            }
+            else if (c == delim)  {
+                isDelim = true;
+            }
+        }
+        if (isDelim) {
+            ret.push_back(line.substr(start, pos - start));
+            while (pos+1 < line.length()) {
+                c = line.at(pos+1);
+                if (c != delim && c != quote) {
+                    break;
+                }
+                if (c == quote) {
+                    inQuote = !inQuote;
+                }
+                ++pos;
+            }
+            start = pos + 1;
+        }
+    }
+    if (start < line.length()) {
+        ret.push_back(line.substr(start));
+    }
+    return ret;
+}
+
 
 Glib::ustring
 StringUtils::replaceAll(const Glib::ustring& text, const Glib::ustring& replace, const Glib::ustring& with)

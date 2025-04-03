@@ -62,6 +62,8 @@ public:
     static void split(const Glib::ustring &line, char delim, std::vector<Glib::ustring> &ret);
     // like split but works with repeated delimiters
     static void splitRepeat(const Glib::ustring &line, gunichar delim, std::vector<Glib::ustring> &ret);
+    // split but consider text in quotes as no split
+    static std::vector<Glib::ustring> splitQuoted(const Glib::ustring &line, gunichar delim = ' ', gunichar quote = '"');
 
     static Glib::ustring replaceAll(const Glib::ustring& text, const Glib::ustring& replace, const Glib::ustring& with);
    // simple fix for the ustring <-> char8_t incompatibility

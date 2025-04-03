@@ -127,7 +127,14 @@ test_string_util()
         std::cout << "lower expected \"Abcd\u00E4\" got \"" << strlow << "\"" << std::endl;
         return false;
     }
-
+    auto tok = StringUtils::splitQuoted("This \"is a quoted\" string");
+    if (tok.size() != 3 || tok[0] != "This" || tok[1] != "is a quoted" || tok[2] != "string") {
+        std::cout << "splitQuoted expected 3 got " << tok.size() << std::endl;
+        for (size_t i = 0; i < tok.size(); ++i) {
+            std::cout << "[" << i << "]=\"" << tok[i] << "\"" << std::endl;
+        }
+        return false;
+    }
     return true;
 }
 
