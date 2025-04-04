@@ -73,6 +73,7 @@ public:
     void set(Glib::UStringView key, gint64 val);
     void set(Glib::UStringView key, const std::shared_ptr<JsonValue>& value);
     void set(Glib::UStringView key, const std::shared_ptr<JsonObj>& obj);
+    bool hasMember(Glib::UStringView key);
     std::shared_ptr<JsonObj> createObj(Glib::UStringView key);
     void set(Glib::UStringView key, const std::shared_ptr<JsonArr>& arr);
     std::shared_ptr<JsonArr> createArr(Glib::UStringView key, guint size = 0);

@@ -287,6 +287,13 @@ JsonObj::set(Glib::UStringView key, const std::shared_ptr<JsonObj>& value)
     json_object_set_object_member(m_jsonObj, key.c_str(), refObj);
 }
 
+bool
+JsonObj::hasMember(Glib::UStringView key)
+{
+    return json_object_has_member(m_jsonObj, key.c_str());
+}
+
+
 std::shared_ptr<JsonObj>
 JsonObj::createObj(Glib::UStringView key)
 {

@@ -107,3 +107,4 @@
 /analyze.sh
 /.ccls-cache/
 /src/.ccls-cache/
+/src/.ccls
