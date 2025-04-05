@@ -333,3 +333,14 @@ StringUtils::hexdump(gchar* string, gsize size)
     }
     return dump;
 }
+
+Glib::ustring
+StringUtils::getExtension(const Glib::RefPtr<Gio::File>& file)
+{
+    Glib::ustring base = file->get_basename();
+    auto pos = base.find_last_of('.');
+    if (pos != base.npos) {
+        return base.substr(pos + 1);
+    }
+    return "";
+}

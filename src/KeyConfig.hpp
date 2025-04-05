@@ -35,6 +35,7 @@ public:
     bool getBoolean(const char* grp, const Glib::ustring& key, const bool def);
     void setBoolean(const char* grp, const Glib::ustring& key, const bool value);
     bool hasKey(const char* grp, const Glib::ustring& key);
+    bool hasGrp(const char* grp);
     virtual void saveConfig();
     Glib::KeyFile* getConfig();
     std::string getConfigName();

@@ -87,6 +87,12 @@ KeyConfig::hasKey(const char* grp, const Glib::ustring& key)
         && m_config->has_key(grp, key);
 }
 
+bool
+KeyConfig::hasGrp(const char* grp)
+{
+    return m_config->has_group(grp);
+}
+
 std::string
 KeyConfig::getConfigName()
 {

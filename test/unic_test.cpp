@@ -19,9 +19,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
-#include <glibmm.h>
-#include <map>
-#include <vector>
 
 #include "StringUtils.hpp"
 
@@ -133,6 +130,12 @@ test_string_util()
         for (size_t i = 0; i < tok.size(); ++i) {
             std::cout << "[" << i << "]=\"" << tok[i] << "\"" << std::endl;
         }
+        return false;
+    }
+    auto file = Gio::File::create_for_path("/home/abc/x.yz.cpp");
+    auto ext = StringUtils::getExtension(file);
+    if (ext != "cpp") {
+        std::cout << "getExtension expected cpp got \"" << ext << "\"" << std::endl;
         return false;
     }
     return true;

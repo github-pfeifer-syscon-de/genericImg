@@ -28,8 +28,9 @@
 #include <source_location>
 #include <iostream>
 #include <charconv>
-#include <glibmm.h>
 #include <typeinfo>
+#include <glibmm.h>
+#include <giomm.h>
 
 #include "psc_format.hpp"
 
@@ -85,6 +86,8 @@ public:
     // type to readable name
     static Glib::ustring typeName(const std::type_info& typeinfo);
     static std::string hexdump(gchar* string, gsize size);
+    // extension without "." e.g. xz.cpp -> cpp
+    static Glib::ustring getExtension(const Glib::RefPtr<Gio::File>& file);
 private:
     StringUtils() = default;
 
