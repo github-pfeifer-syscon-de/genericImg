@@ -55,6 +55,7 @@ public:
     std::shared_ptr<JsonObj> getObject();
     bool isArray();
     std::shared_ptr<JsonArr> getArray();
+    Glib::ustring generate(uint32_t indent = 0);
 protected:
 private:
     JsonNode* m_node;

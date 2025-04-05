@@ -224,8 +224,22 @@ JsonValue::getArray()
     return arr;
 }
 
-
 #pragma GCC diagnostic pop
+
+Glib::ustring
+JsonValue::generate(uint32_t indent)
+{
+    g_autoptr(JsonGenerator) jsonGen = json_generator_new();
+    if (indent > 0) {
+        json_generator_set_indent(jsonGen, indent);
+        json_generator_set_indent_char(jsonGen, ' ');
+        json_generator_set_pretty(jsonGen, true);
+    }
+    json_generator_set_root(jsonGen, m_node);
+    g_autofree GString* gstr = g_string_sized_new(256);
+    json_generator_to_gstring(jsonGen, gstr);
+    return Glib::ustring(gstr->str);
+}
 
 
 //    case JSON_NODE_ARRAY:
