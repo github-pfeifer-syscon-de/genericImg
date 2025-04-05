@@ -53,13 +53,13 @@ JsonValue::JsonValue(bool value)
     json_node_init_boolean(m_node, value);
 }
 
-JsonValue::JsonValue(const std::shared_ptr<JsonObj>& obj)
+JsonValue::JsonValue(const PtrJsonObj& obj)
 {
     m_node = json_node_new(JSON_NODE_OBJECT);
     json_node_init_object(m_node, obj->getObj());
 }
 
-JsonValue::JsonValue(const std::shared_ptr<JsonArr>& arr)
+JsonValue::JsonValue(const PtrJsonArr& arr)
 {
     m_node = json_node_new(JSON_NODE_ARRAY);
     json_node_init_array(m_node, arr->getArray());
@@ -191,10 +191,10 @@ JsonValue::isObject()
     return nodeType == JSON_NODE_OBJECT;
 }
 
-std::shared_ptr<JsonObj>
+PtrJsonObj
 JsonValue::getObject()
 {
-    std::shared_ptr<JsonObj> obj;
+    PtrJsonObj obj;
     if (isObject()) {
         auto o = json_node_get_object(m_node);
         if (o) {
@@ -211,10 +211,10 @@ JsonValue::isArray()
     return nodeType == JSON_NODE_ARRAY;
 }
 
-std::shared_ptr<JsonArr>
+PtrJsonArr
 JsonValue::getArray()
 {
-    std::shared_ptr<JsonArr> arr;
+    PtrJsonArr arr;
     if (isArray())  {
         auto a = json_node_get_array(m_node);
         if (a) {
@@ -288,27 +288,20 @@ JsonObj::set(Glib::UStringView key, gint64 val)
 
 
 void
-JsonObj::set(Glib::UStringView key, const std::shared_ptr<JsonValue>& value)
+JsonObj::set(Glib::UStringView key, const PtrJsonValue& value)
 {
     json_object_set_member(m_jsonObj, key.c_str(), value->getNode());
 }
 
 void
-JsonObj::set(Glib::UStringView key, const std::shared_ptr<JsonObj>& value)
+JsonObj::set(Glib::UStringView key, const PtrJsonObj& value)
 {
     // need to ref to keep refcount. as set_object_member "takes" the reference
     auto refObj = json_object_ref(value->getObj());
     json_object_set_object_member(m_jsonObj, key.c_str(), refObj);
 }
 
-bool
-JsonObj::hasMember(Glib::UStringView key)
-{
-    return json_object_has_member(m_jsonObj, key.c_str());
-}
-
-
-std::shared_ptr<JsonObj>
+PtrJsonObj
 JsonObj::createObj(Glib::UStringView key)
 {
     auto obj = std::make_shared<JsonObj>();
@@ -317,14 +310,14 @@ JsonObj::createObj(Glib::UStringView key)
 }
 
 void
-JsonObj::set(Glib::UStringView key, const std::shared_ptr<JsonArr>& arr)
+JsonObj::set(Glib::UStringView key, const PtrJsonArr& arr)
 {
     // need to ref to keep refcount. as set_array_member "takes" the reference
     auto refArr = json_array_ref(arr->getArray());
     json_object_set_array_member(m_jsonObj, key.c_str(), refArr);
 }
 
-std::shared_ptr<JsonArr>
+PtrJsonArr
 JsonObj::createArr(Glib::UStringView key, guint size)
 {
     auto arr = std::make_shared<JsonArr>(size);
@@ -332,10 +325,10 @@ JsonObj::createArr(Glib::UStringView key, guint size)
     return arr;
 }
 
-std::shared_ptr<JsonValue>
+PtrJsonValue
 JsonObj::getValue(Glib::UStringView key)
 {
-    std::shared_ptr<JsonValue> val;
+    PtrJsonValue val;
     auto node = json_object_get_member(m_jsonObj, key.c_str());
     if (node) {
         val = std::make_shared<JsonValue>(node);
@@ -346,18 +339,10 @@ JsonObj::getValue(Glib::UStringView key)
 Glib::ustring
 JsonObj::generate(uint32_t indent)
 {
-    g_autoptr(JsonGenerator) jsonGen = json_generator_new();
-    if (indent > 0) {
-        json_generator_set_indent(jsonGen, indent);
-        json_generator_set_indent_char(jsonGen, ' ');
-        json_generator_set_pretty(jsonGen, true);
-    }
     g_autoptr(JsonNode) node = json_node_new(JSON_NODE_OBJECT);
     json_node_init_object(node, m_jsonObj);
-    json_generator_set_root(jsonGen, node);
-    g_autofree GString* gstr = g_string_sized_new(256);
-    json_generator_to_gstring(jsonGen, gstr);
-    return Glib::ustring(gstr->str);
+    JsonValue val{node};
+    return val.generate(indent);
 }
 
 JsonObject*
@@ -392,17 +377,17 @@ void JsonArr::add(Glib::UStringView value)
     json_array_add_string_element(m_jsonArr, value.c_str());
 }
 
-void JsonArr::add(const std::shared_ptr<JsonValue>& value)
+void JsonArr::add(const PtrJsonValue& value)
 {
     json_array_add_element(m_jsonArr, value->getNode());
 }
 
-void JsonArr::add(const std::shared_ptr<JsonObj>& obj)
+void JsonArr::add(const PtrJsonObj& obj)
 {
     json_array_add_object_element(m_jsonArr, obj->getObj());
 }
 
-std::shared_ptr<JsonValue>
+PtrJsonValue
 JsonArr::get(guint idx)
 {
     auto node = json_array_get_element(m_jsonArr, idx);
@@ -424,18 +409,10 @@ JsonArr::getArray()
 Glib::ustring
 JsonArr::generate(uint32_t indent)
 {
-    g_autoptr(JsonGenerator) jsonGen = json_generator_new();
-    if (indent > 0) {
-        json_generator_set_indent(jsonGen, indent);
-        json_generator_set_indent_char(jsonGen, ' ');
-        json_generator_set_pretty(jsonGen, true);
-    }
     g_autoptr(JsonNode) node = json_node_new(JSON_NODE_ARRAY);
     json_node_init_array(node, m_jsonArr);
-    json_generator_set_root(jsonGen, node);
-    g_autofree GString* gstr = g_string_sized_new(256);
-    json_generator_to_gstring(jsonGen, gstr);
-    return Glib::ustring(gstr->str);
+    JsonValue val(node);
+    return val.generate(indent);
 }
 
 

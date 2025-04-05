@@ -28,6 +28,12 @@ namespace psc::json {
 
 class JsonObj;
 class JsonArr;
+class JsonValue;
+
+using PtrJsonValue = std::shared_ptr<JsonValue>;
+using PtrJsonObj = std::shared_ptr<JsonObj>;
+using PtrJsonArr = std::shared_ptr<JsonArr>;
+
 
 class JsonValue
 {
@@ -37,8 +43,8 @@ public:
     explicit JsonValue(gint64 value);
     explicit JsonValue(const double& value);
     explicit JsonValue(bool value);
-    explicit JsonValue(const std::shared_ptr<JsonObj>& obj);
-    explicit JsonValue(const std::shared_ptr<JsonArr>& arr);
+    explicit JsonValue(const PtrJsonObj& obj);
+    explicit JsonValue(const PtrJsonArr& arr);
     explicit JsonValue(JsonNode* node);
     explicit JsonValue(const JsonValue& orig) = delete;
     virtual ~JsonValue();
@@ -52,9 +58,9 @@ public:
     bool isDouble();
     double getDouble();
     bool isObject();
-    std::shared_ptr<JsonObj> getObject();
+    PtrJsonObj getObject();
     bool isArray();
-    std::shared_ptr<JsonArr> getArray();
+    PtrJsonArr getArray();
     Glib::ustring generate(uint32_t indent = 0);
 protected:
 private:
@@ -72,18 +78,18 @@ public:
 
     void set(Glib::UStringView key, Glib::UStringView value);
     void set(Glib::UStringView key, gint64 val);
-    void set(Glib::UStringView key, const std::shared_ptr<JsonValue>& value);
-    void set(Glib::UStringView key, const std::shared_ptr<JsonObj>& obj);
-    bool hasMember(Glib::UStringView key);
-    std::shared_ptr<JsonObj> createObj(Glib::UStringView key);
+    void set(Glib::UStringView key, const PtrJsonValue& value);
+    void set(Glib::UStringView key, const PtrJsonObj& obj);
+    PtrJsonObj createObj(Glib::UStringView key);
     void set(Glib::UStringView key, const std::shared_ptr<JsonArr>& arr);
-    std::shared_ptr<JsonArr> createArr(Glib::UStringView key, guint size = 0);
-    std::shared_ptr<JsonValue> getValue(Glib::UStringView key);
+    PtrJsonArr createArr(Glib::UStringView key, guint size = 0);
+    PtrJsonValue getValue(Glib::UStringView key);
     Glib::ustring generate(uint32_t indent = 0);
     JsonObject* getObj();
 private:
     JsonObject* m_jsonObj;
 };
+
 
 class JsonArr
 {
@@ -120,7 +126,7 @@ public:
 //    }
 
     Glib::ustring generate(uint32_t indent = 0);
-    std::shared_ptr<JsonValue> get(guint idx);
+    PtrJsonValue get(guint idx);
     guint getSize();
     JsonArray* getArray();
 private:
