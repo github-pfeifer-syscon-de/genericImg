@@ -165,28 +165,41 @@ std::vector<Glib::ustring> StringUtils::splitQuoted(const Glib::ustring &line, g
     std::vector<Glib::ustring> ret;
     ret.reserve(16);
     bool inQuote{false};
-    size_t start{0};
+    Glib::ustring part;
+    part.reserve(64);
     for (Glib::ustring::size_type pos = 0; pos < line.length(); ++pos) {
         auto c = line.at(pos);
         bool isDelim{false};
         if (inQuote) {
             if (c == quote) {
-                inQuote = false;
-                isDelim = true;
+                if (pos + 1 < line.length()
+                 && line.at(pos + 1) == quote) {
+                    ++pos;
+                }
+                else {
+                    inQuote = false;
+                    isDelim = true;
+                }
             }
         }
         else {
             if (c == quote) {
-                inQuote = true;
-                start = pos + 1;
-                isDelim = true;
+                if (pos + 1 < line.length()
+                 && line.at(pos + 1) == quote) {
+                    ++pos;
+                }
+                else {
+                    inQuote = true;
+                    isDelim = true;
+                }
             }
             else if (c == delim)  {
                 isDelim = true;
             }
         }
         if (isDelim) {
-            ret.push_back(line.substr(start, pos - start));
+            ret.push_back(part);
+            part = "";
             while (pos+1 < line.length()) {
                 c = line.at(pos+1);
                 if (c != delim && c != quote) {
@@ -197,11 +210,13 @@ std::vector<Glib::ustring> StringUtils::splitQuoted(const Glib::ustring &line, g
                 }
                 ++pos;
             }
-            start = pos + 1;
+        }
+        else {
+            part += c;
         }
     }
-    if (start < line.length()) {
-        ret.push_back(line.substr(start));
+    if (!part.empty()) {
+        ret.push_back(part);
     }
     return ret;
 }

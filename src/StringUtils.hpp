@@ -64,6 +64,8 @@ public:
     // like split but works with repeated delimiters
     static void splitRepeat(const Glib::ustring &line, gunichar delim, std::vector<Glib::ustring> &ret);
     // split but consider text in quotes as no split
+    //   as quotes are removed from the resulting string
+    //   you need to put quote+quote to get one quote in output
     static std::vector<Glib::ustring> splitQuoted(const Glib::ustring &line, gunichar delim = ' ', gunichar quote = '"');
 
     static Glib::ustring replaceAll(const Glib::ustring& text, const Glib::ustring& replace, const Glib::ustring& with);
