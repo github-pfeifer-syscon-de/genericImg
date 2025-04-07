@@ -18,6 +18,8 @@
 
 #include <iostream>
 
+#include <vector>
+
 #include "JsonObj.hpp"
 
 namespace psc::json {

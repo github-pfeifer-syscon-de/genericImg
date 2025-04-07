@@ -108,3 +108,4 @@
 /.ccls-cache/
 /src/.ccls-cache/
 /src/.ccls
+/src/compile_commands.json

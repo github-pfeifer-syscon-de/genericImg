@@ -41,6 +41,12 @@ public:
     std::string getConfigName();
     Gdk::RGBA getColor(const char* grp, const Glib::ustring& key);
     void setColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& rgba);
+    Glib::ArrayHandle<Glib::ustring> getStringList(const char* grp, const Glib::ustring& key);
+    Glib::ArrayHandle<int32_t> getIntegerList(const char* grp, const Glib::ustring& key);
+    Glib::ArrayHandle<bool> getBoolList(const char* grp, const Glib::ustring& key);
+    void setStringList(const char* grp, const Glib::ustring& key, Glib::ArrayHandle<Glib::ustring> strs);
+    void setIntegerList(const char* grp, const Glib::ustring& key, Glib::ArrayHandle<int32_t> ints);
+    void setBoolList(const char* grp, const Glib::ustring& key, Glib::ArrayHandle<bool> bools);
 
     static constexpr auto COLOR_BLACK = "rgb(0,0,0)";
 

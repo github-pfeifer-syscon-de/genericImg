@@ -53,7 +53,7 @@ KeyConfig::setString(const char* grp, const Glib::ustring& key, const Glib::ustr
 int32_t
 KeyConfig::getInteger(const char* grp, const Glib::ustring& key, const int32_t def)
 {
-   if (hasKey(grp, key)) {
+    if (hasKey(grp, key)) {
         return m_config->get_integer(grp, key);
     }
     return def;
@@ -163,4 +163,49 @@ KeyConfig::setColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& 
 
     }
     setString(grp, key, colorRgb);
+}
+
+Glib::ArrayHandle<Glib::ustring>
+KeyConfig::getStringList(const char* grp, const Glib::ustring& key)
+{
+    if (hasKey(grp, key)) {
+        return m_config->get_string_list(grp, key);
+    }
+    return std::vector<Glib::ustring>();
+}
+
+Glib::ArrayHandle<int32_t>
+KeyConfig::getIntegerList(const char* grp, const Glib::ustring& key)
+{
+    if (hasKey(grp, key)) {
+        return m_config->get_integer_list(grp, key);
+    }
+    return std::vector<int32_t>();
+}
+
+Glib::ArrayHandle<bool>
+KeyConfig::getBoolList(const char* grp, const Glib::ustring& key)
+{
+    if (hasKey(grp, key)) {
+        return m_config->get_boolean_list(grp, key);
+    }
+    return std::vector<bool>();
+}
+
+void
+KeyConfig::setStringList(const char* grp, const Glib::ustring& key, const Glib::ArrayHandle<Glib::ustring> strs)
+{
+    m_config->set_string_list(grp, key, strs);
+}
+
+void
+KeyConfig::setIntegerList(const char* grp, const Glib::ustring& key, const Glib::ArrayHandle<int32_t> ints)
+{
+    m_config->set_integer_list(grp, key, ints);
+}
+
+void
+KeyConfig::setBoolList(const char* grp, const Glib::ustring& key, const Glib::ArrayHandle<bool> bools)
+{
+    m_config->set_boolean_list(grp, key, bools);
 }
