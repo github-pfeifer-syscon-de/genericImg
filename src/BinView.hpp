@@ -23,6 +23,7 @@
 #include <gtkmm.h>
 #include <future>
 #include <memory>
+#include <cstdint>
 
 #include "BinModel.hpp"
 

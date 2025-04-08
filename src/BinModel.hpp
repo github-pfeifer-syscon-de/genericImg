@@ -22,6 +22,7 @@
 #include <gtkmm.h>
 #include <future>
 #include <memory>
+#include <cstdint>
 
 class BinModel  {
 public:
@@ -34,6 +35,8 @@ public:
     double getWeight(uint32_t rgb);
     static const uint32_t N_BIN = 256;
     static const uint32_t N_COL = 3;
+    static constexpr auto EXP_BITS_PER_SAMPLE{8};
+    bool isZero();
 protected:
 
 private:

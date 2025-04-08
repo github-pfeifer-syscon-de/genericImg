@@ -20,9 +20,7 @@
 
 #include <glibmm.h>
 
-namespace psc {
-namespace utl {
-
+namespace psc::utl {
 
 class DateUtils
 {
@@ -43,6 +41,5 @@ private:
 
 };
 
-} /* namespace utl */
-} /* namespace psc */
+} /* namespace psc::utl */
 

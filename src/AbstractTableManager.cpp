@@ -16,9 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <typeinfo>
-#include <typeindex>
-#include <string>   // to_string
+#include <any>
 
 #include "StringUtils.hpp"
 #include "AbstractTableManager.hpp"

@@ -25,45 +25,46 @@
 namespace psc::json {
 
 JsonValue::JsonValue(Glib::UStringView value)
+: m_node{json_node_new(JSON_NODE_VALUE)}
 {
-    m_node = json_node_new(JSON_NODE_VALUE);
     m_node = json_node_init_string(m_node, value.c_str());
 }
 
 // important as bool catches this too otherwise :(
 JsonValue::JsonValue(const char* value)
+: m_node{json_node_new(JSON_NODE_VALUE)}
 {
-    m_node = json_node_new(JSON_NODE_VALUE);
     m_node = json_node_init_string(m_node, value);
 }
 
 JsonValue::JsonValue(gint64 value)
+: m_node{json_node_new(JSON_NODE_VALUE)}
 {
-    m_node = json_node_new(JSON_NODE_VALUE);
     json_node_init_int(m_node, value);
 }
 
 JsonValue::JsonValue(const double& value)
+: m_node{json_node_new(JSON_NODE_VALUE)}
 {
-    m_node = json_node_new(JSON_NODE_VALUE);
+
     json_node_init_double(m_node, value);
 }
 
 JsonValue::JsonValue(bool value)
+: m_node{json_node_new(JSON_NODE_VALUE)}
 {
-    m_node = json_node_new(JSON_NODE_VALUE);
     json_node_init_boolean(m_node, value);
 }
 
 JsonValue::JsonValue(const PtrJsonObj& obj)
+: m_node{json_node_new(JSON_NODE_OBJECT)}
 {
-    m_node = json_node_new(JSON_NODE_OBJECT);
     json_node_init_object(m_node, obj->getObj());
 }
 
 JsonValue::JsonValue(const PtrJsonArr& arr)
+: m_node{json_node_new(JSON_NODE_ARRAY)}
 {
-    m_node = json_node_new(JSON_NODE_ARRAY);
     json_node_init_array(m_node, arr->getArray());
 }
 
@@ -238,7 +239,7 @@ JsonValue::generate(uint32_t indent)
         json_generator_set_pretty(jsonGen, true);
     }
     json_generator_set_root(jsonGen, m_node);
-    g_autofree GString* gstr = g_string_sized_new(256);
+    g_autofree GString* gstr = g_string_sized_new(GENERATE_INIT_STRING_SIZE);
     json_generator_to_gstring(jsonGen, gstr);
     return Glib::ustring(gstr->str);
 }

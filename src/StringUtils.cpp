@@ -25,6 +25,7 @@
 #ifndef _MSC_VER
 #   include <cxxabi.h>
 #endif
+#include <array>
 
 #include "psc_format.hpp"
 #include "StringUtils.hpp"
@@ -327,11 +328,11 @@ std::string
 StringUtils::hexdump(gchar* string, gsize size)
 {
     std::string dump;
-    dump.reserve(80 * ((size / 16) + 1));
-    for (gsize l = 0; l < size; l += 16) {
+    dump.reserve(80 * ((size / HEXDUMP_LINE_SIZE) + 1));
+    for (gsize l = 0; l < size; l += HEXDUMP_LINE_SIZE) {
         dump = psc::fmt::format("{:04x} : ", l);
-        auto max = std::min(16ul, size-l);
-        for (gsize r = 0; r < 16; ++r) {
+        auto max = std::min(HEXDUMP_LINE_SIZE, size-l);
+        for (gsize r = 0; r < HEXDUMP_LINE_SIZE; ++r) {
             if (r < max) {
                 dump += psc::fmt::format("{:02x} ", string[l+r]);
             }

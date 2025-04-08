@@ -17,24 +17,35 @@
  */
 
 #include <iostream>
-#include <iomanip>
-
 
 #include "BinModel.hpp"
 
 BinModel::BinModel(Glib::Dispatcher& binDispatcher, Glib::RefPtr<Gdk::Pixbuf>& pixbuf)
 : m_binDispatcher{binDispatcher}
 , m_pixbuf{pixbuf}
+, m_bin{}
 , m_max{0u}
+, m_weight{}
+{
+}
+
+bool
+BinModel::isZero()
 {
     for (uint32_t rgb = 0; rgb < N_COL; ++rgb) {
         for (uint32_t c = 0; c < N_BIN; ++c) {
-            m_bin[c][rgb] = 0u;
+            if (m_bin[c][rgb] != 0u) {
+                std::cout << "BinModel::isZero bin failed at rgb " << rgb << " c " << c << std::endl;
+                return false;
+            }
         }
-        m_weight[rgb] = 0.0;
+        if (m_weight[rgb] != 0.0) {
+            std::cout << "BinModel::isZero weight failed at rgb " << rgb << std::endl;
+            return false;
+        }
     }
+    return true;
 }
-
 
 void
 BinModel::readPixbuf()
@@ -44,7 +55,7 @@ BinModel::readPixbuf()
     if (m_pixbuf->get_colorspace() != Gdk::COLORSPACE_RGB) {
         std::cerr << "BinModel::readPixbuf expecting colorspace rgb is " << m_pixbuf->get_colorspace() << " continue (may display invalid results)." << std::endl;
     }
-    if (m_pixbuf->get_bits_per_sample() != 8) {
+    if (m_pixbuf->get_bits_per_sample() != EXP_BITS_PER_SAMPLE) {
         std::cerr << "BinModel::readPixbuf expecting 8bits per sample is " << m_pixbuf->get_bits_per_sample() << " continue (may display invalid results)." << std::endl;
     }
     uint32_t nChannels = m_pixbuf->get_n_channels();

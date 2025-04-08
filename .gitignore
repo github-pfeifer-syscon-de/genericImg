@@ -109,3 +109,6 @@
 /src/.ccls-cache/
 /src/.ccls
 /src/compile_commands.json
+/test/util_test
+/test/util_test.trs
+/test/util_test.log

@@ -23,6 +23,7 @@
 
 #include "KeyConfig.hpp"
 #include "StringUtils.hpp"
+#include "BinModel.hpp"
 
 // try to get use to the unicode "handling" / "island"
 static bool
@@ -146,26 +147,6 @@ test_string_util()
     return true;
 }
 
-bool
-test_keyfile()
-{
-    KeyConfig conf("test");
-    conf.setString("grp", "key", "abc;def");
-    std::vector<Glib::ustring> list = conf.getStringList("grp", "key");
-    if (list.size() != 2
-      ||list[0] != "abc"
-      ||list[1] != "def") {
-        std::cout << "test_keyfile expected 2 got " << list.size() << std::endl;
-        size_t i = 0;
-        auto print = [&i](const auto& v) {
-            std::cout << "list[" << i++ << "] " << v << std::endl;
-        };
-        std::ranges::for_each(std::as_const(list), print);
-        return false;
-    }
-    return true;
-}
-
 int main(int argc, char** argv)
 {
     setlocale(LC_ALL, "");      // make locale dependent, and make glib accept u8 const !!!
@@ -175,9 +156,6 @@ int main(int argc, char** argv)
     }
     if (!test_string_util()) {
         return 2;
-    }
-    if (!test_keyfile()) {
-        return 3;
     }
 
     return 0;

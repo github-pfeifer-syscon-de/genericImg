@@ -31,6 +31,7 @@
 #include <typeinfo>
 #include <glibmm.h>
 #include <giomm.h>
+#include <cstdint>
 
 #include "psc_format.hpp"
 
@@ -90,6 +91,8 @@ public:
     static std::string hexdump(gchar* string, gsize size);
     // extension without "." e.g. xz.cpp -> cpp
     static Glib::ustring getExtension(const Glib::RefPtr<Gio::File>& file);
+protected:
+    static constexpr uint64_t HEXDUMP_LINE_SIZE{16};
 private:
     StringUtils() = default;
 

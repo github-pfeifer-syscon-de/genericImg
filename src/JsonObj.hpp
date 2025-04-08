@@ -63,6 +63,7 @@ public:
     PtrJsonArr getArray();
     Glib::ustring generate(uint32_t indent = 0);
 protected:
+    static constexpr size_t GENERATE_INIT_STRING_SIZE{256};
 private:
     JsonNode* m_node;
 };
