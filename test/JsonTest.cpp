@@ -20,17 +20,13 @@
 #include <glibmm.h>
 #include <cstring>
 
-#include "JsonTest.hpp"
 #include "JsonObj.hpp"
 #include "JsonHelper.hpp"
 
-// the main intention is to check this function with valgrind (who owns the returned data, just to be sure)
-JsonTest::JsonTest()
-{
-}
+// the main intention is to check these functions with valgrind (who owns the returned data, just to be sure)
 
-bool
-JsonTest::readTest()
+static bool
+readTest()
 {
     std::string json("{ \"root\" : \"abc\"}");
     auto data = Glib::ByteArray::create();
@@ -43,8 +39,8 @@ JsonTest::readTest()
     return !std::strcmp(value, "abc");
 }
 
-bool
-JsonTest::createTest()
+static bool
+createTest()
 {
     psc::json::JsonObj obj;
     obj.set("root", "abc");
@@ -59,8 +55,8 @@ JsonTest::createTest()
     return str == "{\"root\":\"abc\",\"inner\":{\"chld\":\"def\"}}";
 }
 
-bool
-JsonTest::valueTest()
+static bool
+valueTest()
 {
     psc::json::JsonValue sval("abc");
     std::cout << "valueTest str " << sval.getString() << std::endl;
@@ -90,11 +86,27 @@ JsonTest::valueTest()
     if (!oval.isObject() || oval.getObject()->getValue("abc")->getInt() != 123) {
         return false;
     }
-    std::cout << "valueTest arr" << std::endl;
-    auto arr = std::make_shared<psc::json::JsonArr>(8);
-    arr->add({123, 456, 789});
-    psc::json::JsonValue aval(arr);
-    if (!aval.isArray() || aval.getArray()->getSize() != 3 || aval.getArray()->get(2)->getInt() != 789) {
+
+    return true;
+}
+
+static bool
+arrayTest()
+{
+    auto iarr = std::make_shared<psc::json::JsonArr>(8);
+    iarr->add({123, 456, 789});
+    psc::json::JsonValue aval(iarr);
+    if (!aval.isArray()
+      || aval.getArray()->getSize() != 3
+      || aval.getArray()->get(2)->getInt() != 789) {
+        std::cout << "arrayTest int expected 789 got " << aval.getArray()->get(2)->getInt() << std::endl;
+        return false;
+    }
+    psc::json::JsonArr farr(8);
+    farr.add({1.23, 4.56, 7.89});
+    if (farr.getSize() != 3
+     || farr[2]->getDouble() != 7.89) {
+        std::cout << "arrayTest float expected 7.89 for " << farr[2]->getDouble() << std::endl;
         return false;
     }
 
@@ -103,22 +115,22 @@ JsonTest::valueTest()
 
 
 
-
-
 int main(int argc, char** argv)
 {
     std::setlocale(LC_ALL, "");      // make locale dependent, and make glib accept u8 const !!!
     Glib::init();
 
-    JsonTest jsonTest;
-    if (!jsonTest.readTest()) {
+    if (!readTest()) {
         return 1;
     }
-    if (!jsonTest.createTest()) {
+    if (!createTest()) {
         return 2;
     }
-    if (!jsonTest.valueTest()) {
+    if (!valueTest()) {
         return 3;
+    }
+    if (!arrayTest()) {
+        return 4;
     }
     return 0;
 }

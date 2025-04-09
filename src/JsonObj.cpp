@@ -397,6 +397,13 @@ JsonArr::get(guint idx)
     return std::make_shared<JsonValue>(node);
 }
 
+PtrJsonValue
+JsonArr::operator[](guint idx)
+{
+    auto node = json_array_get_element(m_jsonArr, idx);
+    return std::make_shared<JsonValue>(node);
+}
+
 guint
 JsonArr::getSize()
 {

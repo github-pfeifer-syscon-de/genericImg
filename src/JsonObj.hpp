@@ -103,31 +103,37 @@ public:
     void add(Glib::UStringView value);
     void add(const std::shared_ptr<JsonValue>& value);
     void add(const std::shared_ptr<JsonObj>& obj);
-    template< typename T
-            , typename = typename std::enable_if<std::is_integral<T>::value, T>::type
-            , size_t N
-            //, typename = typename std::enable_if< 1 < N >::type     // avoid activation for (no) sized init 1 < N is N >= 2
+    template<
+            typename T, std::enable_if_t<std::is_integral_v<T>
+                                      && std::is_signed_v<T>, bool> = true
+            , guint N
             >
-    inline void add(const T (&arr) [N])
+    inline void add(const T(&arr)[N])
     {
-        for (size_t i = 0; i < N; ++i) {
+        for (guint i = 0; i < N; ++i) {
             json_array_add_int_element(m_jsonArr, arr[i]);
         }
     }
-//    template< typename T
-//            , typename = typename std::enable_if<std::is_floating_point<T>::value, T>::type
-//            , size_t N
-//            //, typename = typename std::enable_if< 1 < N >::type     // avoid activation for (no) sized init 1 < N is N >= 2
-//            >
-//    inline void add(const T (&arr) [N])
-//    {
-//        for (size_t i = 0; i < N; ++i) {
-//            json_array_add_double_element(m_jsonArr, arr[i]);
-//        }
-//    }
-
+    template<
+            typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true
+            , guint N
+            >
+    inline void add(const T(&arr)[N])
+    {
+        for (guint i = 0; i < N; ++i) {
+            json_array_add_double_element(m_jsonArr, arr[i]);
+        }
+    }
+    template<guint N>
+    inline void add(const bool(&arr)[N])
+    {
+        for (guint i = 0; i < N; ++i) {
+            json_array_add_boolean_element(m_jsonArr, arr[i]);
+        }
+    }
     Glib::ustring generate(uint32_t indent = 0);
     PtrJsonValue get(guint idx);
+    PtrJsonValue operator[](guint idx);
     guint getSize();
     JsonArray* getArray();
 private:
