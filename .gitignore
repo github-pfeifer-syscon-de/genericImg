@@ -105,7 +105,7 @@
 /test/json_test.log
 /test/json_test.trs
 /analyze.sh
-/.ccls-cache/
+/src/.cache
 /src/.ccls-cache/
 /src/.ccls
 /src/compile_commands.json

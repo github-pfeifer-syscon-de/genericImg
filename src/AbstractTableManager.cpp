@@ -22,8 +22,7 @@
 #include "AbstractTableManager.hpp"
 #include "TableProperties.hpp"
 
-namespace psc {
-namespace ui {
+namespace psc::ui {
 
 
 void
@@ -321,5 +320,4 @@ AbstractTableManager::build(bool autosizeColumns)
 
 
 
-} /* end namespace ui */
-} /* end namespace psc */
+} /* end namespace psc::ui */

@@ -24,8 +24,7 @@
 #include <gtkmm.h>
 #include <any>      // std::any
 
-namespace psc {
-namespace ui {
+namespace psc::ui {
 
 
 class BaseConverter {
@@ -51,7 +50,8 @@ public:
     }
     virtual ~CustomConverter() = default;
     virtual void convert(Gtk::CellRenderer* rend, const Gtk::TreeModel::iterator& iter) override = 0;
-    Gtk::TreeModelColumn<T>& getColumn() {
+    Gtk::TreeModelColumn<T>& getColumn()
+    {
         return m_col;
     }
 protected:
@@ -77,16 +77,20 @@ public:
     {
     }
     virtual ~CustomColumn() = default;
-    Glib::ustring getName() const {
+    Glib::ustring getName() const
+    {
         return m_name;
     }
-    Gtk::TreeModelColumnBase* getColumn() const {
+    Gtk::TreeModelColumnBase* getColumn() const
+    {
         return m_column;
     }
-    const std::shared_ptr<BaseConverter>& getConverter() const  {
+    const std::shared_ptr<BaseConverter>& getConverter() const
+    {
         return m_convert;
     }
-    float getHAlign() const  {
+    float getHAlign() const
+    {
         return m_halign;
     }
     void build(bool autosizeColumn, AbstractTableManager* tableManager) const;
@@ -115,21 +119,25 @@ public:
     template<typename T>
     void add(const char* name
             , Gtk::TreeModelColumn<T>& col
-            , float halign = 0.0f) {
+            , float halign = 0.0f)
+    {
         std::shared_ptr<BaseConverter> baseConverter;
         add(col, name, baseConverter, halign);
     }
     template<typename T>
     void add(const char* name
             , const std::shared_ptr<CustomConverter<T>>& customConvert
-            , float halign = 0.0f) {
+            , float halign = 0.0f)
+    {
         auto& col = customConvert->getColumn();
         add(col, name, customConvert, halign);
     }
-    const CustomColumn& getCustomColumn(size_t idx) const {
+    const CustomColumn& getCustomColumn(size_t idx) const
+    {
         return m_columns[idx];
     }
-    size_t getSize() const {
+    size_t getSize() const
+    {
         return m_columns.size();
     }
 protected:
@@ -137,7 +145,8 @@ protected:
     void add( Gtk::TreeModelColumn<T>& col
             , const char* name
             , const std::shared_ptr<BaseConverter>& baseConvert
-            , float halign) {
+            , float halign)
+    {
         bool isnew = true;
         for (size_t i = 0; i < m_columns.size(); ++i) {
             if (m_columns[i].getColumn() == &col) {
@@ -212,5 +221,4 @@ protected:
 
 
 
-} /* end namespace ui */
-} /* end namespace psc */
+} /* end namespace psc::ui */

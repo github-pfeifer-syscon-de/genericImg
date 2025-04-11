@@ -55,6 +55,7 @@ libgenericimg_la_SOURCES = \
 	TableProperties.cpp \
 	StringUtils.cpp \
 	ThreadWorker.cpp \
+	TreeNodeModel.cpp \
 	KeyConfig.cpp
 
 libgenericimg_la_LIBADD =  \
@@ -101,6 +102,7 @@ pkginclude_HEADERS = \
 	TableProperties.hpp \
 	StringUtils.hpp \
 	ThreadWorker.hpp \
+	TreeNodeModel.hpp \
 	KeyConfig.hpp
 
 if SYSDLOG
