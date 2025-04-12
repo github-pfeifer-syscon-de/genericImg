@@ -101,21 +101,17 @@ public:
     {
         std::string dump;
         gsize lineSize = HEXDUMP_SIZE / sizeof(T);
-        dump.reserve(80 * ((size / lineSize) + 1));
+        dump.reserve(80 * ((size / HEXDUMP_SIZE) + 1));
         auto fmt = psc::fmt::format("{{:0{}x}} ", sizeof(T) * 2);
         for (gsize l = 0; l < size; l += lineSize) {
             dump += psc::fmt::format("{:04x} : ", l);
             auto max = std::min(lineSize, size-l);
-            for (gsize r = 0; r < lineSize; ++r) {
-                if (r < max) {
-                    auto v = std::make_unsigned_t<T>(string[l+r]);
-                    dump += psc::fmt::vformat(fmt, std::make_format_args(v));
-                }
-                else {
-                    dump += std::string(sizeof(T) * 2 + 1, ' ');
-                }
+            for (gsize r = 0; r < max; ++r) {
+                auto v = std::make_unsigned_t<T>(string[l+r]);
+                dump += psc::fmt::vformat(fmt, std::make_format_args(v));
             }
-            dump += "  ";
+            auto rem = lineSize - max;
+            dump += std::string(((sizeof(T) * 2 + 1) * rem) + 3, ' ');
             for (gsize r = 0; r < max; ++r) {
                 auto v = std::make_unsigned_t<T>(string[l+r]);
                 dump += psc::fmt::format("{:c}", v >= ' ' &&  v <= '~' ? (char)v : '.');
