@@ -29,9 +29,13 @@ void
 CustomColumn::build(bool autosizeColumns, AbstractTableManager* tableManager) const
 {
     auto column = getColumn();
-    // i'am a bit surprised this works ... (dynamic_cast does not see template dependency...)
-    auto* treeCol = static_cast<Gtk::TreeModelColumn<std::any>*>(column);
     auto name = getName();
+    //std::cout << "CustomColumn::build"
+    //          << " name "  << name
+    //          << " col " << column
+    //          << " type " << ((column != nullptr && column->type() != 0) ? g_type_name(column->type()) : "null") << std::endl;
+    // use the most likely underlying type (see below for a "real" type check)
+    auto* treeCol = static_cast<Gtk::TreeModelColumn<Glib::ustring>*>(column);
     auto table = tableManager->getTable();
     auto converter = getConverter();
     guint treCol;
@@ -43,7 +47,11 @@ CustomColumn::build(bool autosizeColumns, AbstractTableManager* tableManager) co
             *cellRenderer,
             sigc::mem_fun(*converter, &BaseConverter::convert));
     }
-    else {
+    else if (g_type_is_a(treeCol->type(), GDK_TYPE_PIXBUF)) {
+        auto* pixCol = static_cast<Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>>*>(column);
+        treCol = table->append_column<Glib::RefPtr<Gdk::Pixbuf>>(name, *pixCol);
+    }
+    else {  // this works for ustring based columns
         treCol = table->append_column(name, *treeCol);
     }
     auto colIdx = treCol-1;
