@@ -324,31 +324,6 @@ StringUtils::typeName(const std::type_info& typeinfo)
 #endif
 }
 
-std::string
-StringUtils::hexdump(gchar* string, gsize size)
-{
-    std::string dump;
-    dump.reserve(80 * ((size / HEXDUMP_LINE_SIZE) + 1));
-    for (gsize l = 0; l < size; l += HEXDUMP_LINE_SIZE) {
-        dump = psc::fmt::format("{:04x} : ", l);
-        auto max = std::min(HEXDUMP_LINE_SIZE, size-l);
-        for (gsize r = 0; r < HEXDUMP_LINE_SIZE; ++r) {
-            if (r < max) {
-                dump += psc::fmt::format("{:02x} ", string[l+r]);
-            }
-            else {
-                dump += "   ";
-            }
-        }
-        dump += "  ";
-        for (gsize r = 0; r < max; ++r) {
-            auto v= string[l+r];
-            dump += psc::fmt::format("{:c}", v <= '}' ? (char)v : '.');
-        }
-        dump += '\n';
-    }
-    return dump;
-}
 
 Glib::ustring
 StringUtils::getExtension(const Glib::RefPtr<Gio::File>& file)

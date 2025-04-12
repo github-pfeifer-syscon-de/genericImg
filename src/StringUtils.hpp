@@ -88,7 +88,43 @@ public:
 
     // type to readable name
     static Glib::ustring typeName(const std::type_info& typeinfo);
-    static std::string hexdump(gchar* string, gsize size);
+    static constexpr gsize HEXDUMP_SIZE{16};
+
+    template<typename T
+            , std::enable_if_t
+                <  std::is_integral_v<T>
+                || std::is_void_v<T>
+                , bool
+                > = true
+            >
+    static std::string hexdump(T* string, gsize size)
+    {
+        std::string dump;
+        gsize lineSize = HEXDUMP_SIZE / sizeof(T);
+        dump.reserve(80 * ((size / lineSize) + 1));
+        auto fmt = psc::fmt::format("{{:0{}x}} ", sizeof(T) * 2);
+        for (gsize l = 0; l < size; l += lineSize) {
+            dump += psc::fmt::format("{:04x} : ", l);
+            auto max = std::min(lineSize, size-l);
+            for (gsize r = 0; r < lineSize; ++r) {
+                if (r < max) {
+                    auto v = std::make_unsigned_t<T>(string[l+r]);
+                    dump += psc::fmt::vformat(fmt, std::make_format_args(v));
+                }
+                else {
+                    dump += std::string(sizeof(T) * 2 + 1, ' ');
+                }
+            }
+            dump += "  ";
+            for (gsize r = 0; r < max; ++r) {
+                auto v = std::make_unsigned_t<T>(string[l+r]);
+                dump += psc::fmt::format("{:c}", v >= ' ' &&  v <= '~' ? (char)v : '.');
+            }
+            dump += '\n';
+        }
+        return dump;
+    }
+
     // extension without "." e.g. xz.cpp -> cpp
     static Glib::ustring getExtension(const Glib::RefPtr<Gio::File>& file);
 protected:

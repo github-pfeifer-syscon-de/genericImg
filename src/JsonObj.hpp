@@ -103,9 +103,14 @@ public:
     void add(Glib::UStringView value);
     void add(const std::shared_ptr<JsonValue>& value);
     void add(const std::shared_ptr<JsonObj>& obj);
-    template<
-            typename T, std::enable_if_t<std::is_integral_v<T>
-                                      && std::is_signed_v<T>, bool> = true
+    // the is_signed check may be overkill
+    //   as the target is gint64 so if you want take care of
+    //   passing the right value yourself remove this check...
+    template<typename T
+            , std::enable_if_t
+                 <  std::is_integral_v<T>
+                 && std::is_signed_v<T>, bool
+                 > = true
             , guint N
             >
     inline void add(const T(&arr)[N])
