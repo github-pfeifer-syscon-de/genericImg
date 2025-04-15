@@ -144,6 +144,23 @@ test_string_util()
         std::cout << "getExtension expected cpp got \"" << ext << "\"" << std::endl;
         return false;
     }
+    std::array<short, 8> arr{0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23,0x24};
+    auto dmp = StringUtils::hexdump(arr.data(), arr.size());
+    if (dmp != "0000 : 001d 001e 001f 0020 0021 0022 0023 0024     ... !\"#$\n") {
+        std::cout << "Dump not as expected!" << std::endl << dmp;
+        return false;
+    }
+    std::vector<std::string> vec{"abc","def","ghi"};
+    std::function<std::string(const std::string& item)> lambda =
+        [] (const std::string& item) -> auto
+        {
+            return item;
+        };
+    auto concated = StringUtils::concat(vec, std::string(","), lambda);
+    if (concated != "abc,def,ghi") {
+        std::cout << "Concated not as expected \"" << concated << "\"!" << std::endl;
+        return false;
+    }
     return true;
 }
 

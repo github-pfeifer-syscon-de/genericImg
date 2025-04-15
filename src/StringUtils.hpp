@@ -92,16 +92,16 @@ public:
 
     template<typename T
             , std::enable_if_t
-                <  std::is_integral_v<T>
-                || std::is_void_v<T>
-                , bool
+                <    std::is_integral_v<T>
+                  || std::is_void_v<T>
+                  , bool
                 > = true
             >
     static std::string hexdump(T* string, gsize size)
     {
         std::string dump;
         gsize lineSize = HEXDUMP_SIZE / sizeof(T);
-        dump.reserve(80 * ((size / HEXDUMP_SIZE) + 1));
+        dump.reserve(80 * ((size * sizeof(T) / HEXDUMP_SIZE) + 1));
         auto fmt = psc::fmt::format("{{:0{}x}} ", sizeof(T) * 2);
         for (gsize l = 0; l < size; l += lineSize) {
             dump += psc::fmt::format("{:04x} : ", l);
@@ -111,7 +111,7 @@ public:
                 dump += psc::fmt::vformat(fmt, std::make_format_args(v));
             }
             auto rem = lineSize - max;
-            dump += std::string(((sizeof(T) * 2 + 1) * rem) + 3, ' ');
+            dump += std::string(((sizeof(T) * 2 + 1) * rem) + 4, ' ');
             for (gsize r = 0; r < max; ++r) {
                 auto v = std::make_unsigned_t<T>(string[l+r]);
                 dump += psc::fmt::format("{:c}", v >= ' ' &&  v <= '~' ? (char)v : '.');
@@ -120,7 +120,23 @@ public:
         }
         return dump;
     }
-
+    template <typename T, typename C>
+    static C concat(const std::vector<T>& parts, C seperator, std::function<C(const T& t)>& func)
+    {
+        C out;
+        size_t resv{1 + seperator.length() * parts.size()};
+        for (auto& part : parts) {
+            resv += func(part).length();
+        }
+        out.reserve(resv);
+        for (auto& part : parts) {
+            if (out.length() > 0) {
+                out += seperator;
+            }
+            out += func(part);
+        }
+        return out;
+    }
     // extension without "." e.g. xz.cpp -> cpp
     static Glib::ustring getExtension(const Glib::RefPtr<Gio::File>& file);
 protected:
