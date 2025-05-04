@@ -40,6 +40,7 @@ public:
     Glib::KeyFile* getConfig();
     std::string getConfigName();
     Gdk::RGBA getColor(const char* grp, const Glib::ustring& key);
+    Gdk::RGBA getColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& rgba);
     void setColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& rgba);
     Glib::ArrayHandle<Glib::ustring> getStringList(const char* grp, const Glib::ustring& key);
     Glib::ArrayHandle<int32_t> getIntegerList(const char* grp, const Glib::ustring& key);
@@ -49,6 +50,7 @@ public:
     void setBoolList(const char* grp, const Glib::ustring& key, Glib::ArrayHandle<bool> bools);
 
     static constexpr auto COLOR_BLACK = "rgb(0,0,0)";
+    std::string encodeColor(const Gdk::RGBA& rgba);
 
 protected:
     virtual void loadConfig();  // is called on creation

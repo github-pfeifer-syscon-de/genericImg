@@ -129,21 +129,28 @@ KeyConfig::saveConfig()
 Gdk::RGBA
 KeyConfig::getColor(const char* grp, const Glib::ustring& key)
 {
-    auto str = getString(grp, key, COLOR_BLACK); // default to simple black
-    Gdk::RGBA rgba;
+    Gdk::RGBA black{COLOR_BLACK};    // default to simple black
+    return getColor(grp, key, black);
+}
+
+Gdk::RGBA
+KeyConfig::getColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& dflt)
+{
+    auto str = getString(grp, key);
+    Gdk::RGBA rgba = dflt;
     if (str.length() == 17) {   // read back our custom variant
         rgba.set(str.substr(0, 13));
         gushort alpha = static_cast<gushort>(std::stoul(str.substr(13, 4), nullptr, 16));
         rgba.set_alpha_u(alpha);
     }
-    else {
+    else if (!str.empty()) {
         rgba.set(str);
     }
     return rgba;
 }
 
-void
-KeyConfig::setColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& rgba)
+std::string
+KeyConfig::encodeColor(const Gdk::RGBA& rgba)
 {
     std::string colorRgb;
     if (rgba.get_alpha() != 1.0) {
@@ -162,6 +169,13 @@ KeyConfig::setColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& 
                                  , rgba.get_blue_u());
 
     }
+    return colorRgb;
+}
+
+void
+KeyConfig::setColor(const char* grp, const Glib::ustring& key, const Gdk::RGBA& rgba)
+{
+    std::string colorRgb{encodeColor(rgba)};
     setString(grp, key, colorRgb);
 }
 
