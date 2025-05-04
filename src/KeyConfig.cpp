@@ -62,7 +62,22 @@ KeyConfig::getInteger(const char* grp, const Glib::ustring& key, const int32_t d
 void
 KeyConfig::setInteger(const char* grp, const Glib::ustring& key, const int32_t value)
 {
-    return m_config->set_integer(grp, key, value);
+    m_config->set_integer(grp, key, value);
+}
+
+double
+KeyConfig::getDouble(const char* grp, const Glib::ustring& key, const double def)
+{
+    if (hasKey(grp, key)) {
+        return m_config->get_double(grp, key);
+    }
+    return def;
+}
+
+void
+KeyConfig::setDouble(const char* grp, const Glib::ustring& key, const double value)
+{
+    m_config->set_double(grp, key, value);
 }
 
 bool

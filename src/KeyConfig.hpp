@@ -32,6 +32,8 @@ public:
     void setString(const char* grp, const Glib::ustring& key, const Glib::ustring& value);
     int32_t getInteger(const char* grp, const Glib::ustring& key, const int32_t def = 0);
     void setInteger(const char* grp, const Glib::ustring& key, const int32_t value);
+    double getDouble(const char* grp, const Glib::ustring& key, const double def = 0.0);
+    void setDouble(const char* grp, const Glib::ustring& key, const double value);
     bool getBoolean(const char* grp, const Glib::ustring& key, const bool def);
     void setBoolean(const char* grp, const Glib::ustring& key, const bool value);
     bool hasKey(const char* grp, const Glib::ustring& key);
