@@ -238,3 +238,21 @@ KeyConfig::setBoolList(const char* grp, const Glib::ustring& key, const Glib::Ar
 {
     m_config->set_boolean_list(grp, key, bools);
 }
+
+Pango::FontDescription
+KeyConfig::getFont(const char* grp, const Glib::ustring& key, const Glib::ustring& deflt)
+{
+    auto str = getString(grp, key);
+    if (str.empty()) {
+        str = deflt;
+    }
+    auto descr = Pango::FontDescription(str);
+    return descr;
+}
+
+void KeyConfig::setFont(const char* grp, const Glib::ustring& key, const Pango::FontDescription& descr)
+{
+    Glib::ustring str = descr.to_string();
+    setString(grp, key, str);
+}
+

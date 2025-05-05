@@ -20,6 +20,7 @@
 
 #include <glibmm.h>
 #include <gdkmm.h>
+#include <pangomm-1.4/pangomm.h>
 
 class KeyConfig
 {
@@ -50,6 +51,8 @@ public:
     void setStringList(const char* grp, const Glib::ustring& key, Glib::ArrayHandle<Glib::ustring> strs);
     void setIntegerList(const char* grp, const Glib::ustring& key, Glib::ArrayHandle<int32_t> ints);
     void setBoolList(const char* grp, const Glib::ustring& key, Glib::ArrayHandle<bool> bools);
+    Pango::FontDescription getFont(const char* grp, const Glib::ustring& key, const Glib::ustring& defaultFont = "Sans 10");
+    void setFont(const char* grp, const Glib::ustring& key, const Pango::FontDescription& descr);
 
     static constexpr auto COLOR_BLACK = "rgb(0,0,0)";
     std::string encodeColor(const Gdk::RGBA& rgba);
