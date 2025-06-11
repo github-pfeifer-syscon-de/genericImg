@@ -172,30 +172,43 @@ public:
     static std::vector<T> splitFunc(const T &line, std::function<size_t(const T& t, size_t pos, size_t& next)>& func)
     {
         std::vector<T> ret;
-        ret.reserve(16);
-        size_t pos = 0;
+        size_t pos{};
+        size_t resv{};
         while (pos < line.length()) {
             size_t next;
             size_t found = func(line, pos, next);
-            if (found != std::string::npos) {
-                auto fld = line.substr(pos, found - pos);
-                ret.push_back(fld);
-                pos = next;
-            }
-            else {
-                if (pos < line.length()) {
-                    size_t end = line.length();
-                    if (line.at(end-1) == '\n') {
-                        --end;
-                    }
-                    if (end - pos > 0) {
-                        auto fld = line.substr(pos, end - pos);
-                        ret.push_back(fld);
-                    }
-                }
+            ++resv;
+            if (found == std::string::npos) {
                 break;
             }
             pos = next;
+        }
+        if (resv > 0) {
+            ret.reserve(resv);
+            pos = 0;
+            while (pos < line.length()) {
+                size_t next;
+                size_t found = func(line, pos, next);
+                if (found != std::string::npos) {
+                    auto fld = line.substr(pos, found - pos);
+                    ret.push_back(fld);
+                    pos = next;
+                }
+                else {
+                    if (pos < line.length()) {
+                        size_t end = line.length();
+                        if (line.at(end-1) == '\n') {
+                            --end;
+                        }
+                        if (end - pos > 0) {
+                            auto fld = line.substr(pos, end - pos);
+                            ret.push_back(fld);
+                        }
+                    }
+                    break;
+                }
+                pos = next;
+            }
         }
         return ret;
     }
