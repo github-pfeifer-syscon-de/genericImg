@@ -137,6 +137,36 @@ public:
         }
         return out;
     }
+    template <typename T>
+    static std::vector<T> split(const T &line, std::function<size_t(const T& t, size_t pos)>& func)
+    {
+        std::vector<T> ret;
+        size_t pos = 0;
+        while (pos < line.length()) {
+            size_t next = func(line, pos);
+            if (next != std::string::npos) {
+                auto fld = line.substr(pos, next - pos);
+                ret.push_back(fld);
+                ++next;
+            }
+            else {
+                if (pos < line.length()) {
+                    size_t end = line.length();
+                    if (line.at(end-1) == '\n') {
+                        --end;
+                    }
+                    if (end - pos > 0) {
+                        auto fld = line.substr(pos, end - pos);
+                        ret.push_back(fld);
+                    }
+                }
+                break;
+            }
+            pos = next;
+        }
+        return ret;
+    }
+
     // extension without "." e.g. xz.cpp -> cpp
     static Glib::ustring getExtension(const Glib::RefPtr<Gio::File>& file);
 protected:

@@ -161,6 +161,22 @@ test_string_util()
         std::cout << "Concated not as expected \"" << concated << "\"!" << std::endl;
         return false;
     }
+    std::function<size_t(const std::string& line, size_t pos)> lambdaFind =
+        [] (const std::string& line, size_t pos) -> auto
+        {
+            return line.find(',', pos);
+        };
+    auto split = StringUtils::split(concated, lambdaFind);
+    if (split.size() != 3
+      || split[0] != "abc"
+      || split[1] != "def"
+      || split[2] != "ghi") {
+        for (auto part : split) {
+            std::cout << "part " << part << std::endl;
+        }
+        std::cout << "Split not as expected " << split.size() << "!" << std::endl;
+        return false;
+    }
     return true;
 }
 
