@@ -141,9 +141,9 @@ public:
     static std::vector<T> splitEach(const T& line, const C c)
     {
         std::function<size_t(const T&, size_t, size_t&)> lambdaFind =
-        [c] (const T& line, size_t pos, size_t& next) -> auto
+        [c] (const T& fline, size_t pos, size_t& next) -> auto
         {
-            auto found = line.find(c, pos);
+            auto found = fline.find(c, pos);
             if (found != T::npos) {
                 next = found + 1;
             }
@@ -155,12 +155,12 @@ public:
     static std::vector<T> splitConsec(const T& line, const C c)
     {
         std::function<size_t(const T&, size_t, size_t&)> lambdaFind =
-        [c] (const T& line, size_t pos, size_t& next) -> auto
+        [c] (const T& fline, size_t pos, size_t& next) -> auto
         {
-            auto found = line.find(c, pos);
+            auto found = fline.find(c, pos);
             if (found != T::npos) {
                 next = found;
-                while (next < line.length() && line[next] == c) {
+                while (next < fline.length() && fline[next] == c) {
                     ++next;
                 }
             }
