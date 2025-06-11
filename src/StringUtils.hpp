@@ -137,17 +137,50 @@ public:
         }
         return out;
     }
+    template <typename T, typename C>
+    static std::vector<T> splitEach(const T& line, const C c)
+    {
+        std::function<size_t(const T&, size_t, size_t&)> lambdaFind =
+        [c] (const T& line, size_t pos, size_t& next) -> auto
+        {
+            auto found = line.find(c, pos);
+            if (found != T::npos) {
+                next = found + 1;
+            }
+            return found;
+        };
+        return splitFunc(line, lambdaFind);
+    };
+    template <typename T, typename C>
+    static std::vector<T> splitConsec(const T& line, const C c)
+    {
+        std::function<size_t(const T&, size_t, size_t&)> lambdaFind =
+        [c] (const T& line, size_t pos, size_t& next) -> auto
+        {
+            auto found = line.find(c, pos);
+            if (found != T::npos) {
+                next = found;
+                while (next < line.length() && line[next] == c) {
+                    ++next;
+                }
+            }
+            return found;
+        };
+        return splitFunc(line, lambdaFind);
+    };
     template <typename T>
-    static std::vector<T> split(const T &line, std::function<size_t(const T& t, size_t pos)>& func)
+    static std::vector<T> splitFunc(const T &line, std::function<size_t(const T& t, size_t pos, size_t& next)>& func)
     {
         std::vector<T> ret;
+        ret.reserve(16);
         size_t pos = 0;
         while (pos < line.length()) {
-            size_t next = func(line, pos);
-            if (next != std::string::npos) {
-                auto fld = line.substr(pos, next - pos);
+            size_t next;
+            size_t found = func(line, pos, next);
+            if (found != std::string::npos) {
+                auto fld = line.substr(pos, found - pos);
                 ret.push_back(fld);
-                ++next;
+                pos = next;
             }
             else {
                 if (pos < line.length()) {
