@@ -117,7 +117,7 @@ PdfExport::createFontInternalWithEncoding(const Glib::ustring& encoding)
     }
     auto afmName = afmFile->get_path();
     auto pfpName = pfbFile->get_path();
-    std::cout << "PdfExport::createFontInternalWithEncoding " << afmName << " exist " << std::boolalpha << afmFile->query_exists() << std::endl;
+    //std::cout << "PdfExport::createFontInternalWithEncoding " << afmName << " exist " << std::boolalpha << afmFile->query_exists() << std::endl;
     return createFontType1(afmName, pfpName, encoding);
 }
 
