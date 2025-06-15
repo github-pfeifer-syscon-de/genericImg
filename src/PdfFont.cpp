@@ -23,57 +23,9 @@
 #include "PdfExport.hpp"
 #include "TableProperties.hpp"
 
-PdfFont::PdfFont(PdfExport* pdfExport, const Glib::ustring& name)
+PdfFont::PdfFont(HPDF_Font font)
+: m_font{font}
 {
-    HPDF_Doc pdf = pdfExport->getDoc();
-    std::string font_name;
-    const char* encoding = nullptr;
-    auto expEncoding = pdfExport->getEncoding();
-    std::cout << "PdfFont::PdfFont enc " << expEncoding << std::endl;
-    if (!expEncoding.empty()) {
-        auto afmFile = createTemp("a010013l.afm");
-        auto pfbFile = createTemp("a010013l.pfb");
-        if (!afmFile || !pfbFile) {
-            std::cout << "Error creating font files from resources" << std::endl;
-        }
-        encoding = expEncoding.c_str();
-        auto afmName = afmFile->get_path();
-        auto pfpName = pfbFile->get_path();
-        //std::cout << "PdfFont::PdfFont afm " << afmName << " exists " << std::boolalpha << afmFile->query_exists()
-        //          << " pfp " << pfpName << " exists " << std::boolalpha << pfbFile->query_exists() << std::endl;
-        font_name = HPDF_LoadType1FontFromFile(pdf, afmName.c_str(), pfpName.c_str());
-    }
-    else {
-        font_name = name;
-    }
-    /* create default-font */
-    //std::cout << "PdfFont::PdfFont name " << font_name << std::endl;
-    m_font = HPDF_GetFont(pdf, font_name.c_str(), encoding);
-}
-
-Glib::RefPtr<Gio::File>
-PdfFont::createTemp(const char* file)
-{
-    auto resName = std::string(psc::ui::TableProperties::RESOURCE_PREFIX) + "/" + file;
-    //std::cout << "PdfFont::createTemp res " << resName << std::endl;
-    Glib::RefPtr<const Glib::Bytes> data = Gio::Resource::lookup_data_global(resName);
-    //std::cout << "PdfFont::createTemp data " << data->get_size() << std::endl;
-    Glib::RefPtr<Gio::File> tempDir = Gio::File::create_for_path(Glib::get_tmp_dir());
-    Glib::RefPtr<Gio::File> dataFile = tempDir->get_child(file);
-    if (!dataFile->query_exists()) {
-        try {
-            auto strm = dataFile->create_file(Gio::FileCreateFlags::FILE_CREATE_REPLACE_DESTINATION);
-            auto len = strm->write_bytes(data);
-            //std::cout << "PdfFont::createTemp written " << len << std::endl;
-            strm->close();
-        }
-        catch (const Glib::Error& err) {
-            std::cout << "Error writing " << dataFile->get_path() << std::endl;
-            dataFile->remove();
-            return Glib::RefPtr<Gio::File>();
-        }
-    }
-    return dataFile;
 }
 
 HPDF_Font

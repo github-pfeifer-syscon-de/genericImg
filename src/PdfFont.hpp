@@ -27,15 +27,14 @@ class PdfExport;
 class PdfFont
 {
 public:
-    PdfFont(PdfExport* pdfExport, const Glib::ustring& name);
+    PdfFont(HPDF_Font font);
     explicit PdfFont(const PdfFont& orig) = delete;
     virtual ~PdfFont() = default;
 
     HPDF_Font getPdfFont();
 protected:
-    Glib::RefPtr<Gio::File> createTemp(const char* file);
 
 private:
-    HPDF_Font m_font{nullptr};
+    HPDF_Font m_font;
 };
 

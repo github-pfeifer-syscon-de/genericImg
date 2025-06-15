@@ -60,8 +60,7 @@ pdf_test()
 {
     auto PdfEncoding{"ISO8859-15"};
     auto pdfExport{std::make_shared<PdfExport>()};
-    pdfExport->setEncoding(PdfEncoding);
-    auto font = pdfExport->createFont();
+    auto font = pdfExport->createFontInternalWithEncoding(PdfEncoding);
     auto page = std::make_shared<PdfPage>(pdfExport);
     page->setFont(font, 12.0f);
     Glib::ustring us = StringUtils::u8str(u8"abc öäüÖÄÜß°");

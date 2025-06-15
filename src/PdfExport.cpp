@@ -21,8 +21,10 @@
 #include <hpdf.h>
 #include <psc_format.hpp>
 
+#include "TableProperties.hpp"
 #include "PdfExport.hpp"
 #include "PdfFont.hpp"
+#include "config.h"
 
 static void
 #ifdef HPDF_DLL
@@ -58,18 +60,6 @@ PdfExport::~PdfExport()
     }
 }
 
-void
-PdfExport::setEncoding(const char* encoding)
-{
-    //HPDF_SetCurrentEncoder(m_pdf, encoding);    // no used for example
-    m_encoding = encoding;
-}
-
-std::string
-PdfExport::getEncoding()
-{
-    return m_encoding;
-}
 
 PdfFormat
 PdfExport::getFormat()
@@ -103,25 +93,77 @@ PdfExport::getDoc()
 }
 
 void
-PdfExport::save(const Glib::ustring& filename)
+PdfExport::save(const std::string& filename)
 {
     /* save the document to a file */
     HPDF_SaveToFile(m_pdf, filename.c_str());
 }
 
 std::shared_ptr<PdfFont>
-PdfExport::createFont()
-{
-    return std::make_shared<PdfFont>(this, "Helvetica");    // pass something in case encoding was not set
-}
-
-
-std::shared_ptr<PdfFont>
 PdfExport::createFont(const Glib::ustring& fontName)
 {
-    return std::make_shared<PdfFont>(this, fontName);
+    //std::cout << "PdfFont::PdfFont name " << font_name << std::endl;
+    auto font = HPDF_GetFont(m_pdf, fontName.c_str(), nullptr);
+    return std::make_shared<PdfFont>(font);
 }
 
+std::shared_ptr<PdfFont>
+PdfExport::createFontInternalWithEncoding(const Glib::ustring& encoding)
+{
+    auto afmFile = findFontFile("a010013l.afm");
+    auto pfbFile = findFontFile("a010013l.pfb");
+    if (!afmFile || !pfbFile) {
+        std::cout << "Error accessing font files from package data/resources" << std::endl;
+    }
+    auto afmName = afmFile->get_path();
+    auto pfpName = pfbFile->get_path();
+    std::cout << "PdfExport::createFontInternalWithEncoding " << afmName << " exist " << std::boolalpha << afmFile->query_exists() << std::endl;
+    return createFontType1(afmName, pfpName, encoding);
+}
+
+std::shared_ptr<PdfFont>
+PdfExport::createFontType1(const std::string& afmName, const std::string& pfpName, const Glib::ustring& encoding)
+{
+    //std::cout << "PdfFont::PdfFont afm " << afmName << " exists " << std::boolalpha << afmFile->query_exists()
+    //          << " pfp " << pfpName << " exists " << std::boolalpha << pfbFile->query_exists() << std::endl;
+    auto fontName = HPDF_LoadType1FontFromFile(m_pdf, afmName.c_str(), pfpName.c_str());
+    auto font = HPDF_GetFont(m_pdf, fontName, encoding.c_str());
+    return std::make_shared<PdfFont>(font);
+}
+
+
+Glib::RefPtr<Gio::File>
+PdfExport::findFontFile(const char* file)
+{
+    // if possible access from package dir, as this is simpler
+    auto fullPath = Glib::canonicalize_filename(file, PACKAGE_DATA_DIR);
+    auto pkgFile = Gio::File::create_for_path(fullPath);
+    //std::cout << "PdfExport::findFontFile check global " << fullPath << " exist " << std::boolalpha << file->query_exists() << std::endl;
+    if (pkgFile->query_exists()) {
+        return pkgFile;
+    }
+    // fallback to resources
+    auto resName = std::string(psc::ui::TableProperties::RESOURCE_PREFIX) + "/" + file;
+    //std::cout << "PdfFont::findFontFile res " << resName << std::endl;
+    Glib::RefPtr<const Glib::Bytes> data = Gio::Resource::lookup_data_global(resName);
+    //std::cout << "PdfFont::findFontFile data " << data->get_size() << std::endl;
+    Glib::RefPtr<Gio::File> tempDir = Gio::File::create_for_path(Glib::get_tmp_dir());
+    Glib::RefPtr<Gio::File> dataFile = tempDir->get_child(file);
+    if (!dataFile->query_exists()) {
+        try {
+            auto strm = dataFile->create_file(Gio::FileCreateFlags::FILE_CREATE_REPLACE_DESTINATION);
+            auto len = strm->write_bytes(data);
+            //std::cout << "PdfFont::findFontFile written " << len << std::endl;
+            strm->close();
+        }
+        catch (const Glib::Error& err) {
+            std::cout << "PdfFont::findFontFile error writing " << dataFile->get_path() << std::endl;
+            dataFile->remove();
+            return Glib::RefPtr<Gio::File>();
+        }
+    }
+    return dataFile;
+}
 
 float
 PdfExport::mm2dot(float mm)

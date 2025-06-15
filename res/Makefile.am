@@ -10,8 +10,9 @@ all:$(resources_c)
 $(resources_c): $(GENERICIMG_RESOURCE_XML) $(GENERICIMG_RESOURCES)
 	$(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=$(dir $<) --generate-source $<
 
+dist_pkgdata_DATA = a010013l.afm a010013l.pfb
 
-EXTRA_DIST = $(MONGLMM_RESOURCES) $(MONGLMM_RESOURCE_XML) a010013l.afm a010013l.pfb
+EXTRA_DIST = $(MONGLMM_RESOURCES) $(MONGLMM_RESOURCE_XML) $(dist_pkgdata_DATA)
 
 clean-local:
 	-rm -rf $(resources_c)

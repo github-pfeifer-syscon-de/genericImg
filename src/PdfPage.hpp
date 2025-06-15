@@ -52,7 +52,7 @@ public:
 
     // using std::string by intention as in this stage
     //   this is considered binary data (but newlines are evaluated)
-    //   see PdfExport setEncoding
+    //   see PdfExport createFont...
     void drawText(const std::string& text, float x, float y);
     void drawImage(std::shared_ptr<PdfImage>& image, float x, float y, float w, float h);
     float getHeight();

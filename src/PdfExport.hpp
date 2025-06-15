@@ -81,20 +81,35 @@ public:
     explicit PdfExport(const PdfExport& orig) = delete;
     virtual ~PdfExport();
 
-    void save(const Glib::ustring& filename);
+    void save(const std::string& filename);
     HPDF_Doc getDoc();
     static float mm2dot(float mm);
     PdfFormat getFormat();
     void setFormat(PdfFormat pdfFormat);
     Orientation getOrientation();
     void setOrientation(Orientation orient);
-    // usable when encoding is set
-    std::shared_ptr<PdfFont> createFont();
+    // use Base14 see below
     std::shared_ptr<PdfFont> createFont(const Glib::ustring& fontName);
+    // this just cares about the font setting, ensure the text encoding is adjusted before passing to PdfPage::drawText
     // only tested single byte, as utf requires true-type-fonts
     // see https://github.com/libharu/libharu/blob/master/demo/encoding_list.c for viable encodings
-    void setEncoding(const char* encoding);
-    std::string getEncoding();
+    std::shared_ptr<PdfFont> createFontInternalWithEncoding(const Glib::ustring& encoding);
+    std::shared_ptr<PdfFont> createFontType1(const std::string& afm, const std::string& pfb, const Glib::ustring& encoding);
+
+    static constexpr auto BASE14FONT_COURIER{"Courier"};
+    static constexpr auto BASE14FONT_COURIER_BOLD{"Courier-Bold"};
+    static constexpr auto BASE14FONT_COURIER_OBLIQUE{"Courier-Oblique"};
+    static constexpr auto BASE14FONT_COURIER_BOLDOB{"Courier-BoldOblique"};
+    static constexpr auto BASE14FONT_HELVECTICA{"Helvetica"};
+    static constexpr auto BASE14FONT_HELVECTICA_BOLD{"Helvetica-Bold"};
+    static constexpr auto BASE14FONT_HELVECTICA_OBLIQUE{"Helvetica-Oblique"};
+    static constexpr auto BASE14FONT_HELVECTICA_BOLDOB{"Helvetica-BoldOblique"};
+    static constexpr auto BASE14FONT_TIMES{"Times-Roman"};
+    static constexpr auto BASE14FONT_TIMES_BOLD{"Times-Bold"};
+    static constexpr auto BASE14FONT_TIMES_ITALIC{"Times-Italic"};
+    static constexpr auto BASE14FONT_TIMES_BOLDIT{"Times-BoldItalic"};
+    static constexpr auto BASE14FONT_SYMBOL{"Symbol"};
+    static constexpr auto BASE14FONT_ZAPFDINGSBAT{"ZapfDingbats"};
 
     static constexpr PdfFormat pdfFormatA6{105.f, 148.f};
     static constexpr PdfFormat pdfFormatA5{148.f, 210.f};
@@ -103,11 +118,11 @@ public:
     static constexpr PdfFormat pdfFormatLetter{215.9f, 279.4f};
 
 protected:
+    Glib::RefPtr<Gio::File> findFontFile(const char* file);
 
 private:
     HPDF_Doc m_pdf{nullptr};
     PdfFormat m_format{pdfFormatA4};
     Orientation m_orientation{Orientation::Portrait};
-    std::string m_encoding;
 };
 
