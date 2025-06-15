@@ -80,6 +80,7 @@ public:
 
     std::vector<int32_t> save();
     static TableProperties* show(const std::shared_ptr<ColumnRecord>& columnRecord, std::vector<int32_t>& visible);
+    static constexpr auto RESOURCE_PREFIX{"/de/pfeifer_syscon/genricimg"};
 protected:
     bool pressEvent(GdkEventButton* event);
     bool pressCheck(GdkEventButton* event
@@ -97,7 +98,6 @@ private:
     std::shared_ptr<ColumnRecord> m_columnRecord;
     Glib::RefPtr<Gio::ListStore<ListEntry>> m_availModel;
     Glib::RefPtr<Gio::ListStore<ListEntry>> m_usedModel;
-    static constexpr auto RESOURCE_PREFIX= "/de/pfeifer_syscon/genricimg";
 };
 
 

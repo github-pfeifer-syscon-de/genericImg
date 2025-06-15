@@ -1,7 +1,7 @@
 
 
 
-TESTS = unic_test log_test worker_test json_test util_test
+TESTS = unic_test log_test worker_test json_test util_test pdf_test
 
 AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
@@ -20,7 +20,7 @@ AM_CXXFLAGS = \
 
 AM_LDFLAGS =
 
-check_PROGRAMS = unic_test log_test worker_test json_test util_test
+check_PROGRAMS = unic_test log_test worker_test json_test util_test pdf_test
 
 unic_test_LDADD =  \
 	-L../src/.libs -lgenericimg \
@@ -56,3 +56,10 @@ util_test_LDADD = \
 	$(GENERICIMG_LIBS)
 
 util_test_SOURCES = util_test.cpp
+
+pdf_test_LDADD = \
+	-L../src/.libs -lgenericimg \
+	$(GLIBMM_LIBS) \
+	$(GENERICIMG_LIBS)
+
+pdf_test_SOURCES = pdf_test.cpp

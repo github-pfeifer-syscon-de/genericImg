@@ -76,6 +76,14 @@ AS_IF([test "x$with_syslog" = "xyes"], [
 
 AM_CONDITIONAL([SYSLOG], test "x$with_syslog" = "xyes"])
 
+AC_SEARCH_LIBS([HPDF_Page_BeginText], [hpdf], [USE_LIBHARU="true"])
+
+AM_CONDITIONAL([PDF_LIBHARU], [test x$USE_LIBHARU = xtrue])
+
+if test "x$USE_LIBHARU" = xtrue; then
+    AC_DEFINE([USE_PDF], [1], [Using hpdf])
+fi
+
 if test "$host_os" = "mingw32" ; then
     AC_SUBST(EXTRA_LDFLAGS, "-no-undefined")
 else

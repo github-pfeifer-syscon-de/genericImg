@@ -16,12 +16,14 @@
  */
 
 #include <iostream>
+#include <StringUtils.hpp>
 
 #include "KeyConfig.hpp"
 #include "BinModel.hpp"
 #include "DateUtils.hpp"
 
-bool
+
+static bool
 test_keyfile()
 {
     KeyConfig conf("test");
@@ -41,7 +43,7 @@ test_keyfile()
     return true;
 }
 
-bool
+static bool
 init_test()
 {
     Glib::Dispatcher dispatch;
@@ -54,7 +56,7 @@ init_test()
     return true;
 }
 
-bool
+static bool
 date_test()
 {
     Glib::DateTime dt1 = psc::utl::DateUtils::parse("%F", "2025-04-08");

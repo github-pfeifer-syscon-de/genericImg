@@ -2,6 +2,8 @@
 <gresources>
   <gresource prefix="/de/pfeifer_syscon/genricimg">
     <file preprocess="xml-stripblanks">table_properties.ui</file>
+    <file>a010013l.pfb</file> <!-- included to support encoded pdf -->
+    <file>a010013l.afm</file>
   </gresource>
 </gresources>
 

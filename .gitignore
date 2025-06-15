@@ -112,3 +112,7 @@
 /test/util_test
 /test/util_test.trs
 /test/util_test.log
+/test/pdf_test
+/test/pdf_test.log
+/test/test.pdf
+/test/pdf_test.trs

@@ -103,11 +103,23 @@ pkginclude_HEADERS = \
 	StringUtils.hpp \
 	ThreadWorker.hpp \
 	TreeNodeModel.hpp \
+	PdfExport.hpp \
+	PdfFont.hpp \
+	PdfImage.hpp \
+	PdfPage.hpp \
 	KeyConfig.hpp
 
 if SYSDLOG
 libgenericimg_la_LIBADD += $(SYSTEMDLOG_LIBS)
 AM_CPPFLAGS += $(SYSTEMDLOG_CFLAGS)
+endif
+
+if PDF_LIBHARU
+libgenericimg_la_SOURCES += \
+	PdfExport.cpp \
+	PdfFont.cpp \
+	PdfImage.cpp \
+	PdfPage.cpp
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
