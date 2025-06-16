@@ -18,23 +18,34 @@
 
 #pragma once
 
-#include <gtkmm.h>
+#include <glibmm.h>
+#include <giomm-2.4/giomm.h>
 #include <hpdf.h>
 #include <memory>
+
+namespace psc::pdf
+{
 
 class PdfExport;
 
 class PdfFont
 {
 public:
-    PdfFont(HPDF_Font font);
+    PdfFont(HPDF_Font font, std::string_view encoding);
     explicit PdfFont(const PdfFont& orig) = delete;
     virtual ~PdfFont() = default;
 
     HPDF_Font getPdfFont();
+    // only tested single byte, as utf requires true-type-fonts
+    // see https://github.com/libharu/libharu/blob/master/demo/encoding_list.c for viable encodings
+    std::string encodeText(const Glib::ustring& us);
+
 protected:
 
 private:
     HPDF_Font m_font;
+    std::string m_encoding;
+    Glib::RefPtr<Gio::CharsetConverter> m_converter;
 };
 
+} /* end namespace psc::pdf */

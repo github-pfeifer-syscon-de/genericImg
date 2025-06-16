@@ -22,9 +22,14 @@
 #include <hpdf.h>
 #include <memory>
 
+namespace psc::pdf
+{
+
 class PdfExport;
 class PdfFont;
 class PdfImage;
+class PdfFormat;
+enum class Orientation;
 
 
 class PdfPage
@@ -49,6 +54,8 @@ public:
     void curveTo(float x1, float y1, float x2, float y2, float x3, float y3);
     void closePath();
     void clip();
+    void setFormat(PdfFormat fmt, Orientation orient);
+    void getFormat(float& widthMM, float& heightMM);
 
     // using std::string by intention as in this stage
     //   this is considered binary data (but newlines are evaluated)
@@ -71,3 +78,4 @@ protected:
     float m_fontSize{12.0};
 };
 
+} /* end namespace psc::pdf */

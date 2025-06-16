@@ -25,6 +25,8 @@
 #include "PdfFont.hpp"
 #include "PdfImage.hpp"
 
+namespace psc::pdf {
+
 PdfPage::PdfPage(std::shared_ptr<PdfExport> pdfExport)
 : m_pdfExport{pdfExport}
 {
@@ -32,19 +34,8 @@ PdfPage::PdfPage(std::shared_ptr<PdfExport> pdfExport)
     /* add a new page object. */
     m_page = HPDF_AddPage(pdf);
     PdfFormat fmt = m_pdfExport->getFormat();
-    float width = PdfExport::mm2dot(fmt.getWidthMm());
-    float height = PdfExport::mm2dot(fmt.getHeightMm());
-    auto orient = m_pdfExport->getOrientation();
-    if (orient == Orientation::Landscape) {
-        std::swap(width, height);
-    }
-    HPDF_Page_SetWidth(m_page, width);
-    HPDF_Page_SetHeight(m_page, height);
-
-    m_dst = HPDF_Page_CreateDestination(m_page);
-    HPDF_Destination_SetXYZ(m_dst, 0, HPDF_Page_GetHeight(m_page), 1);
-    HPDF_SetOpenAction(pdf, m_dst);
-
+    Orientation orient = m_pdfExport->getOrientation();
+    setFormat(fmt, orient);
 }
 
 void
@@ -64,6 +55,32 @@ float
 PdfPage::getFontSize()
 {
     return m_fontSize;
+}
+
+void
+PdfPage::setFormat(PdfFormat fmt, Orientation orient)
+{
+    float width = PdfExport::mm2dot(fmt.getWidthMm());
+    float height = PdfExport::mm2dot(fmt.getHeightMm());
+    if (orient == Orientation::Landscape) {
+        std::swap(width, height);
+    }
+    HPDF_Page_SetWidth(m_page, width);
+    HPDF_Page_SetHeight(m_page, height);
+
+    m_dst = HPDF_Page_CreateDestination(m_page);
+    HPDF_Destination_SetXYZ(m_dst, 0, HPDF_Page_GetHeight(m_page), 1);
+    HPDF_Doc pdf = m_pdfExport->getDoc();
+    HPDF_SetOpenAction(pdf, m_dst);
+}
+
+void
+PdfPage::getFormat(float& widthMM, float& heightMM)
+{
+    auto dotWith = HPDF_Page_GetWidth(m_page);
+    auto dotHeight = HPDF_Page_GetHeight(m_page);
+    widthMM = PdfExport::dot2mm(dotWith);
+    heightMM = PdfExport::dot2mm(dotHeight);
 }
 
 float
@@ -219,3 +236,4 @@ PdfPage::clip()
     HPDF_Page_EndPath(m_page);
 }
 
+} /* end namespace psc::pdf */

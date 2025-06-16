@@ -17,14 +17,17 @@
  */
 
 #include <iostream>
-#include <glibmm.h>
 
 #include "PdfFont.hpp"
 #include "PdfExport.hpp"
 #include "TableProperties.hpp"
 
-PdfFont::PdfFont(HPDF_Font font)
+namespace psc::pdf
+{
+
+PdfFont::PdfFont(HPDF_Font font, std::string_view encoding)
 : m_font{font}
+, m_encoding{encoding}
 {
 }
 
@@ -33,3 +36,40 @@ PdfFont::getPdfFont()
 {
     return m_font;
 }
+
+std::string
+PdfFont::encodeText(const Glib::ustring& us)
+{
+    if (!m_converter && !m_encoding.empty()) {
+        g_autoptr(GError) err{};
+        //std::cout << "Creating encoder " << encoding << " in " << us.length() << " bytes " << us.bytes() << std::endl;
+        // Gio::Charsetconvert doesn't do anything just freaks out ...
+        GCharsetConverter* gconv = g_charset_converter_new(m_encoding.data(), "UTF-8", &err);
+        if (err) {
+            std::cout << "Error creating charset converter " << m_encoding << " " << err->message << std::endl;
+            return us; 
+        }
+        m_converter = Glib::wrap(gconv);
+    }
+    size_t size{us.bytes() + 16};   // expect single byte encodings, which reduce the size when converted, (but be careful if fallback gets selected)
+    std::vector<char> buf(size);
+    gsize read{},out{};
+    try {
+        Gio::ConverterResult res = m_converter->convert(
+                  reinterpret_cast<const void*>(us.c_str()), us.bytes()
+                , reinterpret_cast<void*>(&buf[0]), size
+                , Gio::ConverterFlags::CONVERTER_NO_FLAGS, read, out);
+    }
+    catch (const Glib::Error& err) {
+        std::cout << "Error " << err.what() << " charset " << m_encoding << " converting" << std::endl;
+        return us;
+    }
+    //std::cout << "Read " << read << " out " << out << std::endl;
+    //std::cout << "   to " << StringUtils::hexdump(&buf[0], out) << std::endl;
+    std::string str(buf.data(), out);
+    return str;
+}
+
+} /* end namespace psc::pdf */
+
+

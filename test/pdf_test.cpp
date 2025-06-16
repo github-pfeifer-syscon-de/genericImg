@@ -23,48 +23,21 @@
 
 #include "PdfExport.hpp"
 #include "PdfPage.hpp"
+#include "PdfFont.hpp"
 
 
-static std::string
-encode(const Glib::ustring& us, const char* encoding)
-{
-    g_autoptr(GError) err{};
-    //std::cout << "Creating encoder " << encoding << " in " << us.length() << " bytes " << us.bytes() << std::endl;
-    // Gio::Charsetconvert doesn't do anything just freaks out ...
-    GCharsetConverter* gconv = g_charset_converter_new(encoding, "UTF-8", &err);
-    if (err) {
-        std::cout << "Error creating charset converter " << encoding << " " << err->message << std::endl;
-        return "";
-    }
-    auto conv = Glib::wrap(gconv);
-    size_t size{us.bytes() + 16};   // expect single byte encodings, which reduce the size when converted
-    std::vector<char> buf(size);
-    gsize read{},out{};
-    Gio::ConverterResult res = conv->convert(
-              reinterpret_cast<const void*>(us.c_str()), us.bytes()
-            , reinterpret_cast<void*>(&buf[0]), size
-            , Gio::ConverterFlags::CONVERTER_NO_FLAGS, read, out);// GConverterFlags::G_CONVERTER_NO_FLAGS
-    if (res == Gio::ConverterResult::CONVERTER_ERROR) {
-        std::cout << "Error " << static_cast<int>(res) << " charset " << encoding << " converting" << std::endl;
-        out = 0;
-    }
-    //std::cout << "Read " << read << " out " << out << std::endl;
-    //std::cout << "   to " << StringUtils::hexdump(&buf[0], out) << std::endl;
-    std::string str(buf.data(), out);
-    return str;
-}
 
 // check the create file test.pdf
 static bool
 pdf_test()
 {
     auto PdfEncoding{"ISO8859-15"};
-    auto pdfExport{std::make_shared<PdfExport>()};
+    auto pdfExport{std::make_shared<psc::pdf::PdfExport>()};
     auto font = pdfExport->createFontInternalWithEncoding(PdfEncoding);
-    auto page = std::make_shared<PdfPage>(pdfExport);
+    auto page = std::make_shared<psc::pdf::PdfPage>(pdfExport);
     page->setFont(font, 12.0f);
     Glib::ustring us = StringUtils::u8str(u8"abc öäüÖÄÜß°");
-    std::string etext = encode(us, PdfEncoding);
+    std::string etext = font->encodeText(us);
     page->drawText("iso " + etext, 40, page->getHeight() - 40);
     //page->drawText("utf " + us, 40, page->getHeight() - 60);
 

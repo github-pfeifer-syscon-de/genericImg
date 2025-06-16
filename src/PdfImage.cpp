@@ -22,6 +22,9 @@
 #include "PdfImage.hpp"
 #include "PdfExport.hpp"
 
+namespace psc::pdf
+{
+
 PdfImage::PdfImage(std::shared_ptr<PdfExport>& pdfExport)
 : m_pdfExport{pdfExport}
 {
@@ -82,3 +85,5 @@ PdfImage::getPdfImage()
 {
     return m_image;
 }
+
+} /* end namespace psc::pdf */

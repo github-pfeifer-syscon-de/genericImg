@@ -21,7 +21,12 @@
 #include <gtkmm.h>
 #include <hpdf.h>
 #include <memory>
+#include <string_view>
 #include <exception>
+#include <psc_format.hpp>
+
+namespace psc::pdf
+{
 
 class PdfFormat
 {
@@ -60,9 +65,9 @@ class PdfException
 : public std::exception
 {
 public:
-    PdfException(const std::string& msg)
+    PdfException(std::string_view message)
     : exception()
-    , m_msg{msg}
+    , m_msg{message}
     {
     }
     virtual ~PdfException() = default;
@@ -84,6 +89,7 @@ public:
     void save(const std::string& filename);
     HPDF_Doc getDoc();
     static float mm2dot(float mm);
+    static float dot2mm(float dot);
     PdfFormat getFormat();
     void setFormat(PdfFormat pdfFormat);
     Orientation getOrientation();
@@ -91,10 +97,9 @@ public:
     // use Base14 see below
     std::shared_ptr<PdfFont> createFont(const Glib::ustring& fontName);
     // this just cares about the font setting, ensure the text encoding is adjusted before passing to PdfPage::drawText
-    // only tested single byte, as utf requires true-type-fonts
-    // see https://github.com/libharu/libharu/blob/master/demo/encoding_list.c for viable encodings
-    std::shared_ptr<PdfFont> createFontInternalWithEncoding(const Glib::ustring& encoding);
-    std::shared_ptr<PdfFont> createFontType1(const std::string& afm, const std::string& pfb, const Glib::ustring& encoding);
+    //   PdfFont contains encodeText for this purpose.
+    std::shared_ptr<PdfFont> createFontInternalWithEncoding(std::string_view encoding);
+    std::shared_ptr<PdfFont> createFontType1(const std::string& afm, const std::string& pfb, std::string_view encoding);
 
     static constexpr auto BASE14FONT_COURIER{"Courier"};
     static constexpr auto BASE14FONT_COURIER_BOLD{"Courier-Bold"};
@@ -126,3 +131,4 @@ private:
     Orientation m_orientation{Orientation::Portrait};
 };
 
+} /* end namespace psc::pdf */

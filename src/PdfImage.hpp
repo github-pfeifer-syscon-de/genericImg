@@ -22,6 +22,9 @@
 #include <memory>
 #include <hpdf.h>
 
+namespace psc::pdf
+{
+
 class PdfExport;
 
 class PdfImage {
@@ -41,3 +44,4 @@ private:
     std::shared_ptr<PdfExport> m_pdfExport;
 };
 
+} /* end namespace psc::pdf */

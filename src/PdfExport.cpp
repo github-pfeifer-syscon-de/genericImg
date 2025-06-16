@@ -17,14 +17,16 @@
  */
 
 #include <iostream>
-#include <setjmp.h>
+#include <string_view>
 #include <hpdf.h>
-#include <psc_format.hpp>
 
 #include "TableProperties.hpp"
 #include "PdfExport.hpp"
 #include "PdfFont.hpp"
 #include "config.h"
+
+namespace psc::pdf
+{
 
 static void
 #ifdef HPDF_DLL
@@ -36,9 +38,9 @@ error_handler(HPDF_STATUS   error_no,
 {
     //printf ("PdfOut ERROR: error_no=0x%04X, detail_no=%u\n",
     //        (HPDF_UINT)error_no, (HPDF_UINT)detail_no);
-    auto err = psc::fmt::format("HPDF_Error error {:#04x} detail {}"
-                                , (HPDF_UINT)error_no, (HPDF_UINT)detail_no);
-    throw PdfException(err);
+    auto msg = psc::fmt::format("HPDF_Error error {:#04x} detail {}"
+                                        , error_no, detail_no);
+    throw PdfException(msg);
 }
 
 PdfExport::PdfExport()
@@ -104,14 +106,14 @@ PdfExport::createFont(const Glib::ustring& fontName)
 {
     //std::cout << "PdfFont::PdfFont name " << font_name << std::endl;
     auto font = HPDF_GetFont(m_pdf, fontName.c_str(), nullptr);
-    return std::make_shared<PdfFont>(font);
+    return std::make_shared<PdfFont>(font, "");
 }
 
 std::shared_ptr<PdfFont>
-PdfExport::createFontInternalWithEncoding(const Glib::ustring& encoding)
+PdfExport::createFontInternalWithEncoding(std::string_view encoding)
 {
-    auto afmFile = findFontFile("a010013l.afm");
-    auto pfbFile = findFontFile("a010013l.pfb");
+    auto afmFile = findFontFile("ua1r8a.afm");
+    auto pfbFile = findFontFile("ua1r8a.pfb");
     if (!afmFile || !pfbFile) {
         std::cout << "Error accessing font files from package data/resources" << std::endl;
     }
@@ -122,15 +124,14 @@ PdfExport::createFontInternalWithEncoding(const Glib::ustring& encoding)
 }
 
 std::shared_ptr<PdfFont>
-PdfExport::createFontType1(const std::string& afmName, const std::string& pfpName, const Glib::ustring& encoding)
+PdfExport::createFontType1(const std::string& afmName, const std::string& pfpName, std::string_view encoding)
 {
     //std::cout << "PdfFont::PdfFont afm " << afmName << " exists " << std::boolalpha << afmFile->query_exists()
     //          << " pfp " << pfpName << " exists " << std::boolalpha << pfbFile->query_exists() << std::endl;
     auto fontName = HPDF_LoadType1FontFromFile(m_pdf, afmName.c_str(), pfpName.c_str());
-    auto font = HPDF_GetFont(m_pdf, fontName, encoding.c_str());
-    return std::make_shared<PdfFont>(font);
+    auto font = HPDF_GetFont(m_pdf, fontName, encoding.data());
+    return std::make_shared<PdfFont>(font, encoding);
 }
-
 
 Glib::RefPtr<Gio::File>
 PdfExport::findFontFile(const char* file)
@@ -169,6 +170,14 @@ float
 PdfExport::mm2dot(float mm)
 {
     //  72 dot per inch
-    return mm / 25.4f * 72.f;
+    return mm  * 72.f / 25.4f;
 }
 
+float
+PdfExport::dot2mm(float dot)
+{
+    //  25.4mm per inch
+    return dot * 25.4f / 72.f;
+}
+
+} /* end namespace psc::pdf */
