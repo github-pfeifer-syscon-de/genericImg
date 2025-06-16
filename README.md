@@ -129,3 +129,11 @@ genericImg (used almost everywhere i think)
 + calcpp
 + nomad
 </pre>
+
+# Licence
+
+The included Arial font
+2000 (URW)++ Design & Development
+URW has made available for free under
+the Aladdin Free Public License.
+from https://ctan.org/tex-archive/fonts/urw/arial
