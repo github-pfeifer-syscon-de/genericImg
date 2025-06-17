@@ -19,6 +19,8 @@
 #include <iostream>
 #include <string_view>
 #include <hpdf.h>
+#include <StringUtils.hpp>
+#include <fontconfig/fontconfig.h>
 
 #include "TableProperties.hpp"
 #include "PdfExport.hpp"
@@ -133,6 +135,58 @@ PdfExport::createFontType1(const std::string& afmName, const std::string& pfpNam
     return std::make_shared<PdfFont>(font, encoding);
 }
 
+std::shared_ptr<PdfFont>
+PdfExport::createFontTTFMatch(const std::string& name, std::string_view encoding, bool embedd)
+{
+    std::shared_ptr<PdfFont> pdfFont;
+    FcConfig* config = FcInitLoadConfigAndFonts();
+    FcPattern* pat = FcNameParse((const FcChar8*) (name.c_str()));
+    FcConfigSubstitute(config, pat, FcMatchPattern);
+    FcDefaultSubstitute(pat);
+    // see https://cgit.freedesktop.org/fontconfig/tree/fc-match/fc-match.c
+    FcResult result;
+	FcFontSet* font_patterns = FcFontSort(0, pat, FcTrue, 0, &result);  // FcFalse list all
+	if (font_patterns) {
+        for (int32_t j = 0; j < font_patterns->nfont; j++) {
+            auto font = font_patterns->fonts[j];
+            FcChar8* file = nullptr;
+            if (FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch) {
+                std::string fontFile = ((char*) file);
+                if (!pdfFont && StringUtils::endsWith(fontFile, ".ttf")) {  // with .ttc collections which index to choose?
+                    pdfFont = createFontTTF(fontFile, encoding, 0, embedd);
+                }
+            }
+            FcPatternDestroy(font);
+        }
+    }
+    else  {
+	    std::cout << "No font matching " << name << " found!" << std::endl;
+    }
+	FcFontSetSortDestroy(font_patterns);
+    FcPatternDestroy(pat);
+    return pdfFont;
+}
+
+std::shared_ptr<PdfFont>
+PdfExport::createFontTTF(const std::string& ttfName, std::string_view encoding, int idx, bool embedd)
+{
+    if (encoding.substr(0, 3) == "UTF") {       // maybe more possible encodings?
+        HPDF_UseUTFEncodings(m_pdf);
+        HPDF_SetCurrentEncoder(m_pdf, encoding.data());
+    }
+    const char* detail_font_name;
+    auto pdfEmbedd = embedd ? HPDF_TRUE : HPDF_FALSE;
+    if (StringUtils::endsWith(ttfName, ".ttc")) {
+        detail_font_name = HPDF_LoadTTFontFromFile2(m_pdf, ttfName.data(), idx, pdfEmbedd);
+    }
+    else {
+        detail_font_name = HPDF_LoadTTFontFromFile(m_pdf, ttfName.data(), pdfEmbedd);
+    }
+    auto font = HPDF_GetFont(m_pdf, detail_font_name, encoding.data());
+    return std::make_shared<PdfFont>(font, encoding);
+}
+
+
 Glib::RefPtr<Gio::File>
 PdfExport::findFontFile(const char* file)
 {
@@ -153,7 +207,7 @@ PdfExport::findFontFile(const char* file)
     if (!dataFile->query_exists()) {
         try {
             auto strm = dataFile->create_file(Gio::FileCreateFlags::FILE_CREATE_REPLACE_DESTINATION);
-            auto len = strm->write_bytes(data);
+            strm->write_bytes(data);
             //std::cout << "PdfFont::findFontFile written " << len << std::endl;
             strm->close();
         }
