@@ -94,12 +94,18 @@ public:
     void setFormat(PdfFormat pdfFormat);
     Orientation getOrientation();
     void setOrientation(Orientation orient);
-    // use Base14 see below
+    // use Base14 see names below
     std::shared_ptr<PdfFont> createFont(const Glib::ustring& fontName);
+    // support dropped, requires to provided some type1 font
+    //   in /usr/share/genericimg or as resource see findFontFile
     // this just cares about the font setting, ensure the text encoding is adjusted before passing to PdfPage::drawText
-    //   PdfFont contains encodeText for this purpose.
+    //   PdfFont contains encodeText for this purpose,
+    [[deprecated("requires type1 fonts downloading")]]
     std::shared_ptr<PdfFont> createFontInternalWithEncoding(std::string_view encoding);
     std::shared_ptr<PdfFont> createFontType1(const std::string& afm, const std::string& pfb, std::string_view encoding);
+    // most useful with Css2 font-names e.g. "sans-serif"
+    std::shared_ptr<PdfFont> createFontTTFMatch(const std::string& name, std::string_view encoding, bool embedd);
+    std::shared_ptr<PdfFont> createFontTTF(const std::string& ttfName, std::string_view encoding, int idx, bool embedd);
 
     static constexpr auto BASE14FONT_COURIER{"Courier"};
     static constexpr auto BASE14FONT_COURIER_BOLD{"Courier-Bold"};

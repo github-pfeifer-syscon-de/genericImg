@@ -40,22 +40,31 @@ PdfFont::getPdfFont()
 std::string
 PdfFont::encodeText(const Glib::ustring& us)
 {
-    if (!m_converter && !m_encoding.empty()) {
+    if (m_encoding.empty() || m_encoding == "UTF-8") {
+        return us;
+    }
+    if (!m_converter) {
         g_autoptr(GError) err{};
         //std::cout << "Creating encoder " << encoding << " in " << us.length() << " bytes " << us.bytes() << std::endl;
         // Gio::Charsetconvert doesn't do anything just freaks out ...
         GCharsetConverter* gconv = g_charset_converter_new(m_encoding.data(), "UTF-8", &err);
         if (err) {
             std::cout << "Error creating charset converter " << m_encoding << " " << err->message << std::endl;
-            return us; 
+            return us;
         }
         m_converter = Glib::wrap(gconv);
     }
-    size_t size{us.bytes() + 16};   // expect single byte encodings, which reduce the size when converted, (but be careful if fallback gets selected)
+    size_t size{us.bytes() + 16};   // expect single byte encodings, which reduce the size when converted, (but be careful if converter fallback gets selected)
+    if (m_encoding == "UTF-16") {   // adapt this to encodings getting used
+        size *= 2;
+    }
+    else if (m_encoding == "UTF-32") {
+        size *= 4;
+    }
     std::vector<char> buf(size);
     gsize read{},out{};
     try {
-        Gio::ConverterResult res = m_converter->convert(
+        m_converter->convert(
                   reinterpret_cast<const void*>(us.c_str()), us.bytes()
                 , reinterpret_cast<void*>(&buf[0]), size
                 , Gio::ConverterFlags::CONVERTER_NO_FLAGS, read, out);

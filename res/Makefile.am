@@ -10,7 +10,9 @@ all:$(resources_c)
 $(resources_c): $(GENERICIMG_RESOURCE_XML) $(GENERICIMG_RESOURCES)
 	$(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=$(dir $<) --generate-source $<
 
-dist_pkgdata_DATA = ua1r8a.afm ua1r8a.pfb
+# maybe you want to use ua1r8a.afm ua1r8a.pfb here ???
+#   e.g. check https://ctan.org/tex-archive/fonts/urw/arial
+dist_pkgdata_DATA =
 
 EXTRA_DIST = $(MONGLMM_RESOURCES) $(MONGLMM_RESOURCE_XML) $(dist_pkgdata_DATA)
 

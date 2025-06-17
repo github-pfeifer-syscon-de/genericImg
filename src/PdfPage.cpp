@@ -123,10 +123,17 @@ PdfPage::drawImage(std::shared_ptr<PdfImage>& image, float x, float y, float wid
 }
 
 void
+PdfPage::drawText(const Glib::ustring& text, float x, float y)
+{
+    std::string encoded = m_font->encodeText(text);
+    drawText(encoded, x, y);
+}
+
+
+void
 PdfPage::drawText(const std::string& text, float x, float y)
 {
-    /* Print the text. */
-    HPDF_Page_BeginText (m_page);
+    HPDF_Page_BeginText(m_page);
     if (m_font) {
         HPDF_Page_SetFontAndSize(m_page, m_font->getPdfFont(), m_fontSize);
         HPDF_Page_SetTextLeading(m_page, m_fontSize * 1.333333f);

@@ -78,7 +78,9 @@ public:
     // Convert a wide Unicode string to an UTF8 string
     static std::string utf8_encode(const BSTR& wstr);
     #endif
+    static bool endsWith(const std::string& str, const std::string& suffix);
     static bool endsWith(const Glib::ustring& str, const Glib::ustring& suffix);
+    static bool startsWith(const std::string& str, const std::string& prefix);
     static bool startsWith(const Glib::ustring& str, const Glib::ustring& prefix);
     // improved conversion functions that do not depend on LocaleContext "magic"
     static double parseCDouble(const Glib::ustring& sval);

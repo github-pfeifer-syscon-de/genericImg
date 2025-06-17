@@ -36,7 +36,7 @@ public:
     virtual ~PdfFont() = default;
 
     HPDF_Font getPdfFont();
-    // only tested single byte, as utf requires true-type-fonts
+    // unmappable chars will be ignored
     // see https://github.com/libharu/libharu/blob/master/demo/encoding_list.c for viable encodings
     std::string encodeText(const Glib::ustring& us);
 
