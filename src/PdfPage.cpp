@@ -38,24 +38,6 @@ PdfPage::PdfPage(std::shared_ptr<PdfExport> pdfExport)
     setFormat(fmt, orient);
 }
 
-void
-PdfPage::setFont(std::shared_ptr<PdfFont>& font, float size)
-{
-    m_font = font;
-    m_fontSize = size;
-}
-
-std::shared_ptr<PdfFont>
-PdfPage::getFont()
-{
-    return m_font;
-}
-
-float
-PdfPage::getFontSize()
-{
-    return m_fontSize;
-}
 
 void
 PdfPage::setFormat(PdfFormat fmt, Orientation orient)
@@ -123,21 +105,18 @@ PdfPage::drawImage(std::shared_ptr<PdfImage>& image, float x, float y, float wid
 }
 
 void
-PdfPage::drawText(const Glib::ustring& text, float x, float y)
+PdfPage::drawText(const Glib::ustring& text, const std::shared_ptr<PdfFont>& font, float x, float y)
 {
-    std::string encoded = m_font->encodeText(text);
-    drawText(encoded, x, y);
+    std::string encoded = font->encodeText(text);
+    drawText(encoded, font, x, y);
 }
 
-
 void
-PdfPage::drawText(const std::string& text, float x, float y)
+PdfPage::drawText(const std::string& text, const std::shared_ptr<PdfFont>& font, float x, float y)
 {
     HPDF_Page_BeginText(m_page);
-    if (m_font) {
-        HPDF_Page_SetFontAndSize(m_page, m_font->getPdfFont(), m_fontSize);
-        HPDF_Page_SetTextLeading(m_page, m_fontSize * 1.333333f);
-    }
+    HPDF_Page_SetFontAndSize(m_page, font->getPdfFont(), font->getSize());
+    HPDF_Page_SetTextLeading(m_page, font->getLeading());
     HPDF_Page_MoveTextPos(m_page, x, y);
     std::vector<std::string> lines = StringUtils::splitEach(text, '\n');
     for (auto line : lines) {

@@ -95,7 +95,7 @@ public:
     Orientation getOrientation();
     void setOrientation(Orientation orient);
     // use Base14 see names below
-    std::shared_ptr<PdfFont> createFont(const Glib::ustring& fontName);
+    std::shared_ptr<PdfFont> createFont(std::string_view fontName);
     // support dropped, requires to provided some type1 font
     //   in /usr/share/genericimg or as resource see findFontFile
     // this just cares about the font setting, ensure the text encoding is adjusted before passing to PdfPage::drawText

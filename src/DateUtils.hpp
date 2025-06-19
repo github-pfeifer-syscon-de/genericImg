@@ -31,7 +31,7 @@ public:
 
     // a simplified DateTime parse
     //  only b d Y T F formats are supported
-    //  separations chars are needed between fields
+    //  separation chars are needed between fields
     static Glib::DateTime parse(const char* fmt, const std::string& val, const Glib::TimeZone& tz = Glib::TimeZone::create_utc());
     static constexpr std::array<const char*,12> months_en {"jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"};
     static bool starts_with_ignore_case(const Glib::ustring& stack, const Glib::ustring& part);

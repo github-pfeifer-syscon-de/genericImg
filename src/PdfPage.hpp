@@ -60,15 +60,13 @@ public:
     // using std::string by intention as in this stage
     //   this is considered binary data (but newlines are evaluated)
     //   see PdfExport createFont...
-    void drawText(const std::string& text, float x, float y);
+    //  as it seems there is no option to "optimize" this, the sequence begin-text, set font, ... is required for each text fragment
+    void drawText(const std::string& text, const std::shared_ptr<PdfFont>& font, float x, float y);
     // this does the conversion internally
-    void drawText(const Glib::ustring& text, float x, float y);
+    void drawText(const Glib::ustring& text, const std::shared_ptr<PdfFont>& font, float x, float y);
     void drawImage(std::shared_ptr<PdfImage>& image, float x, float y, float w, float h);
     float getHeight();
     float getWidth();
-    void setFont(std::shared_ptr<PdfFont>& font, float size);
-    std::shared_ptr<PdfFont> getFont();
-    float getFontSize();
     float getWordSpace();
     float getCharSpace();
 
@@ -76,8 +74,6 @@ protected:
     std::shared_ptr<PdfExport> m_pdfExport;
     HPDF_Destination m_dst{nullptr};
     HPDF_Page m_page{nullptr};
-    std::shared_ptr<PdfFont> m_font;
-    float m_fontSize{12.0};
 };
 
 } /* end namespace psc::pdf */

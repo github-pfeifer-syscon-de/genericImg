@@ -60,6 +60,10 @@ dnl depend_libfmt="fmt"
 dnl PKG_CHECK_MODULES([LIBFMT], [$depend_libfmt], [AC_DEFINE([LIBFMT], [1], [Using libfmt for gcc < 13])])
 AC_SUBST([depend_libfmt])
 
+depend_fontconfig="fontconfig"
+AC_SUBST([depend_fontconfig])
+PKG_CHECK_MODULES([FONTCONFIG], [$depend_fontconfig])
+
 AC_ARG_WITH([sysdlog], AS_HELP_STRING([--with-sysdlog], [Build with systemdlog, if neither sysdlog or syslog will be specified user home log will be used by default]))
 
 AS_IF([test "x$with_sysdlog" = "xyes"], [

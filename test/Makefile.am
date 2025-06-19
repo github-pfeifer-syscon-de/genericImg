@@ -10,6 +10,7 @@ AM_CPPFLAGS = \
 	$(GLIBMM_CFLAGS) \
 	$(GTKMM_CFLAGS) \
 	$(JSONGLIB1_CFLAGS) \
+	$(FONTCONFIG_CFLAGS) \
 	-I ../src
 
 AM_CFLAGS= \
@@ -60,6 +61,7 @@ util_test_SOURCES = util_test.cpp
 pdf_test_LDADD = \
 	-L../src/.libs -lgenericimg \
 	$(GLIBMM_LIBS) \
+        $(FONTCONFIG_LIBS) \
 	$(GENERICIMG_LIBS)
 
 pdf_test_SOURCES = pdf_test.cpp

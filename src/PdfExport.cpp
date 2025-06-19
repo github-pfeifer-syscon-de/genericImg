@@ -104,11 +104,10 @@ PdfExport::save(const std::string& filename)
 }
 
 std::shared_ptr<PdfFont>
-PdfExport::createFont(const Glib::ustring& fontName)
+PdfExport::createFont(std::string_view fontName)
 {
     //std::cout << "PdfFont::PdfFont name " << font_name << std::endl;
-    auto font = HPDF_GetFont(m_pdf, fontName.c_str(), nullptr);
-    return std::make_shared<PdfFont>(font, "");
+    return std::make_shared<PdfFont>(m_pdf, fontName.data(), "");
 }
 
 std::shared_ptr<PdfFont>
@@ -131,8 +130,7 @@ PdfExport::createFontType1(const std::string& afmName, const std::string& pfpNam
     //std::cout << "PdfFont::PdfFont afm " << afmName << " exists " << std::boolalpha << afmFile->query_exists()
     //          << " pfp " << pfpName << " exists " << std::boolalpha << pfbFile->query_exists() << std::endl;
     auto fontName = HPDF_LoadType1FontFromFile(m_pdf, afmName.c_str(), pfpName.c_str());
-    auto font = HPDF_GetFont(m_pdf, fontName, encoding.data());
-    return std::make_shared<PdfFont>(font, encoding);
+    return std::make_shared<PdfFont>(m_pdf, fontName, encoding);
 }
 
 std::shared_ptr<PdfFont>
@@ -182,8 +180,7 @@ PdfExport::createFontTTF(const std::string& ttfName, std::string_view encoding, 
     else {
         detail_font_name = HPDF_LoadTTFontFromFile(m_pdf, ttfName.data(), pdfEmbedd);
     }
-    auto font = HPDF_GetFont(m_pdf, detail_font_name, encoding.data());
-    return std::make_shared<PdfFont>(font, encoding);
+    return std::make_shared<PdfFont>(m_pdf, detail_font_name, encoding);
 }
 
 

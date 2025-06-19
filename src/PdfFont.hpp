@@ -27,24 +27,48 @@ namespace psc::pdf
 {
 
 class PdfExport;
+class PdfPage;
+
+class PdfFontRef
+{
+public:
+    PdfFontRef(HPDF_Font font);
+    explicit PdfFontRef(const PdfFontRef& orig) = delete;
+    virtual ~PdfFontRef() = default;
+    HPDF_Font getPdfFont();
+private:
+    HPDF_Font m_font;
+};
 
 class PdfFont
 {
 public:
-    PdfFont(HPDF_Font font, std::string_view encoding);
+    PdfFont(HPDF_Doc pdf, std::string_view detail_font_name, std::string_view encoding, float size = 12.0f);
+    PdfFont(std::shared_ptr<PdfFontRef> font, std::string_view encoding, float size = 12.0f);
     explicit PdfFont(const PdfFont& orig) = delete;
     virtual ~PdfFont() = default;
 
     HPDF_Font getPdfFont();
+    std::shared_ptr<PdfFont> derive(float size);
     // unmappable chars will be ignored
     // see https://github.com/libharu/libharu/blob/master/demo/encoding_list.c for viable encodings
     std::string encodeText(const Glib::ustring& us);
+    float getTextWidth(std::shared_ptr<PdfPage> page, const Glib::ustring& us);
+    float getSize();
+    void  setSize(float size);
+    float getLeading();
+    float getDescent();
+    float getCapHeight();
+    float getAscent();
+
+
 
 protected:
 
 private:
-    HPDF_Font m_font;
+    std::shared_ptr<PdfFontRef> m_font;
     std::string m_encoding;
+    float m_size;
     Glib::RefPtr<Gio::CharsetConverter> m_converter;
 };
 
