@@ -108,31 +108,6 @@ PdfFont::encodeText(const Glib::ustring& us)
 
 
 float
-PdfFont::getTextWidth(std::shared_ptr<PdfPage> page, const Glib::ustring& us)
-{
-    auto pdfFont = m_font->getPdfFont();
-    auto cs = page->getCharSpace();
-    auto ws = page->getWordSpace();
-    auto txt = encodeText(us);
-    auto pdfBytes = reinterpret_cast<const HPDF_BYTE*>(txt.c_str());
-    //std::cout << "cs " << cs << " ws " << ws << std::endl;
-    float width;
-    auto avail = HPDF_Font_MeasureText(pdfFont
-                         , pdfBytes
-                         , static_cast<HPDF_UINT>(txt.length())
-                         , page->getWidth()               /* width */
-                         , m_size                   /* font_size */
-                         , cs                       /* char_space */
-                         , ws                       /* word_space */
-                         , HPDF_FALSE               /* wordwrap */
-                         , &width);
-    if (avail == 0) {
-        width = 0.0f;
-    }
-    return width;
-}
-
-float
 PdfFont::getCapHeight()
 {
     auto pdfFont = m_font->getPdfFont();

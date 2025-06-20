@@ -25,14 +25,13 @@
 #include "PdfFont.hpp"
 #include "PdfImage.hpp"
 
-namespace psc::pdf {
-
-PdfPage::PdfPage(std::shared_ptr<PdfExport> pdfExport)
-: m_pdfExport{pdfExport}
+namespace psc::pdf
 {
-    HPDF_Doc pdf = m_pdfExport->getDoc();
-    /* add a new page object. */
-    m_page = HPDF_AddPage(pdf);
+
+PdfPage::PdfPage(HPDF_Page page, PdfExport* pdfExport)
+: m_page{page}
+, m_pdfExport{pdfExport}
+{
     PdfFormat fmt = m_pdfExport->getFormat();
     Orientation orient = m_pdfExport->getOrientation();
     setFormat(fmt, orient);
@@ -50,10 +49,12 @@ PdfPage::setFormat(PdfFormat fmt, Orientation orient)
     HPDF_Page_SetWidth(m_page, width);
     HPDF_Page_SetHeight(m_page, height);
 
-    m_dst = HPDF_Page_CreateDestination(m_page);
-    HPDF_Destination_SetXYZ(m_dst, 0, HPDF_Page_GetHeight(m_page), 1);
-    HPDF_Doc pdf = m_pdfExport->getDoc();
-    HPDF_SetOpenAction(pdf, m_dst);
+    if (m_pdfExport->getPageNum() <= 1) {
+        HPDF_Destination dst = HPDF_Page_CreateDestination(m_page);
+        HPDF_Destination_SetXYZ(dst, 0, HPDF_Page_GetHeight(m_page), 1);
+        HPDF_Doc pdf = m_pdfExport->getDoc();
+        HPDF_SetOpenAction(pdf, dst);
+    }
 }
 
 void
@@ -92,6 +93,7 @@ PdfPage::getWidth()
 void
 PdfPage::drawImage(std::shared_ptr<PdfImage>& image, float x, float y, float width, float height)
 {
+    endText();
     /* Draw image to the canvas. */
     HPDF_Image img = image->getPdfImage();
     if (img) {
@@ -105,24 +107,68 @@ PdfPage::drawImage(std::shared_ptr<PdfImage>& image, float x, float y, float wid
 }
 
 void
-PdfPage::drawText(const Glib::ustring& text, const std::shared_ptr<PdfFont>& font, float x, float y)
+PdfPage::drawText(const Glib::ustring& text, float x, float y)
 {
-    std::string encoded = font->encodeText(text);
-    drawText(encoded, font, x, y);
+    std::string encoded = m_font->encodeText(text);
+    drawText(encoded, x, y);
 }
 
 void
-PdfPage::drawText(const std::string& text, const std::shared_ptr<PdfFont>& font, float x, float y)
+PdfPage::setFont(const std::shared_ptr<PdfFont>& font)
 {
-    HPDF_Page_BeginText(m_page);
+    m_font = font;
     HPDF_Page_SetFontAndSize(m_page, font->getPdfFont(), font->getSize());
     HPDF_Page_SetTextLeading(m_page, font->getLeading());
-    HPDF_Page_MoveTextPos(m_page, x, y);
-    std::vector<std::string> lines = StringUtils::splitEach(text, '\n');
-    for (auto line : lines) {
-        HPDF_Page_ShowTextNextLine(m_page, line.c_str());
+}
+
+void
+PdfPage::drawText(const std::string& text, float x, float y)
+{
+    if (HPDF_Page_GetGMode(m_page) == HPDF_GMODE_PAGE_DESCRIPTION) {
+        HPDF_Page_BeginText(m_page);
     }
-    HPDF_Page_EndText(m_page);
+    // the combo HPDF_Page_MoveTextPos/HPDF_Page_ShowText seems to break text mode for subsequent invocations
+    //HPDF_Page_MoveTextPos(m_page, x, y);
+    HPDF_Page_TextOut(m_page, x, y, text.c_str());
+}
+
+void
+PdfPage::endText()
+{
+    if (HPDF_Page_GetGMode(m_page) == HPDF_GMODE_TEXT_OBJECT) {
+        HPDF_Page_EndText(m_page);
+    }
+}
+
+void
+PdfPage::setTextPos(float x, float y)
+{
+    endText();  // as it seems if stay in text mode, the text will not show ...
+    if (HPDF_Page_GetGMode(m_page) == HPDF_GMODE_PAGE_DESCRIPTION) {
+        HPDF_Page_BeginText(m_page);
+    }
+    HPDF_Page_MoveTextPos(m_page, x, y);
+}
+
+void
+PdfPage::drawTextLines(const std::vector<Glib::ustring>& lines)
+{
+    if (HPDF_Page_GetGMode(m_page) == HPDF_GMODE_PAGE_DESCRIPTION) {
+        HPDF_Page_BeginText(m_page);
+    }
+    for (auto line : lines) {
+        std::string text = m_font->encodeText(line);
+        HPDF_Page_ShowTextNextLine(m_page, text.c_str());
+    }
+}
+
+
+float
+PdfPage::getTextWidth(const Glib::ustring& us)
+{
+    auto txt = m_font->encodeText(us);
+    auto width = HPDF_Page_TextWidth(m_page, txt.c_str());
+    return width;
 }
 
 void
@@ -135,36 +181,42 @@ PdfPage::setRgb(float r, float g, float b)
 void
 PdfPage::fill()
 {
+    endText();
     HPDF_Page_Fill(m_page);
 }
 
 void
 PdfPage::setLineWidth(float line_width)
 {
+    endText();
     HPDF_Page_SetLineWidth(m_page, line_width);
 }
 
 void
 PdfPage::moveTo(float x, float y)
 {
+    endText();
     HPDF_Page_MoveTo(m_page, x, y);
 }
 
 void
 PdfPage::lineTo(float x, float y)
 {
+    endText();
     HPDF_Page_LineTo(m_page, x, y);
 }
 
 void
 PdfPage::circle(float x, float y, float r)
 {
+    endText();
     HPDF_Page_Circle(m_page, x, y, r);
 }
 
 void
 PdfPage::arc(float x, float y, float r, float startDeg, float endDeg)
 {
+    endText();
     HPDF_Page_Arc(m_page, x, y, r, startDeg, endDeg);
 }
 
@@ -179,30 +231,35 @@ PdfPage::getPos(float& x, float& y)
 void
 PdfPage::stroke()
 {
+    endText();
     HPDF_Page_Stroke(m_page);
 }
 
 void
 PdfPage::save()
 {
+    endText();
     HPDF_Page_GSave(m_page);
 }
 
 void
 PdfPage::restore()
 {
+    endText();
     HPDF_Page_GRestore(m_page);
 }
 
 void
 PdfPage::translate(float x, float y)
 {
+    endText();
     HPDF_Page_Concat(m_page, 1.0f, 0.0f, 0.0f, 1.0f, x, y);
 }
 
 void
 PdfPage::curveTo(float x1, float y1, float x2, float y2, float x3, float y3)
 {
+    endText();
     HPDF_Page_CurveTo(m_page, x1, y1, x2, y2, x3, y3);
 }
 

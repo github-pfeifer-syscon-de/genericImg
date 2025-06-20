@@ -73,8 +73,8 @@ static void centered(const std::shared_ptr<psc::pdf::PdfPage>& page,
 {
     float capHeight = font->getCapHeight();
     float descent = font->getDescent();
-    float width = font->getTextWidth(page, txt);
-    page->drawText(txt, font, x + (cellWidth - width) / 2.0f, y - (cellHeight - capHeight - descent) / 2.0f );
+    float width = page->getTextWidth(txt);
+    page->drawText(txt, x + (cellWidth - width) / 2.0f, y - (cellHeight - capHeight - descent) / 2.0f );
 }
 
 
@@ -84,6 +84,7 @@ drawGrid(const std::shared_ptr<psc::pdf::PdfPage>& page
        , const std::shared_ptr<psc::pdf::PdfFont>& font)
 {
     page->setLineWidth(0.5f);
+    page->setFont(font);
     auto pageHeigh = page->getHeight();
     auto pageWidth = page->getWidth();
     cellWidth = (pageWidth  - 2.0f * X_MARGIN) / 17.0f;
@@ -110,7 +111,7 @@ drawGrid(const std::shared_ptr<psc::pdf::PdfPage>& page
         page->stroke();
         if (i > 0 && i <= 16) {
             auto txt = Glib::ustring::sprintf("%Xx", i - 1);
-            centered(page, font, txt, x, y);
+            centered(page, font,txt, x, y);
         }
     }
 }
@@ -120,6 +121,7 @@ drawChars(const std::shared_ptr<psc::pdf::PdfPage>& page
         , const std::shared_ptr<psc::pdf::PdfFont>& font
         , int upage)
 {
+    page->setFont(font);
     auto head = Glib::ustring::sprintf("%Xxx", upage);
     float x = getGridX(0);
     float y = getGridY(0);
@@ -143,7 +145,7 @@ ttf_test()
     auto pdfEncoding{"UTF-8"};
     auto pdfExport{std::make_shared<psc::pdf::PdfExport>()};
     auto font = pdfExport->createFontTTFMatch("sans-serif", pdfEncoding, false);
-    auto page1 = std::make_shared<psc::pdf::PdfPage>(pdfExport);
+    auto page1 = pdfExport->createPage();
 
     std::cout << "size " << font->getSize() << std::endl;
     std::cout << "   ascent " << font->getAscent() << std::endl;
@@ -154,12 +156,24 @@ ttf_test()
     auto font14 = font->derive(14.0f);
     drawGrid(page1, font);
     drawChars(page1, font14, 0);
-    auto page2 = std::make_shared<psc::pdf::PdfPage>(pdfExport);
+    auto page2 = pdfExport->createPage();
     drawGrid(page2, font);
     drawChars(page2, font14, 1);
-    auto page3 = std::make_shared<psc::pdf::PdfPage>(pdfExport);
-    auto us = Glib::ustring::sprintf("0: aaaaaaaaaaaaa\n1: bbbbbbbbbbb\n2: ccccccccccc\n3: ddddddddddddd");
-    page3->drawText(us, font, X_MARGIN, gridHeight);
+    auto page3 = pdfExport->createPage();
+    std::vector<Glib::ustring> lines;
+    lines.push_back("0: aaaaaaaaäää");
+    lines.push_back("1: bbbbbbbbüüü");
+    lines.push_back("2: ccccccccööö");
+    lines.push_back("3: ddddddddßßß");
+    page3->setFont(font);
+    page3->setTextPos(X_MARGIN, gridHeight);
+    page3->drawTextLines(lines);
+    lines.clear();
+    lines.push_back("4: eeeeeeeÄÄÄÄ");
+    lines.push_back("5: fffffffÜÜÜÜ");
+    page3->setFont(font14);
+    page3->setTextPos(X_MARGIN, gridHeight - 60.0f);
+    page3->drawTextLines(lines);
 
     pdfExport->save("test_ttf.pdf");
     return true;

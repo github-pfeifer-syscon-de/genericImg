@@ -94,7 +94,7 @@ public:
     void setFormat(PdfFormat pdfFormat);
     Orientation getOrientation();
     void setOrientation(Orientation orient);
-    // use Base14 see names below
+    // use for Base14 see names below
     std::shared_ptr<PdfFont> createFont(std::string_view fontName);
     // support dropped, requires to provided some type1 font
     //   in /usr/share/genericimg or as resource see findFontFile
@@ -128,6 +128,15 @@ public:
     static constexpr PdfFormat pdfFormatA3{297.f, 420.f};
     static constexpr PdfFormat pdfFormatLetter{215.9f, 279.4f};
 
+    std::shared_ptr<PdfPage> createPage();
+    void setPageNumStyle(uint32_t startPage = 0
+                        , uint32_t pageNum = 1
+                        , std::string_view prefix = ""
+                        , bool roman = false
+                        , bool letter = false
+                        , bool upper = false);
+
+    uint32_t getPageNum();
 protected:
     Glib::RefPtr<Gio::File> findFontFile(const char* file);
 
@@ -135,6 +144,8 @@ private:
     HPDF_Doc m_pdf{nullptr};
     PdfFormat m_format{pdfFormatA4};
     Orientation m_orientation{Orientation::Portrait};
+    std::shared_ptr<PdfPage> m_lastPage;
+    uint32_t m_pageNum{};
 };
 
 } /* end namespace psc::pdf */

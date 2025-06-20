@@ -31,11 +31,17 @@ class PdfImage;
 class PdfFormat;
 enum class Orientation;
 
-
+// This tries to offer some simplifications beyond lib-haru.
+//   One thing that might not always work as expected is the
+//   text optimisation (begin/end text will be generated on demand).
+//   But the documentation is not completly on that e.g. the expectation
+//     was that the position may be changeable in text-mode,
+//     but this seems to work diffrently, so keep a eye out for unexpected
+//     missing text fragments ...
 class PdfPage
 {
 public:
-    PdfPage(std::shared_ptr<PdfExport> pdfExport);
+    PdfPage(HPDF_Page page, PdfExport* pdfExport);
     explicit PdfPage(const PdfPage& orig) = delete;
     virtual ~PdfPage() = default;
 
@@ -56,24 +62,27 @@ public:
     void clip();
     void setFormat(PdfFormat fmt, Orientation orient);
     void getFormat(float& widthMM, float& heightMM);
-
+    void setFont(const std::shared_ptr<PdfFont>& font);
     // using std::string by intention as in this stage
     //   this is considered binary data (but newlines are evaluated)
     //   see PdfExport createFont...
-    //  as it seems there is no option to "optimize" this, the sequence begin-text, set font, ... is required for each text fragment
-    void drawText(const std::string& text, const std::shared_ptr<PdfFont>& font, float x, float y);
-    // this does the conversion internally
-    void drawText(const Glib::ustring& text, const std::shared_ptr<PdfFont>& font, float x, float y);
+    void drawText(const std::string& text, float x, float y);
+    // this does the encoding internally
+    void drawText(const Glib::ustring& text, float x, float y);
+    void setTextPos(float x, float y);
+    void drawTextLines(const std::vector<Glib::ustring>& lines);
     void drawImage(std::shared_ptr<PdfImage>& image, float x, float y, float w, float h);
     float getHeight();
     float getWidth();
     float getWordSpace();
     float getCharSpace();
+    float getTextWidth(const Glib::ustring& us);
+    void endText();     // as we internally try to use only needed text blocks, invoke this for page end
 
 protected:
-    std::shared_ptr<PdfExport> m_pdfExport;
-    HPDF_Destination m_dst{nullptr};
-    HPDF_Page m_page{nullptr};
+    HPDF_Page m_page;
+    PdfExport* m_pdfExport;
+    std::shared_ptr<PdfFont> m_font;
 };
 
 } /* end namespace psc::pdf */

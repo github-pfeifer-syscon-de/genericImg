@@ -53,7 +53,6 @@ public:
     // unmappable chars will be ignored
     // see https://github.com/libharu/libharu/blob/master/demo/encoding_list.c for viable encodings
     std::string encodeText(const Glib::ustring& us);
-    float getTextWidth(std::shared_ptr<PdfPage> page, const Glib::ustring& us);
     float getSize();
     void  setSize(float size);
     float getLeading();

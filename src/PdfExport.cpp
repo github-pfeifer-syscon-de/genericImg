@@ -25,6 +25,7 @@
 #include "TableProperties.hpp"
 #include "PdfExport.hpp"
 #include "PdfFont.hpp"
+#include "PdfPage.hpp"
 #include "config.h"
 
 namespace psc::pdf
@@ -99,6 +100,9 @@ PdfExport::getDoc()
 void
 PdfExport::save(const std::string& filename)
 {
+    if (m_lastPage) {
+        m_lastPage->endText();
+    }
     /* save the document to a file */
     HPDF_SaveToFile(m_pdf, filename.c_str());
 }
@@ -215,6 +219,52 @@ PdfExport::findFontFile(const char* file)
         }
     }
     return dataFile;
+}
+
+std::shared_ptr<PdfPage>
+PdfExport::createPage()
+{
+    if (m_lastPage) {
+        m_lastPage->endText();
+    }
+    /* add a new page object. */
+    auto page = HPDF_AddPage(m_pdf);
+    ++m_pageNum;
+    m_lastPage = std::make_shared<PdfPage>(page, this);
+    return m_lastPage;
+}
+
+void
+PdfExport::setPageNumStyle(uint32_t startPage
+                        , uint32_t pageNum
+                        , std::string_view prefix
+                        , bool roman
+                        , bool letter
+                        , bool upper)
+{
+    HPDF_PageNumStyle style = HPDF_PAGE_NUM_STYLE_DECIMAL;
+    if (roman) {
+        style = upper
+                ? HPDF_PAGE_NUM_STYLE_UPPER_ROMAN
+                : HPDF_PAGE_NUM_STYLE_LOWER_ROMAN;
+    }
+    else if (letter) {
+        style = upper
+                ? HPDF_PAGE_NUM_STYLE_UPPER_LETTERS
+                : HPDF_PAGE_NUM_STYLE_LOWER_LETTERS;
+
+    }
+    HPDF_AddPageLabel(m_pdf
+                     , startPage    /* The first page that applies this labeling range.  */
+                     ,  style       /* style, */
+                     , pageNum      /* first_page, */
+                     , prefix == "" ? nullptr : prefix.data());    /* *prefix */
+}
+
+uint32_t
+PdfExport::getPageNum()
+{
+    return m_pageNum;
 }
 
 float
