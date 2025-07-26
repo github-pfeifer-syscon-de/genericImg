@@ -64,8 +64,7 @@ public:
     void getFormat(float& widthMM, float& heightMM);
     void setFont(const std::shared_ptr<PdfFont>& font);
     // using std::string by intention as in this stage
-    //   this is considered binary data (but newlines are evaluated)
-    //   see PdfExport createFont...
+    //   this is considered "binary" data (don't expect any encoding done for you)
     void drawText(const std::string& text, float x, float y);
     // this does the encoding internally
     void drawText(const Glib::ustring& text, float x, float y);

@@ -57,6 +57,7 @@ libgenericimg_la_SOURCES = \
 	StringUtils.cpp \
 	ThreadWorker.cpp \
 	TreeNodeModel.cpp \
+	Plot.cpp \
 	KeyConfig.cpp
 
 libgenericimg_la_LIBADD =  \
@@ -109,6 +110,7 @@ pkginclude_HEADERS = \
 	PdfFont.hpp \
 	PdfImage.hpp \
 	PdfPage.hpp \
+	Plot.hpp \
 	KeyConfig.hpp
 
 if SYSDLOG

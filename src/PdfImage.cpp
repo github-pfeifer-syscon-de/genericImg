@@ -43,7 +43,7 @@ PdfImage::getHeight()
 }
 
 void
-PdfImage::loadPng(const Glib::ustring& filename)
+PdfImage::loadPng(const std::string& filename)
 {
     HPDF_Doc pdf = m_pdfExport->getDoc();
     m_image = HPDF_LoadPngImageFromFile(pdf, filename.c_str());
@@ -63,14 +63,12 @@ PdfImage::load(const Cairo::RefPtr<Cairo::ImageSurface>& cimage)
     auto ptrCairoImg = reinterpret_cast<uint32_t*>(cimage->get_data());
     for (uint32_t r = 0; r < height; ++r) {
         for (uint32_t w = 0; w < width; ++w) {
-            auto rgbPackedOffs = w * 3;
             auto argb = ptrCairoImg[w];
             // tested with little-endian (intel) (unsure if this is correct for big endian?)
-            rgbPackedPtr[rgbPackedOffs] = ((argb >> 16) & 0xff);     // R
-            rgbPackedPtr[rgbPackedOffs+1] = ((argb >> 8) & 0xff);    // G
-            rgbPackedPtr[rgbPackedOffs+2] = (argb & 0xff);           // B
+            *rgbPackedPtr++ = ((argb >> 16) & 0xff);       // R
+            *rgbPackedPtr++ = ((argb >> 8) & 0xff);        // G
+            *rgbPackedPtr++ = (argb & 0xff);               // B
         }
-        rgbPackedPtr += width * 3;
         ptrCairoImg += width;
     }
     //std::cout << "cimage " << width << " height " << height << std::endl;

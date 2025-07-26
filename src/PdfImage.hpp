@@ -36,7 +36,7 @@ public:
     float getWidth();
     float getHeight();
     HPDF_Image getPdfImage();
-    void loadPng(const Glib::ustring& filename);
+    void loadPng(const std::string& filename);
     void load(const Cairo::RefPtr<Cairo::ImageSurface>& cimage);
 
 private:

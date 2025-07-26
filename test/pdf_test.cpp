@@ -24,6 +24,7 @@
 #include "PdfExport.hpp"
 #include "PdfPage.hpp"
 #include "PdfFont.hpp"
+#include "PdfImage.hpp"
 
 // check the create pdf-files
 
@@ -179,6 +180,35 @@ ttf_test()
     return true;
 }
 
+static bool
+image_test(int size)
+{
+    auto pdfExport{std::make_shared<psc::pdf::PdfExport>()};
+    auto image = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, size, size);
+    auto ctx = Cairo::Context::create(image);
+    ctx->set_antialias(Cairo::Antialias::ANTIALIAS_GRAY);
+    ctx->set_source_rgb(0.0, 0.0, 0.0);
+    ctx->rectangle(0.0, 0.0, image->get_width(), image->get_height());
+    ctx->fill();
+    ctx->set_line_width(2.0);
+    ctx->set_source_rgb(1.0, 1.0, 1.0);
+    ctx->move_to(0.0, 0.0);
+    ctx->line_to(image->get_width(), image->get_height());
+    ctx->stroke();
+    ctx->select_font_face("sans-serif", Cairo::FontSlant::FONT_SLANT_NORMAL, Cairo::FontWeight::FONT_WEIGHT_NORMAL);
+    ctx->set_font_size(12.0);
+    ctx->move_to(2.0, 20.0);
+    ctx->show_text("abcdef");
+
+    auto pdfImage =std::make_shared<psc::pdf::PdfImage>(pdfExport);
+    pdfImage->load(image);
+    auto page = pdfExport->createPage();
+    page->drawImage(pdfImage, 10.0f, page->getHeight() - 210.0f, 200.0f, 200.0f);
+
+    pdfExport->save("test_img.pdf");
+    return true;
+}
+
 /*
  *
  */
@@ -193,6 +223,9 @@ int main(int argc, char** argv)
     }
     if (!ttf_test()) {
         return 2;
+    }
+    if (!image_test(200)) {
+        return 3;
     }
 
     return 0;
