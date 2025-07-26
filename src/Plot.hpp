@@ -76,7 +76,7 @@ public:
     virtual int getPixel() = 0;
     virtual std::array<double,2> computeMinMax() = 0;
     virtual void showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                 , PlotAxis& yAxis) = 0;
+                 , PlotDrawing* plotDrawing) = 0;
     virtual void showFunction(const Cairo::RefPtr<Cairo::Context>& ctx
                     , PlotAxis& yAxis) = 0;
     virtual int getViewWidth(int displayWidth) = 0;
@@ -117,7 +117,7 @@ public:
     std::array<double,2> computeMinMax() override;
 
     void showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                 , PlotAxis& yAxis) override;
+                 , PlotDrawing* plotDrawing) override;
     void showFunction(const Cairo::RefPtr<Cairo::Context>& ctx
                     , PlotAxis& yAxis) override;
     int getViewWidth(int displayWidth) override;
@@ -147,7 +147,7 @@ public:
 
     int getPixel() override;
     void showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                 , PlotAxis& yAxis) override;
+                 , PlotDrawing* plotDrawing) override;
     void showFunction(const Cairo::RefPtr<Cairo::Context>& ctx
                     , PlotAxis& yAxis) override;
     int getViewWidth(int displayWidth) override;
@@ -179,6 +179,12 @@ public:
     {
         m_active = active;
     }
+    PlotAxis& getYAxis();
+    Gdk::RGBA backgroundColor{"rgb(10%,10%,10%)"};
+    Gdk::RGBA gridColor{"rgb(50%,50%,50%)"};
+    Gdk::RGBA textColor{"rgb(100%,100%,100%)"};
+    Gdk::RGBA plotColor{"rgb(0%,0%,100%)"};
+
 protected:
     bool on_draw(const Cairo::RefPtr<::Cairo::Context>& cr) override;
     void compute();
@@ -199,7 +205,11 @@ public:
     virtual ~Plot() = default;
 
     void plot(const std::shared_ptr<PlotView>& func);
-
+    static constexpr auto GRID_DIM{std::log10(2.0)};    // use for grid e.g. diff 1 Step 0.1, diff 2 step 1...
+    void setBackground(Gdk::RGBA& background);
+    void setGridColor(Gdk::RGBA& grid);
+    void setTextColor(Gdk::RGBA& text);
+    void setPlotColor(Gdk::RGBA& plot);
 
     static void show(Gtk::ApplicationWindow* sceneWindow, const std::shared_ptr<PlotView>& func);
 protected:

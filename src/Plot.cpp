@@ -111,7 +111,7 @@ PlotAxis::getGridStep()
 {
     // for 0..100 the difference is 100 the dimension is 2
     //   so use 10 as grid step
-    return std::pow(10.0, getDim());
+    return std::pow(10.0, std::floor(std::log10(getDiff() - Plot::GRID_DIM)));
 }
 
 int
@@ -193,17 +193,18 @@ PlotFunction::computeMinMax()
 
 void
 PlotFunction::showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                       , PlotAxis& yAxis)
+                       , PlotDrawing* plotDrawing)
 {
+    PlotAxis& yAxis = plotDrawing->getYAxis();
     const auto xGridDim = std::floor(std::log10(xAxis.getDiff()));
     auto xScale = std::pow(10.0, xGridDim);
     // use "rounded" grid positions
     auto xGridMin = std::floor(xAxis.getMin() / xScale) * xScale;
     auto xGridMax = std::ceil(xAxis.getMax() / xScale) * xScale;
-    const auto xGridStep = std::pow(10.0, xGridDim - 1.0);
     double xGridDiff = xGridMax - xGridMin;
-    double xStep = xGridDiff / static_cast<double>(xAxis.getPixel() - 1);
+    const auto xGridStep = std::pow(10.0, std::floor(std::log10(xGridDiff) - Plot::GRID_DIM));
 #   ifdef DEBUG
+    double xStep = xGridDiff / static_cast<double>(xAxis.getPixel() - 1);
     std::cout << "xGridStep " << xGridDim
               << " xScale " << xScale
               << " xGridMin " << xGridMin
@@ -216,11 +217,11 @@ PlotFunction::showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
 #       ifdef DEBUG
         std::cout << "showX " << x << " pix " << xPix << std::endl;
 #       endif
-        ctx->set_source_rgb(0.5, 0.5, 0.5);
+        ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
         ctx->move_to(xPix, 0.0);
         ctx->line_to(xPix, yAxis.getPixel());
         ctx->stroke();
-        ctx->set_source_rgb(1.0, 1.0, 1.0);
+        ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
         ctx->move_to(xPix, yAxis.getPixel());
         ctx->show_text(Glib::ustring::sprintf(xAxis.getFormat(), x));
     }
@@ -272,8 +273,9 @@ PlotDiscrete::computeMinMax()
 
 void
 PlotDiscrete::showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                       , PlotAxis& yAxis)
+                       , PlotDrawing* plotDrawing)
 {
+    PlotAxis& yAxis= plotDrawing->getYAxis();
     for (size_t i = 0; i < m_values.size(); ++i) {
         auto str = getLabel(i);
         if (!str.empty()) {
@@ -374,6 +376,12 @@ PlotDrawing::refresh()
     queue_draw();
 }
 
+PlotAxis&
+PlotDrawing::getYAxis()
+{
+    return yAxis;
+}
+
 void
 PlotDrawing::compute()
 {
@@ -402,7 +410,7 @@ PlotDrawing::compute()
     int viewWidth = m_func->getViewWidth(get_width());
     m_pixbuf = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, viewWidth, yAxis.getPixel());
     auto ctx = Cairo::Context::create(m_pixbuf);
-    ctx->set_source_rgb(0.1, 0.1, 0.1);
+    ctx->set_source_rgb(backgroundColor.get_red(), backgroundColor.get_green(), backgroundColor.get_blue());
     ctx->rectangle(0.0, 0.0, viewWidth, yAxis.getPixel());
     ctx->fill();
     ctx->set_line_width(1.0);
@@ -411,8 +419,9 @@ PlotDrawing::compute()
         x0 = 0.0;
     }
     double xLbl = m_func->toXPixel(x0) + 3.0;
-    ctx->set_source_rgb(0.5, 0.5, 0.5);
-    for (double y = yAxis.getMin(); y <= yAxis.getMax(); y += yAxis.getGridStep()) {
+    ctx->set_source_rgb(gridColor.get_red(), gridColor.get_green(), gridColor.get_blue());
+    const auto yGridStep{yAxis.getGridStep()};
+    for (double y = yAxis.getMin(); y <= yAxis.getMax(); y += yGridStep) {
         auto yPix = yAxis.toPixel(y);
 #       ifdef DEBUG
         std::cout << "showY " << y << " pix " << yPix << std::endl;
@@ -420,12 +429,21 @@ PlotDrawing::compute()
         ctx->move_to(m_func->getPixel(), yPix);
         ctx->line_to(0.0, yPix);
         ctx->stroke();
-        ctx->set_source_rgb(1.0, 1.0, 1.0);
+        ctx->set_source_rgb(textColor.get_red(), textColor.get_green(), textColor.get_blue());
+        auto yLbl = Glib::ustring::sprintf(yAxis.getFormat(), y);
+        if (yPix <= 2.0) {
+            Cairo::TextExtents textExtend;
+            ctx->get_text_extents(yLbl, textExtend);
+            yPix += textExtend.height;
+        }
+        else {
+            yPix -= 2.0;
+        }
         ctx->move_to(xLbl, yPix);
-        ctx->show_text(Glib::ustring::sprintf(yAxis.getFormat(), y));
+        ctx->show_text(yLbl);
     }
-    m_func->showXGrid(ctx, yAxis);
-    ctx->set_source_rgb(0.0, 0.0, 1.0);
+    m_func->showXGrid(ctx, this);
+    ctx->set_source_rgb(plotColor.get_red(), plotColor.get_green(), plotColor.get_blue());
     m_func->showFunction(ctx, yAxis);
 }
 
@@ -445,6 +463,31 @@ Plot::plot(const std::shared_ptr<PlotView>& func)
 {
     m_drawing->setPlot(func);
 }
+
+void
+Plot::setBackground(Gdk::RGBA& background)
+{
+    m_drawing->backgroundColor = background;
+}
+
+void
+Plot::setGridColor(Gdk::RGBA& grid)
+{
+    m_drawing->gridColor = grid;
+}
+
+void
+Plot::setTextColor(Gdk::RGBA& text)
+{
+    m_drawing->textColor = text;
+}
+
+void
+Plot::setPlotColor(Gdk::RGBA& plotColor)
+{
+    m_drawing->plotColor = plotColor;
+}
+
 
 void
 Plot::on_response(int response)
