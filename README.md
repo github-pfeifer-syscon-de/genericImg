@@ -42,6 +42,13 @@ Using usr is a suggestion, as other locations may require some lib/pkg/-path twe
 for later steps to find this lib, so use it,
 unless you know what your are doing, as always ;)
 
+The build-scripts adhere to to the auto-make conventions,
+this is: [wave hand] there is no default optimization.
+So if you are interested in getting the best build for your local machine use:
+<pre>
+make CFLAGS="-mtune=native -march=native -O3" CXXFLAGS="-mtune=native -march=native -O3"
+</pre>
+
 ## Windows
 
 For windows (get msys2 https://www.msys2.org/ ).
@@ -67,6 +74,9 @@ but if you decide to use this ensure:
 Use the matching shell see https://www.msys2.org/docs/package-naming/
 Install all the packages with the correct prefix e.g. pacman -S mingw-w64-ucrt-x86_64-gcc
 Use the prefix for all libs/programs consistently e.g. ./configure --prefix=/ucrt64
+To make this more generic use e.g. pacman -S ${MINGW_PACKAGE_PREFIX}-gtkmm3 and ./configure --prefix=${MINGW_PREFIX}.
+It may save you time when switching enviroments to do a fresh clone,
+as some prefixes may be embedded into intermediate files.
 </pre>
 
 ## Any system
