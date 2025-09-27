@@ -116,3 +116,5 @@
 /test/pdf_test.log
 /test/*.pdf
 /test/pdf_test.trs
+/test/.save/
+/src/.save/

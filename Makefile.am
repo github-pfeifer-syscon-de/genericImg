@@ -7,7 +7,6 @@ dist_doc_DATA = \
 	COPYING \
 	AUTHORS \
 	ChangeLog \
-	INSTALL \
 	NEWS
 
 ACLOCAL_AMFLAGS=-I m4

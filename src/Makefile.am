@@ -14,12 +14,12 @@ AM_CPPFLAGS = \
 	$(GLIBMM_CFLAGS)
 
 libgenericimg_la_CFLAGS = \
-	-std=c17 -pedantic -Wall -Wconversion
+	-std=c17 -Wpedantic -Wall -Wconversion
 
 lib_LTLIBRARIES = libgenericimg.la
 
 libgenericimg_la_CXXFLAGS = \
-	-pedantic -Wall -Wconversion
+	-Wpedantic -Wall -Wconversion
 
 libgenericimg_la_LDFLAGS = \
 	@EXTRA_LDFLAGS@ \

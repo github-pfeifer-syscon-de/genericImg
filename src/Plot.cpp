@@ -1,6 +1,6 @@
 /* -*- Mode: c++; c-basic-offset: 4; tab-width: 4; coding: utf-8; -*-  */
 /*
- * Copyright (C) 2025 RPf <gpl3@pfeifer-syscon.de>
+ * Copyright (C) 2025 RPf 
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +21,16 @@
 #include <functional>
 
 #include "Plot.hpp"
+#include "config.h"
 
 namespace psc::ui {
 
 void
-PlotAxis::setMin(double min)
+PlotAxis::setMinMax(double min, double max)
 {
     m_min = min;
-    m_dim = nonInitDim; // remember to calculate dependent
-    m_factor = nonInitFactor;
+    m_max = max;
+    adjust();
 }
 
 double
@@ -38,80 +39,44 @@ PlotAxis::getMin()
     return m_min;
 }
 
-void
-PlotAxis::setMax(double max)
-{
-    m_max = max;
-    m_dim = nonInitDim; // remember to calculate dependent
-    m_factor = nonInitFactor;
-}
-
 double
 PlotAxis::getMax()
 {
     return m_max;
 }
 
-double
-PlotAxis::getDiff()
+void
+PlotAxis::adjust()
 {
-    return m_max - m_min;
+    m_dim = std::floor(std::log10(m_max - m_min));
+    const auto roundScale = std::pow(10.0, m_dim - 1.0); // if we get diff 100 round to 10
+    m_minScaled = std::floor(m_min / roundScale) * roundScale;
+    m_maxScaled = std::ceil(m_max / roundScale) * roundScale;
+    m_dim = std::floor(std::log10(m_maxScaled - m_minScaled));
+    const auto gridScale = std::pow(10.0, m_dim); // if we get diff 110 round to 100
+    m_gridMin = std::floor(m_minScaled / gridScale) * gridScale;
+    m_gridMax = std::ceil(m_maxScaled / gridScale) * gridScale;
+    m_gridStep = std::pow(10.0, std::floor(std::log10(m_maxScaled - m_minScaled) - Plot::GRID_DIM));
+    m_step = (m_maxScaled - m_minScaled) / static_cast<double>(m_pixel - 1);
+    m_factor = static_cast<double>(m_pixel - 1) / (m_maxScaled - m_minScaled);
+#   ifdef DEBUG
+    std::cout << "PlotAxis::adjust"
+              << " diff " << m_max - m_min
+              << " pixel " << m_pixel
+              << " minScaled " << m_minScaled
+              << " maxScaled " << m_maxScaled
+              << " dim " << m_dim
+              << " step " << m_step
+              << " gridStep " << m_gridStep
+              << " factor " << m_factor << std::endl;
+#   endif
 }
+
 
 double
 PlotAxis::getStep()
 {
-    return getDiff() / static_cast<double>(m_pixel - 1);
-}
-
-double
-PlotAxis::getFactor()
-{
-
-    if (m_factor == nonInitFactor) {
-        m_factor = static_cast<double>(m_pixel - 1) / getDiff();
-#       ifdef DEBUG
-        std::cout << "PlotAxis::getFactor"
-                  << " diff " << getDiff()
-                  << " pixel " << m_pixel
-                  << " factor " << m_factor << std::endl;
-#       endif
-    }
-    return m_factor;
-}
-
-double
-PlotAxis::getDim()
-{
-    if (m_dim == nonInitDim) {
-        m_dim = std::floor(std::log10(getDiff()));
-#       ifdef DEBUG
-        std::cout << "PlotAxis::getDim"
-                  << " diff " << getDiff()
-                  << " dim " << m_dim << std::endl;
-#       endif
-    }
-    return m_dim;
-}
-
-void
-PlotAxis::scale()
-{
-    const auto scale = std::pow(10.0, getDim());
-    m_min = std::floor(m_min / scale) * scale;
-    m_max = std::ceil(m_max / scale) * scale;
-    m_dim = nonInitDim;
-    getDim();   // recompute dimension
-    m_factor = nonInitFactor;
-    getFactor();
-}
-
-double
-PlotAxis::getGridStep()
-{
-    // for 0..100 the difference is 100 the dimension is 2
-    //   so use 10 as grid step
-    return std::pow(10.0, std::floor(std::log10(getDiff() - Plot::GRID_DIM)));
+    return m_step;
 }
 
 int
@@ -124,16 +89,17 @@ void
 PlotAxis::setPixel(int pixel)
 {
     m_pixel = pixel;
+    adjust();
 }
 
 void
 PlotAxis::setPixel(int pixel, int def)
 {
     if (pixel <= 0) {
-        m_pixel = def;
+        setPixel(def);
     }
     else {
-        m_pixel = pixel;
+        setPixel(pixel);
     }
 }
 
@@ -141,7 +107,7 @@ PlotAxis::setPixel(int pixel, int def)
 double
 PlotAxis::toPixel(double x)
 {
-    auto pixel = (x - m_min) * getFactor();
+    auto pixel = (x - m_minScaled) * m_factor;
     if (m_invertAxisMap) {
         pixel = m_pixel - pixel;
     }
@@ -163,21 +129,90 @@ PlotAxis::isInvertAxisMap()
 Glib::ustring
 PlotAxis::getFormat()
 {
-    int dim = std::min(static_cast<int>(getDim()) - 1, 0);
+    int dim = std::min(static_cast<int>(m_dim) - 1, 0);
     return Glib::ustring::sprintf("%%.%df", std::abs(dim));
 }
 
+void
+PlotAxis::showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
+                       , PlotDrawing* plotDrawing
+                       , PlotAxis& yAxis)
+{
+    for (double x = m_gridMin; x <= m_gridMax; x += m_gridStep) {
+        auto xPix = toPixel(x);
+#       ifdef DEBUG
+        std::cout << "PlotAxis::showXGrid " << x << " pix " << xPix << std::endl;
+#       endif
+        ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
+        ctx->move_to(xPix, 0.0);
+        ctx->line_to(xPix, yAxis.getPixel());
+        ctx->stroke();
+        ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
+        ctx->move_to(xPix, yAxis.getPixel());
+        ctx->show_text(Glib::ustring::sprintf(getFormat(), x));
+    }
+}
 
-PlotFunction::PlotFunction(double xMin, double xMax)
+void
+PlotAxis::showYGrid(const Cairo::RefPtr<Cairo::Context>& ctx
+                       , PlotDrawing* plotDrawing
+                       , PlotAxis& xAxis)
+{
+    double x0{xAxis.getMin()};
+    if (getMin() < 0.0 && getMax() > 0.0) {
+        x0 = 0.0;
+    }
+    double xLbl = xAxis.toPixel(x0) + 3.0;
+    for (double y = m_gridMin; y <= m_gridMax; y += m_gridStep) {
+        auto yPix = toPixel(y);
+#       ifdef DEBUG
+        std::cout << "PlotAxis::showYGrid " << y << " pix " << yPix << std::endl;
+#       endif
+        ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
+        ctx->move_to(xAxis.getPixel(), yPix);
+        ctx->line_to(0.0, yPix);
+        ctx->stroke();
+        ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
+        auto yLbl = Glib::ustring::sprintf(getFormat(), y);
+        if (yPix <= 2.0) {
+            Cairo::TextExtents textExtents;
+            ctx->get_text_extents(yLbl, textExtents);
+            yPix += textExtents.height;
+        }
+        else {
+            yPix -= 2.0;
+        }
+        ctx->move_to(xLbl, yPix);
+        ctx->show_text(yLbl);
+    }
+}
+
+void
+PlotView::setPlotDrawing(PlotDrawing* plotDrawing)
+{
+    m_plotDrawing = plotDrawing;
+}
+
+void
+PlotView::unsetPlotDrawing()
+{
+    m_plotDrawing = nullptr;
+}
+
+void
+PlotView::setPlotColor(Gdk::RGBA plotColor)
+{
+    m_plotColor = plotColor;
+}
+
+PlotFunction::PlotFunction()
 : PlotView()
 {
-    xAxis.setMin(xMin);
-    xAxis.setMax(xMax);
 }
 
 
 std::array<double,2>
-PlotFunction::computeMinMax()
+PlotFunction::computeMinMax(PlotAxis& xAxis)
 {
     auto yMin = std::numeric_limits<double>::max();
     auto yMax = std::numeric_limits<double>::lowest();
@@ -192,46 +227,11 @@ PlotFunction::computeMinMax()
 }
 
 void
-PlotFunction::showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                       , PlotDrawing* plotDrawing)
-{
-    PlotAxis& yAxis = plotDrawing->getYAxis();
-    const auto xGridDim = std::floor(std::log10(xAxis.getDiff()));
-    auto xScale = std::pow(10.0, xGridDim);
-    // use "rounded" grid positions
-    auto xGridMin = std::floor(xAxis.getMin() / xScale) * xScale;
-    auto xGridMax = std::ceil(xAxis.getMax() / xScale) * xScale;
-    double xGridDiff = xGridMax - xGridMin;
-    const auto xGridStep = std::pow(10.0, std::floor(std::log10(xGridDiff) - Plot::GRID_DIM));
-#   ifdef DEBUG
-    double xStep = xGridDiff / static_cast<double>(xAxis.getPixel() - 1);
-    std::cout << "xGridStep " << xGridDim
-              << " xScale " << xScale
-              << " xGridMin " << xGridMin
-              << " xGridMax " << xGridMax
-              << " xDiff " << xGridDiff
-              << " xStep " << xStep << std::endl;
-#   endif
-    for (double x = xGridMin; x <= xGridMax; x += xGridStep) {
-        auto xPix = xAxis.toPixel(x);
-#       ifdef DEBUG
-        std::cout << "showX " << x << " pix " << xPix << std::endl;
-#       endif
-        ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
-        ctx->move_to(xPix, 0.0);
-        ctx->line_to(xPix, yAxis.getPixel());
-        ctx->stroke();
-        ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
-        ctx->move_to(xPix, yAxis.getPixel());
-        ctx->show_text(Glib::ustring::sprintf(xAxis.getFormat(), x));
-    }
-
-}
-
-void
 PlotFunction::showFunction(const Cairo::RefPtr<Cairo::Context>& ctx
+                          , PlotAxis& xAxis
                           , PlotAxis& yAxis)
 {
+    ctx->set_source_rgb(m_plotColor.get_red(), m_plotColor.get_green(), m_plotColor.get_blue());
     double x = xAxis.getMin();
     for (int32_t n = 0; n < xAxis.getPixel(); ++n) {
         auto y = calculate(x);
@@ -248,13 +248,6 @@ PlotFunction::showFunction(const Cairo::RefPtr<Cairo::Context>& ctx
     ctx->stroke();
 }
 
-int
-PlotFunction::getViewWidth(int displayWidth)
-{
-    xAxis.setPixel(displayWidth);
-    return displayWidth;
-}
-
 
 PlotDiscrete::PlotDiscrete(const std::vector<double>& values)
 : m_values{values}
@@ -262,7 +255,7 @@ PlotDiscrete::PlotDiscrete(const std::vector<double>& values)
 }
 
 std::array<double,2>
-PlotDiscrete::computeMinMax()
+PlotDiscrete::computeMinMax(PlotAxis& xAxis)
 {
     for (auto y : m_values) {
         m_yMin = std::min(m_yMin, y);
@@ -272,31 +265,13 @@ PlotDiscrete::computeMinMax()
 }
 
 void
-PlotDiscrete::showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                       , PlotDrawing* plotDrawing)
-{
-    PlotAxis& yAxis= plotDrawing->getYAxis();
-    for (size_t i = 0; i < m_values.size(); ++i) {
-        auto str = getLabel(i);
-        if (!str.empty()) {
-            auto xPix = toXPixel(static_cast<double>(i));
-            ctx->set_source_rgb(0.5, 0.5, 0.5);
-            ctx->move_to(xPix, 0.0);
-            ctx->line_to(xPix, yAxis.getPixel());
-            ctx->stroke();
-            ctx->set_source_rgb(1.0, 1.0, 1.0);
-            ctx->move_to(xPix, yAxis.getPixel());
-            ctx->show_text(str);
-        }
-    }
-}
-
-void
 PlotDiscrete::showFunction(const Cairo::RefPtr<Cairo::Context>& ctx
+                          , PlotAxis& xAxis
                           , PlotAxis& yAxis)
 {
+    ctx->set_source_rgb(m_plotColor.get_red(), m_plotColor.get_green(), m_plotColor.get_blue());
     for (size_t n = 0; n < m_values.size(); ++n) {
-        auto xPix = toXPixel(static_cast<double>(n));
+        auto xPix = xAxis.toPixel(static_cast<double>(n));
         auto y = m_values[n];
         auto yPix = yAxis.toPixel(y);
         if (n == 0) {
@@ -309,28 +284,28 @@ PlotDiscrete::showFunction(const Cairo::RefPtr<Cairo::Context>& ctx
     ctx->stroke();
 }
 
-int
-PlotDiscrete::getViewWidth(int displayWidth)
-{
-    auto size = static_cast<int>(m_values.size());
-    if (size > 0) {
-        m_scale = static_cast<double>(displayWidth) / static_cast<double>(size);
-        size = static_cast<int>(m_scale * size);
-    }
-    else {
-        size = displayWidth;
-    }
-    return size;
-}
-
-int
-PlotDiscrete::getPixel()
-{
-    auto size = static_cast<int>(m_values.size());
-    size = static_cast<int>(m_scale * size);
-    return size;
-}
-
+//int
+//PlotDiscrete::getViewWidth(int displayWidth)
+//{
+//    auto size = static_cast<int>(m_values.size());
+//    if (size > 0) {
+//        m_scale = static_cast<double>(displayWidth) / static_cast<double>(size);
+//        size = static_cast<int>(m_scale * size);
+//    }
+//    else {
+//        size = displayWidth;
+//    }
+//    return size;
+//}
+//
+//int
+//PlotDiscrete::getPixel()
+//{
+//    auto size = static_cast<int>(m_values.size());
+//    size = static_cast<int>(m_scale * size);
+//    return size;
+//}
+//
 
 PlotDrawing::PlotDrawing(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder)
 : Gtk::DrawingArea(cobject)
@@ -339,17 +314,19 @@ PlotDrawing::PlotDrawing(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builde
 
 PlotDrawing::~PlotDrawing()
 {
-    if (m_func) {
-        m_func->unsetPlotDrawing();
+    for (auto& func : m_func) {
+        if (func) {
+            func->unsetPlotDrawing();
+        }
     }
 }
 
 bool
 PlotDrawing::on_draw(const Cairo::RefPtr<::Cairo::Context>& cr)
 {
-    cr->set_source_rgb(0.0, 0.0, 0.3);
+    //cr->set_source_rgb(0.0, 0.0, 0.3);
     if (!m_pixbuf
-     || (m_func && m_func->getViewWidth(get_width()) != get_width())        // this will not refresh on just width-sizing for functions
+     || xAxis.getPixel() != get_width()        // this will not refresh on just width-sizing for functions
      || yAxis.getPixel() != get_height()) {
         compute();
     }
@@ -363,10 +340,12 @@ PlotDrawing::on_draw(const Cairo::RefPtr<::Cairo::Context>& cr)
 }
 
 void
-PlotDrawing::setPlot(const std::shared_ptr<PlotView>& func)
+PlotDrawing::setPlot(const std::vector<std::shared_ptr<PlotView>>& func)
 {
     m_func = func;
-    m_func->setPlotDrawing(this);
+    for (auto& fun : func) {
+        fun->setPlotDrawing(this);
+    }
 }
 
 void
@@ -382,23 +361,35 @@ PlotDrawing::getYAxis()
     return yAxis;
 }
 
+PlotAxis&
+PlotDrawing::getXAxis()
+{
+    return xAxis;
+}
+
+
 void
 PlotDrawing::compute()
 {
     yAxis.setPixel(get_height(), 480);
-    yAxis.setInvertAxisMap(true);   // y is 0 a top
+    xAxis.setPixel(get_width(), 320);
+    yAxis.setInvertAxisMap(true);   // as otherwise y starts from top
     //std::cout << "xMin " << xAxis.getMin()
     //          << " xMax " << xAxis.getMax()
     //          << " width " << xAxis.getPixel()
     //          << " xStep " << xAxis.getStep() << std::endl;
-    auto yMinMax = m_func->computeMinMax();
-    yAxis.setMin(yMinMax[0]);
-    yAxis.setMax(yMinMax[1]);
+    auto yMin{std::numeric_limits<double>::max()};
+    auto yMax{std::numeric_limits<double>::lowest()};
+    for (auto& func : m_func) {
+        auto yMinMax = func->computeMinMax(xAxis);
+        yMin = std::min(yMin, yMinMax[0]);
+        yMax = std::max(yMax, yMinMax[1]);
+    }
+    yAxis.setMinMax(yMin, yMax);
 #   ifdef DEBUG
     std::cout << "1. yMin " << yAxis.getMin()
               << " yMax " << yAxis.getMax() << std::endl;
 #   endif
-    yAxis.scale();
 #   ifdef DEBUG
     std::cout << "dim " << yAxis.getDim()
               << " yMin " << yAxis.getMin()
@@ -407,59 +398,30 @@ PlotDrawing::compute()
               << " yGrid " << yAxis.getGridStep()
               << " yFact " << yAxis.getFactor() << std::endl;
 #   endif
-    int viewWidth = m_func->getViewWidth(get_width());
+    int viewWidth = 120;
+    viewWidth = std::max(viewWidth, xAxis.getPixel());
     m_pixbuf = Cairo::ImageSurface::create(Cairo::Format::FORMAT_ARGB32, viewWidth, yAxis.getPixel());
     auto ctx = Cairo::Context::create(m_pixbuf);
     ctx->set_source_rgb(backgroundColor.get_red(), backgroundColor.get_green(), backgroundColor.get_blue());
     ctx->rectangle(0.0, 0.0, viewWidth, yAxis.getPixel());
     ctx->fill();
     ctx->set_line_width(1.0);
-    double x0 = m_func->getXMin();
-    if (yAxis.getMin() < 0.0 && yAxis.getMax() > 0.0) {
-        x0 = 0.0;
+
+    yAxis.showYGrid(ctx, this, xAxis);
+    xAxis.showXGrid(ctx, this, yAxis);
+    for (auto& func : m_func) {
+        func->showFunction(ctx, xAxis, yAxis);
     }
-    double xLbl = m_func->toXPixel(x0) + 3.0;
-    ctx->set_source_rgb(gridColor.get_red(), gridColor.get_green(), gridColor.get_blue());
-    const auto yGridStep{yAxis.getGridStep()};
-    for (double y = yAxis.getMin(); y <= yAxis.getMax(); y += yGridStep) {
-        auto yPix = yAxis.toPixel(y);
-#       ifdef DEBUG
-        std::cout << "showY " << y << " pix " << yPix << std::endl;
-#       endif
-        ctx->move_to(m_func->getPixel(), yPix);
-        ctx->line_to(0.0, yPix);
-        ctx->stroke();
-        ctx->set_source_rgb(textColor.get_red(), textColor.get_green(), textColor.get_blue());
-        auto yLbl = Glib::ustring::sprintf(yAxis.getFormat(), y);
-        if (yPix <= 2.0) {
-            Cairo::TextExtents textExtend;
-            ctx->get_text_extents(yLbl, textExtend);
-            yPix += textExtend.height;
-        }
-        else {
-            yPix -= 2.0;
-        }
-        ctx->move_to(xLbl, yPix);
-        ctx->show_text(yLbl);
-    }
-    m_func->showXGrid(ctx, this);
-    ctx->set_source_rgb(plotColor.get_red(), plotColor.get_green(), plotColor.get_blue());
-    m_func->showFunction(ctx, yAxis);
 }
 
 Plot::Plot(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder)
 : Gtk::Dialog(cobject)
 {
     builder->get_widget_derived<PlotDrawing>("drawing", m_drawing);
-    builder->get_widget("active", m_active);
-    m_active->set_active(m_drawing->isActive());
-    m_active->signal_clicked().connect([this] {
-        m_drawing->setActive(m_active->get_active());
-    });
 }
 
 void
-Plot::plot(const std::shared_ptr<PlotView>& func)
+Plot::plot(const std::vector<std::shared_ptr<PlotView>>& func)
 {
     m_drawing->setPlot(func);
 }
@@ -482,42 +444,5 @@ Plot::setTextColor(Gdk::RGBA& text)
     m_drawing->textColor = text;
 }
 
-void
-Plot::setPlotColor(Gdk::RGBA& plotColor)
-{
-    m_drawing->plotColor = plotColor;
-}
-
-
-void
-Plot::on_response(int response)
-{
-    Gtk::Dialog::on_response(response);
-}
-
-void
-Plot::show(Gtk::ApplicationWindow* sceneWindow, const std::shared_ptr<PlotView>& func)
-{
-    auto refBuilder = Gtk::Builder::create();
-    try {
-        auto appl = sceneWindow->get_application();
-        refBuilder->add_from_resource(appl->get_resource_base_path() + "/plot-dlg.ui");
-        Plot* plot;
-        refBuilder->get_widget_derived("plotDlg", plot);
-        if (plot) {
-            plot->set_transient_for(*sceneWindow);
-            plot->plot(func);
-            plot->run();
-            delete plot;
-        }
-        else {
-            std::cerr << "Plot::show no plot-dlg" << std::endl;
-        }
-    }
-    catch (const Glib::Error& ex) {
-        std::cerr << "Plot::show error loading plot-dlg.ui " << ex.what() << std::endl;
-    }
-    return;
-}
 
 } /* namespace psc::ui */
