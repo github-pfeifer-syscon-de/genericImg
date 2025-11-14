@@ -28,6 +28,7 @@
 namespace psc::ui {
 
 class PlotDrawing;
+class PlotDiscrete;
 
 class PlotAxis
 {
@@ -53,6 +54,10 @@ public:
     void showYGrid(const Cairo::RefPtr<Cairo::Context>& ctx
                 , PlotDrawing* plotDrawing
                 , PlotAxis& xAxis);
+    void showDiscrete(const Cairo::RefPtr<Cairo::Context>& ctx
+                , PlotDrawing* plotDrawing
+                , PlotAxis& yAxis
+                , const std::shared_ptr<PlotDiscrete>& discrete);
 
 protected:
     void adjust();

@@ -138,35 +138,38 @@ PlotAxis::showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
                        , PlotDrawing* plotDrawing
                        , PlotAxis& yAxis)
 {
-    auto discret = dynamic_cast<PlotDiscrete*>(plotDrawing);
-    if (discret) {
-        for (size_t n = 0; n < discret->getValuesSize(); ++n) {
-            auto lbl = discret->getLabel(n);
-            if (!lbl.empty()) {
-                auto xPix = toPixel(static_cast<double>(n));
-                ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
-                ctx->move_to(xPix, 0.0);
-                ctx->line_to(xPix, yAxis.getPixel());
-                ctx->stroke();
-                ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
-                ctx->move_to(xPix, yAxis.getPixel());
-                ctx->show_text(lbl);
-            }
-        }
+    for (double x = m_gridMin; x <= m_gridMax; x += m_gridStep) {
+        auto xPix = toPixel(x);
+#       ifdef DEBUG
+        std::cout << "PlotAxis::showXGrid " << x << " pix " << xPix << std::endl;
+#       endif
+        ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
+        ctx->move_to(xPix, 0.0);
+        ctx->line_to(xPix, yAxis.getPixel());
+        ctx->stroke();
+        ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
+        ctx->move_to(xPix, yAxis.getPixel());
+        ctx->show_text(Glib::ustring::sprintf(getFormat(), x));
     }
-    else {
-        for (double x = m_gridMin; x <= m_gridMax; x += m_gridStep) {
-            auto xPix = toPixel(x);
-    #       ifdef DEBUG
-            std::cout << "PlotAxis::showXGrid " << x << " pix " << xPix << std::endl;
-    #       endif
+}
+
+void
+PlotAxis::showDiscrete(const Cairo::RefPtr<Cairo::Context>& ctx
+                       , PlotDrawing* plotDrawing
+                       , PlotAxis& yAxis
+                       , const std::shared_ptr<PlotDiscrete>& discrete)
+{
+    for (size_t n = 0; n < discrete->getValuesSize(); ++n) {
+        auto lbl = discrete->getLabel(n);
+        if (!lbl.empty()) {
+            auto xPix = toPixel(static_cast<double>(n));
             ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
             ctx->move_to(xPix, 0.0);
             ctx->line_to(xPix, yAxis.getPixel());
             ctx->stroke();
             ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
             ctx->move_to(xPix, yAxis.getPixel());
-            ctx->show_text(Glib::ustring::sprintf(getFormat(), x));
+            ctx->show_text(lbl);
         }
     }
 }
@@ -432,7 +435,18 @@ PlotDrawing::compute()
     ctx->set_line_width(1.0);
 
     yAxis.showYGrid(ctx, this, xAxis);
-    xAxis.showXGrid(ctx, this, yAxis);
+    bool shownXaxis{false};
+    for (auto& func : m_func) {
+        auto discrete = std::dynamic_pointer_cast<PlotDiscrete>(func);
+        if (!shownXaxis && discrete) {
+            xAxis.showDiscrete(ctx, this, yAxis, discrete);
+            shownXaxis = true;
+            break;
+        }
+    }
+    if (!shownXaxis) {
+        xAxis.showXGrid(ctx, this, yAxis);
+    }
     for (auto& func : m_func) {
         func->showFunction(ctx, xAxis, yAxis);
     }
