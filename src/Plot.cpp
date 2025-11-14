@@ -25,6 +25,11 @@
 
 namespace psc::ui {
 
+PlotAxis::PlotAxis(std::shared_ptr<PlotGrid> grid)
+: m_grid{grid}
+{
+}
+
 void
 PlotAxis::setMinMax(double min, double max)
 {
@@ -114,6 +119,36 @@ PlotAxis::toPixel(double x)
     return pixel;
 }
 
+double
+PlotAxis::getGridMin()
+{
+    return m_gridMin;
+}
+
+double
+PlotAxis::getGridMax()
+{
+    return m_gridMax;
+}
+
+double
+PlotAxis::getGridStep()
+{
+    return m_gridStep;
+}
+
+std::shared_ptr<PlotGrid>
+PlotAxis::getGrid()
+{
+    return m_grid;
+}
+
+void
+PlotAxis::setGrid(std::shared_ptr<PlotGrid> grid)
+{
+    m_grid = grid;
+}
+
 void
 PlotAxis::setInvertAxisMap(bool invertAxisMap) // e.g. for y-axis (0 at top)
 {
@@ -134,67 +169,48 @@ PlotAxis::getFormat()
 }
 
 void
-PlotAxis::showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                       , PlotDrawing* plotDrawing
-                       , PlotAxis& yAxis)
+PlotGridX::showGrid(const Cairo::RefPtr<Cairo::Context>& ctx
+                    , PlotDrawing* plotDrawing
+                    , PlotAxis& majorAxis
+                    , PlotAxis& minorAxis)
 {
-    for (double x = m_gridMin; x <= m_gridMax; x += m_gridStep) {
-        auto xPix = toPixel(x);
+    for (double x = majorAxis.getGridMin(); x <= majorAxis.getGridMax(); x += majorAxis.getGridStep()) {
+        auto xPix = majorAxis.toPixel(x);
 #       ifdef DEBUG
         std::cout << "PlotAxis::showXGrid " << x << " pix " << xPix << std::endl;
 #       endif
         ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
         ctx->move_to(xPix, 0.0);
-        ctx->line_to(xPix, yAxis.getPixel());
+        ctx->line_to(xPix, minorAxis.getPixel());
         ctx->stroke();
         ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
-        ctx->move_to(xPix, yAxis.getPixel());
-        ctx->show_text(Glib::ustring::sprintf(getFormat(), x));
+        ctx->move_to(xPix, minorAxis.getPixel());
+        ctx->show_text(Glib::ustring::sprintf(majorAxis.getFormat(), x));
     }
 }
 
 void
-PlotAxis::showDiscrete(const Cairo::RefPtr<Cairo::Context>& ctx
+PlotGridY::showGrid(const Cairo::RefPtr<Cairo::Context>& ctx
                        , PlotDrawing* plotDrawing
-                       , PlotAxis& yAxis
-                       , const std::shared_ptr<PlotDiscrete>& discrete)
+                       , PlotAxis& majorAxis
+                       , PlotAxis& minorAxis)
 {
-    for (size_t n = 0; n < discrete->getValuesSize(); ++n) {
-        auto lbl = discrete->getLabel(n);
-        if (!lbl.empty()) {
-            auto xPix = toPixel(static_cast<double>(n));
-            ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
-            ctx->move_to(xPix, 0.0);
-            ctx->line_to(xPix, yAxis.getPixel());
-            ctx->stroke();
-            ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
-            ctx->move_to(xPix, yAxis.getPixel());
-            ctx->show_text(lbl);
-        }
-    }
-}
-
-void
-PlotAxis::showYGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                       , PlotDrawing* plotDrawing
-                       , PlotAxis& xAxis)
-{
-    double x0{xAxis.getMin()};
-    if (getMin() < 0.0 && getMax() > 0.0) {
+    double x0{minorAxis.getMin()};
+    if (majorAxis.getMin() < 0.0 && majorAxis.getMax() > 0.0) {
         x0 = 0.0;
     }
-    double xLbl = xAxis.toPixel(x0) + 3.0;
-    for (double y = m_gridMin; y <= m_gridMax; y += m_gridStep) {
-        auto yPix = toPixel(y);
+    double xLbl = minorAxis.toPixel(x0) + 3.0;
+    for (double y = majorAxis.getGridMin(); y <= majorAxis.getGridMax(); y += majorAxis.getGridStep()) {
+        auto yPix = majorAxis.toPixel(y);
 #       ifdef DEBUG
         std::cout << "PlotAxis::showYGrid " << y << " pix " << yPix << std::endl;
 #       endif
         ctx->set_source_rgb(plotDrawing->gridColor.get_red(), plotDrawing->gridColor.get_green(), plotDrawing->gridColor.get_blue());
-        ctx->move_to(xAxis.getPixel(), yPix);
+        ctx->move_to(minorAxis.getPixel(), yPix);
         ctx->line_to(0.0, yPix);
         ctx->stroke();
         ctx->set_source_rgb(plotDrawing->textColor.get_red(), plotDrawing->textColor.get_green(), plotDrawing->textColor.get_blue());
-        auto yLbl = Glib::ustring::sprintf(getFormat(), y);
+        auto yLbl = Glib::ustring::sprintf(majorAxis.getFormat(), y);
         if (yPix <= 2.0) {
             Cairo::TextExtents textExtents;
             ctx->get_text_extents(yLbl, textExtents);
@@ -311,31 +327,11 @@ PlotDiscrete::getValuesSize()
     return m_values.size();
 }
 
-//int
-//PlotDiscrete::getViewWidth(int displayWidth)
-//{
-//    auto size = static_cast<int>(m_values.size());
-//    if (size > 0) {
-//        m_scale = static_cast<double>(displayWidth) / static_cast<double>(size);
-//        size = static_cast<int>(m_scale * size);
-//    }
-//    else {
-//        size = displayWidth;
-//    }
-//    return size;
-//}
-//
-//int
-//PlotDiscrete::getPixel()
-//{
-//    auto size = static_cast<int>(m_values.size());
-//    size = static_cast<int>(m_scale * size);
-//    return size;
-//}
-//
 
 PlotDrawing::PlotDrawing(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder)
 : Gtk::DrawingArea(cobject)
+, yAxis{std::make_shared<PlotGridY>()}
+, xAxis{std::make_shared<PlotGridX>()}
 {
 }
 
@@ -434,19 +430,8 @@ PlotDrawing::compute()
     ctx->fill();
     ctx->set_line_width(1.0);
 
-    yAxis.showYGrid(ctx, this, xAxis);
-    bool shownXaxis{false};
-    for (auto& func : m_func) {
-        auto discrete = std::dynamic_pointer_cast<PlotDiscrete>(func);
-        if (!shownXaxis && discrete) {
-            xAxis.showDiscrete(ctx, this, yAxis, discrete);
-            shownXaxis = true;
-            break;
-        }
-    }
-    if (!shownXaxis) {
-        xAxis.showXGrid(ctx, this, yAxis);
-    }
+    yAxis.getGrid()->showGrid(ctx, this, yAxis, xAxis);
+    xAxis.getGrid()->showGrid(ctx, this, xAxis, yAxis);
     for (auto& func : m_func) {
         func->showFunction(ctx, xAxis, yAxis);
     }

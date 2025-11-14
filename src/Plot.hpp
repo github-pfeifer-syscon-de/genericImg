@@ -29,11 +29,54 @@ namespace psc::ui {
 
 class PlotDrawing;
 class PlotDiscrete;
+class PlotAxis;
+
+class PlotGrid
+{
+public:
+    PlotGrid() = default;
+    explicit PlotGrid(const PlotGrid& orig) = delete;
+    virtual ~PlotGrid() = default;
+
+    virtual void showGrid(const Cairo::RefPtr<Cairo::Context>& ctx
+                       , PlotDrawing* plotDrawing
+                       , PlotAxis& majorAxis
+                       , PlotAxis& minorAxis) = 0;
+};
+
+class PlotGridX
+: public PlotGrid
+{
+public:
+    PlotGridX() = default;
+    explicit PlotGridX(const PlotGridX& orig) = delete;
+    virtual ~PlotGridX() = default;
+
+    void showGrid(const Cairo::RefPtr<Cairo::Context>& ctx
+                       , PlotDrawing* plotDrawing
+                       , PlotAxis& majorAxis
+                       , PlotAxis& minorAxis) override;
+};
+
+class PlotGridY
+: public PlotGrid
+{
+public:
+    PlotGridY() = default;
+    explicit PlotGridY(const PlotGridY& orig) = delete;
+    virtual ~PlotGridY() = default;
+
+    void showGrid(const Cairo::RefPtr<Cairo::Context>& ctx
+                       , PlotDrawing* plotDrawing
+                       , PlotAxis& majorAxis
+                       , PlotAxis& minorAxis) override;
+};
+
 
 class PlotAxis
 {
 public:
-    PlotAxis() = default;
+    PlotAxis(std::shared_ptr<PlotGrid> grid);
     explicit PlotAxis(const PlotAxis& orig) = delete;
     virtual ~PlotAxis() = default;
 
@@ -48,16 +91,11 @@ public:
     void setInvertAxisMap(bool invertAxisMap); // e.g. for y-axis (0 at top)
     bool isInvertAxisMap();
     Glib::ustring getFormat();
-    void showXGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                , PlotDrawing* plotDrawing
-                , PlotAxis& yAxis);
-    void showYGrid(const Cairo::RefPtr<Cairo::Context>& ctx
-                , PlotDrawing* plotDrawing
-                , PlotAxis& xAxis);
-    void showDiscrete(const Cairo::RefPtr<Cairo::Context>& ctx
-                , PlotDrawing* plotDrawing
-                , PlotAxis& yAxis
-                , const std::shared_ptr<PlotDiscrete>& discrete);
+    double getGridMin();
+    double getGridMax();
+    double getGridStep();
+    std::shared_ptr<PlotGrid> getGrid();
+    void setGrid(std::shared_ptr<PlotGrid> grid);
 
 protected:
     void adjust();
@@ -73,6 +111,7 @@ protected:
     double m_step{1.0};
     double m_gridStep{1.0};
     bool m_invertAxisMap{false};
+    std::shared_ptr<PlotGrid> m_grid;
 private:
 };
 
@@ -122,7 +161,7 @@ public:
     virtual ~PlotDiscrete() = default;
 
     // for positions where a label is desired return non empty string
-    virtual Glib::ustring getLabel(size_t idx) = 0;
+    //virtual Glib::ustring getLabel(size_t idx) = 0;
     std::array<double,2> computeMinMax(PlotAxis& xAxis) override;
     void showFunction(const Cairo::RefPtr<Cairo::Context>& ctx
                     , PlotAxis& xAxis
