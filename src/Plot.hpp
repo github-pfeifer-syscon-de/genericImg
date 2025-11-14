@@ -1,6 +1,6 @@
 /* -*- Mode: c++; c-basic-offset: 4; tab-width: 4;  coding: utf-8; -*-  */
 /*
- * Copyright (C) 2025 RPf 
+ * Copyright (C) 2025 RPf
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ public:
     void showFunction(const Cairo::RefPtr<Cairo::Context>& ctx
                     , PlotAxis& xAxis
                     , PlotAxis& yAxis) override;
-
+    size_t getValuesSize();
 protected:
     std::vector<double> m_values;
     double m_scale{1.0};
