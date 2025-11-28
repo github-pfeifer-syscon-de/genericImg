@@ -118,3 +118,5 @@
 /test/pdf_test.trs
 /test/.save/
 /src/.save/
+/nbproject/private/.save/
+/pkg/
