@@ -75,9 +75,9 @@ make CXXFLAGS="-mtune=native -march=native -O3"
 </pre>
 It may save you time when switching enviroments to do a fresh clone,
 as some prefixes may be embedded into intermediate files.
-(I tried to adaped the following readme to use the
+I tried to adapt the following readme to use the
 the ${MINGW...} enviroment, but if i missed one, replace
-"mingw-w64-x86_64" with ${MINGW_PACKAGE_PREFIX})
+"mingw-w64-x86_64" with ${MINGW_PACKAGE_PREFIX}.
 
 ## Any system
 
