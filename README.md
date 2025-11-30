@@ -46,38 +46,38 @@ The build-scripts adhere to to the auto-make conventions,
 this is: [wave hand] there is no default optimization.
 So if you are interested in getting the best build for your local machine use:
 <pre>
-make CFLAGS="-mtune=native -march=native -O3" CXXFLAGS="-mtune=native -march=native -O3"
+make  CXXFLAGS="-mtune=native -march=native -O3"
 </pre>
 
 ## Windows
 
 For windows (get msys2 https://www.msys2.org/ ).
-Use "msys2 mingw64" window/shell (see tooltip)
+Msys2 support multiple prefixes e.g. ucrt64 should be fine
+(see https://www.msys2.org/docs/package-naming/).
+
+The names use variables to adapt to your favorite shell.
+But once you have selected a flavor you have to stick with it.
+
 First install the prerequisits:
 <pre>
 pacman -S git
-pacman -S base-devel                (for completness)
-pacman -S mingw-w64-x86_64-gcc
-pacman -S mingw-w64-x86_64-autotools
-pacman -S mingw-w64-x86_64-gtkmm3
-pacman -S mingw-w64-x86_64-libexif
+pacman -S base-devel
+pacman -S ${MINGW_PACKAGE_PREFIX}-gcc
+pacman -S ${MINGW_PACKAGE_PREFIX}-autotools
+pacman -S ${MINGW_PACKAGE_PREFIX}-gtkmm3
+pacman -S ${MINGW_PACKAGE_PREFIX}-libexif
 </pre>
 Then it should be possible to clone&build the project:
 <pre>
 autoreconf -fis
-./configure --prefix=/mingw64
-make
+./configure --prefix=${MINGW_PREFIX}
+make CXXFLAGS="-mtune=native -march=native -O3"
 </pre>
-Msys2 support multiple prefixes so ucrt64 works as well,
-but if you decide to use this ensure:
-<pre>
-Use the matching shell see https://www.msys2.org/docs/package-naming/
-Install all the packages with the correct prefix e.g. pacman -S mingw-w64-ucrt-x86_64-gcc
-Use the prefix for all libs/programs consistently e.g. ./configure --prefix=/ucrt64
-To make this more generic use e.g. pacman -S ${MINGW_PACKAGE_PREFIX}-gtkmm3 and ./configure --prefix=${MINGW_PREFIX}.
 It may save you time when switching enviroments to do a fresh clone,
 as some prefixes may be embedded into intermediate files.
-</pre>
+(I tried to adaped the following readme to use the
+the ${MINGW...} enviroment, but if i missed one, replace
+"mingw-w64-x86_64" with ${MINGW_PACKAGE_PREFIX})
 
 ## Any system
 
