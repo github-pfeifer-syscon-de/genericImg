@@ -98,6 +98,22 @@ StringUtils::lower(const Glib::ustring& str, int start)
     return Glib::ustring{str.substr(0, start) + str.substr(start).lowercase()};
 }
 
+static void
+to_lower(char& c)
+{
+    c = static_cast<char>(std::tolower(c));
+}
+
+std::string 
+StringUtils::lower(const std::string &str, size_t start)
+{
+    auto out{str};
+    size_t s = std::min(start, str.length());
+    std::for_each(out.begin() + s, out.end(), to_lower);
+    return out;
+}
+
+
 
 
 void
@@ -341,9 +357,15 @@ std::string
 StringUtils::getExtension(const Glib::RefPtr<Gio::File>& file)
 {
     auto base = file->get_basename();
-    auto pos = base.find_last_of('.');
-    if (pos != base.npos) {
-        return base.substr(pos + 1);
+    return getExtension(base);
+}
+
+std::string
+StringUtils::getExtension(const std::string& filename)
+{
+    auto pos = filename.find_last_of('.');
+    if (pos != filename.npos) {
+        return filename.substr(pos + 1);
     }
     return "";
 }

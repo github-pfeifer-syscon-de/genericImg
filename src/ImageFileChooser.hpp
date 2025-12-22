@@ -22,6 +22,7 @@
 
 /*
  * slightly customized file chooser
+ * @Param types are additional extensions to pixbuf (case insensitive and w/o '.')
  */
 class ImageFileChooser
 : public Gtk::FileChooserDialog
@@ -30,9 +31,11 @@ public:
     ImageFileChooser(
             Gtk::Window& win,
             bool save,
-            const std::vector<Glib::ustring>& types);
+            const std::vector<std::string>& types);
     virtual ~ImageFileChooser() = default;
 protected:
+    bool on_custom(const Gtk::FileFilter::Info& filter_info);
+    std::set<std::string> m_types;
 private:
 };
 

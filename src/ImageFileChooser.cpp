@@ -16,19 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <StringUtils.hpp>
+#include <algorithm>
 
 #include "ImageFileChooser.hpp"
 
 ImageFileChooser::ImageFileChooser(
         Gtk::Window& win,
         bool save,
-        const std::vector<Glib::ustring>& types)
+        const std::vector<std::string>& types)
 : Gtk::FileChooserDialog(win
                         , ""
                         , save
                         ? Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE
                         : Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN
                         , Gtk::DIALOG_MODAL | Gtk::DIALOG_DESTROY_WITH_PARENT)
+
 {
     add_button("_Cancel", Gtk::RESPONSE_CANCEL);
     add_button(save
@@ -44,11 +47,20 @@ ImageFileChooser::ImageFileChooser(
     set_title(save
               ? Glib::ustring::sprintf("Save %s-file(s)", allTypes)
               : Glib::ustring::sprintf("Open %s-file(s)", allTypes));
-
-    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
-    filter->set_name("Type");
-    for (auto type : types) {
-        filter->add_pattern(Glib::ustring::sprintf("*.%s", type));
+    for (auto& type : types) {
+        m_types.insert(StringUtils::lower(type));
     }
+    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+    filter->set_name("Image");
+    filter->add_pixbuf_formats();
+    filter->add_custom(Gtk::FileFilterFlags::FILE_FILTER_FILENAME, sigc::mem_fun(*this, &ImageFileChooser::on_custom));
     set_filter(filter);
 }
+
+bool
+ImageFileChooser::on_custom(const Gtk::FileFilter::Info& filter_info)
+{
+    auto ext = StringUtils::getExtension(filter_info.filename);
+    return m_types.contains(StringUtils::lower(ext));
+}
+

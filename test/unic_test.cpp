@@ -183,6 +183,12 @@ test_string_util()
         std::cout << "Split consec not as expected " << splitC.size() << "!" << std::endl;
         return false;
     }
+    std::string upstr{"ABCDEF4435adr"};
+    auto low = StringUtils::lower(upstr);
+    if (low != "abcdef4435adr") {
+        std::cout << "std::string lower not as expected given " << upstr << " got " << low << "!" << std::endl;
+        return false;
+    }
     return true;
 }
 

@@ -57,6 +57,7 @@ public:
     {
         return Glib::ustring{str.substr(0, start) + str.substr(start).lowercase()};
     }
+    static std::string lower(const std::string &str, size_t start = 0);
 
     static std::wstring from_bytesUtf8(const char *in);
     static std::wstring from_bytesUtf8(const std::string &in);
@@ -217,6 +218,7 @@ public:
 
     // extension without "." e.g. xz.cpp -> cpp
     static std::string getExtension(const Glib::RefPtr<Gio::File>& file);
+    static std::string getExtension(const std::string& filename);
 protected:
     static constexpr uint64_t HEXDUMP_LINE_SIZE{16};
 private:
