@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <glibmm.h>
+#include <giomm.h>
 #include <cstring>
 
 #include "JsonObj.hpp"
@@ -118,7 +119,7 @@ arrayTest()
 int main(int argc, char** argv)
 {
     std::setlocale(LC_ALL, "");      // make locale dependent, and make glib accept u8 const !!!
-    Glib::init();
+    Gio::init();
 
     if (!readTest()) {
         return 1;

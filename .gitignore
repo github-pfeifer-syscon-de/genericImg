@@ -120,3 +120,4 @@
 /src/.save/
 /nbproject/private/.save/
 /pkg/
+/compile_commands.json

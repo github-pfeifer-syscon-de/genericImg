@@ -44,7 +44,13 @@ ImageArea::readPicture()
     finally notify_done([&] {
         m_drawDispatcher.emit();
     });
-    Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_file(m_file->get_path());
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf ;
+    try {
+        pixbuf = Gdk::Pixbuf::create_from_file(m_file->get_path());
+    }
+    catch (const Glib::Exception& ex) {
+        m_appSupport.showError(ex.what());  // for glib:error what seems sufficient
+    }
     return pixbuf;
 }
 
@@ -120,7 +126,7 @@ ImageArea::onNotifyLoad()
 {
     try {
         Glib::RefPtr<Gdk::Pixbuf> pixbuf = m_pictureReader.get();
-		Glib::RefPtr<DisplayImage> displ = DisplayImage::create(pixbuf);
+  		Glib::RefPtr<DisplayImage> displ = DisplayImage::create(pixbuf);
         setPixbuf(displ);
     }
     catch (const Glib::Error& ex) {         // this catches error on loading image
@@ -366,7 +372,8 @@ bool
 ImageArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
     Gtk::DrawingArea::on_draw(cr);
-    if (m_displayImage) {
+    if (m_displayImage
+     && m_displayImage->getPixbuf()) {
         double scale = getScale();
         double xoffs,yoffs;
         getOffset(xoffs, yoffs);

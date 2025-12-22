@@ -216,7 +216,7 @@ public:
     }
 
     // extension without "." e.g. xz.cpp -> cpp
-    static Glib::ustring getExtension(const Glib::RefPtr<Gio::File>& file);
+    static std::string getExtension(const Glib::RefPtr<Gio::File>& file);
 protected:
     static constexpr uint64_t HEXDUMP_LINE_SIZE{16};
 private:
