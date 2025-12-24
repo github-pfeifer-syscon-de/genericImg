@@ -70,7 +70,7 @@ AS_IF([test "x$with_sysdlog" = "xyes"], [
     PKG_CHECK_MODULES([SYSTEMDLOG], [libsystemd], [AC_DEFINE([SYSDLOG], [1], [Using systemd journal])])
 ])
 
-AM_CONDITIONAL([SYSDLOG], test "x$with_sysdlog" = "xyes"])
+AM_CONDITIONAL([SYSDLOG], [test "x$with_sysdlog" = "xyes"])
 
 AC_ARG_WITH([syslog], AS_HELP_STRING([--with-syslog], [Build with syslog (best use when systemd log is not available), if neither sysdlog or syslog will be specified user home log will be used by default]))
 
