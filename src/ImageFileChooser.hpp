@@ -32,9 +32,14 @@ public:
             Gtk::Window& win,
             bool save,
             const std::vector<std::string>& types);
+    ImageFileChooser(
+            Gtk::Window& win,
+            bool save,
+            const Glib::RefPtr<Gtk::FileFilter>& filter);
     virtual ~ImageFileChooser() = default;
 protected:
-    bool on_custom(const Gtk::FileFilter::Info& filter_info);
+    static Glib::RefPtr<Gtk::FileFilter> createFilter();
+    bool acceptFile(const Gtk::FileFilter::Info& filter_info);
     std::set<std::string> m_types;
 private:
 };

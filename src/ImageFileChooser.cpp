@@ -25,6 +25,37 @@ ImageFileChooser::ImageFileChooser(
         Gtk::Window& win,
         bool save,
         const std::vector<std::string>& types)
+: ImageFileChooser(win, save, createFilter())
+{
+    auto filter = get_filter();
+    filter->add_custom(Gtk::FileFilterFlags::FILE_FILTER_FILENAME, sigc::mem_fun(*this, &ImageFileChooser::acceptFile));
+    Glib::ustring allTypes;
+    for (auto& type : types) {
+        m_types.insert(StringUtils::lower(type));
+        if (!allTypes.empty()) {
+            allTypes += ", ";
+        }
+        allTypes += type;
+    }
+    set_title(save
+              ? Glib::ustring::sprintf("Save %s-file(s)", allTypes)
+              : Glib::ustring::sprintf("Open %s-file(s)", allTypes));
+
+}
+
+Glib::RefPtr<Gtk::FileFilter>
+ImageFileChooser::createFilter()
+{
+    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+    filter->set_name("Images");
+    //filter->add_pixbuf_formats();
+    return filter;
+}
+
+ImageFileChooser::ImageFileChooser(
+        Gtk::Window& win,
+        bool save,
+        const Glib::RefPtr<Gtk::FileFilter>& filter)
 : Gtk::FileChooserDialog(win
                         , ""
                         , save
@@ -37,28 +68,14 @@ ImageFileChooser::ImageFileChooser(
     add_button(save
                 ? "_Save"
                 : "_Open", Gtk::RESPONSE_ACCEPT);
-    Glib::ustring allTypes;
-    for (auto type : types) {
-        if (!allTypes.empty()) {
-            allTypes += ", ";
-        }
-        allTypes += type;
-    }
     set_title(save
-              ? Glib::ustring::sprintf("Save %s-file(s)", allTypes)
-              : Glib::ustring::sprintf("Open %s-file(s)", allTypes));
-    for (auto& type : types) {
-        m_types.insert(StringUtils::lower(type));
-    }
-    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
-    filter->set_name("Image");
-    filter->add_pixbuf_formats();
-    filter->add_custom(Gtk::FileFilterFlags::FILE_FILTER_FILENAME, sigc::mem_fun(*this, &ImageFileChooser::on_custom));
+              ? "Save image-file"
+              : "Open image-file");
     set_filter(filter);
 }
 
 bool
-ImageFileChooser::on_custom(const Gtk::FileFilter::Info& filter_info)
+ImageFileChooser::acceptFile(const Gtk::FileFilter::Info& filter_info)
 {
     auto ext = StringUtils::getExtension(filter_info.filename);
     return m_types.contains(StringUtils::lower(ext));
