@@ -11,7 +11,7 @@ AM_CPPFLAGS = \
 	$(GTKMM_CFLAGS) \
 	$(JSONGLIB1_CFLAGS) \
 	$(FONTCONFIG_CFLAGS) \
-	-I ../src
+	-I $(top_srcdir)/src
 
 AM_CFLAGS= \
 	-Wall -Wpedantic
