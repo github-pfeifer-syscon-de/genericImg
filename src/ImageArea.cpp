@@ -85,7 +85,7 @@ void
 ImageArea::setPixbuf(Glib::RefPtr<DisplayImage> displayImage)
 {
     //std::cout << "ImageArea::setPixbuf" << std::endl;
-    m_scaledImage.clear();
+    m_scaledImage.reset();
     m_displayImage = displayImage;
     m_imageView->updateImageInfos(displayImage);
     resetSelection();
