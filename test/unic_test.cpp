@@ -184,7 +184,7 @@ test_string_util()
         return false;
     }
     std::string upstr{"ABCDEF4435adr"};
-    auto low = StringUtils::lower(upstr);
+    auto low = StringUtils::lowerStd(upstr);
     if (low != "abcdef4435adr") {
         std::cout << "std::string lower not as expected given " << upstr << " got " << low << "!" << std::endl;
         return false;

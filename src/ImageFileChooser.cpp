@@ -31,7 +31,7 @@ ImageFileChooser::ImageFileChooser(
     filter->add_custom(Gtk::FileFilterFlags::FILE_FILTER_FILENAME, sigc::mem_fun(*this, &ImageFileChooser::acceptFile));
     Glib::ustring allTypes;
     for (auto& type : types) {
-        m_types.insert(StringUtils::lower(type));
+        m_types.insert(StringUtils::lowerStd(type));
         if (!allTypes.empty()) {
             allTypes += ", ";
         }
@@ -78,6 +78,6 @@ bool
 ImageFileChooser::acceptFile(const Gtk::FileFilter::Info& filter_info)
 {
     auto ext = StringUtils::getExtension(filter_info.filename);
-    return m_types.contains(StringUtils::lower(ext));
+    return m_types.contains(StringUtils::lowerStd(ext));
 }
 

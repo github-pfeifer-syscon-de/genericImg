@@ -105,7 +105,7 @@ to_lower(char& c)
 }
 
 std::string 
-StringUtils::lower(const std::string &str, size_t start)
+StringUtils::lowerStd(const std::string &str, size_t start)
 {
     auto out{str};
     size_t s = std::min(start, str.length());

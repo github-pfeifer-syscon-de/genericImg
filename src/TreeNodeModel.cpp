@@ -63,7 +63,7 @@ TreeNode::getPath()
 //            auto msg = Glib::ustring::format("The requested item %x", std::hex, parent_node, std::dec, "  was not found!");
 //            throw std::runtime_error(msg);
 //        }
-        path.push_front(child_node->getChildIdx());
+        path.push_front(static_cast<int>(child_node->getChildIdx()));   // casts are harmful but, as tree should not grow that big...
         child_node = parent_node;
         parent_node = parent_node->m_parent;
     }
@@ -392,7 +392,7 @@ TreeNodeModel::iter_n_children_vfunc(const const_iterator& iter) const
      || !item) {// invalid or uninitialized node
         return 0;
     }
-    return item->getSize(); // no nodes
+    return static_cast<int>(item->getSize());    // casts are harmful but, as tree should not grow that big...
 }
 
 int
@@ -402,7 +402,7 @@ TreeNodeModel::iter_n_root_children_vfunc() const
 #   ifdef MODEL_DEBUG
     std::cout << "TreeNodeModel::iter_n_root_children_vfunc size " << size << std::endl;
 #   endif
-    return size; // number of rows
+    return static_cast<int>(size); // number of rows, casts are harmful but, as tree should not grow that big...
 }
 
 // Get the nth child of this parent node
