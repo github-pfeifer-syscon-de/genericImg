@@ -21,14 +21,17 @@ apt-get install git build-essential automake libtool
 apt-get install libgtkmm-3.0-dev
 apt-get install libexif-dev
 apt-get install libjson-glib-dev
-apt-get install libfmt-dev
 </pre>
 
-check configure.ac for "dnl uncomment for use libfmt e.g. with gcc < 13"
-and uncomment the following lines (sry coul'd not find a viable switch for these)
-the header "psc_format.hpp" provides a switch between format variants,
-the adaption may not have been done for all dependent projects ...
-(use above header and use any format with psc::fmt:: namespace).
+### C++20 Support 
+If you stick to an older gcc version e.g. &lt; 13
+(the major issue is the missing support for std::format) 
+you may add: 
+<pre>
+apt-get install libfmt-dev
+</pre>
+and check configure.ac for "uncomment to use libfmt...".
+The header "psc_format.hpp" provides a switch between these format variants.
 
 ## Any Linux
 
