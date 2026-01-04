@@ -38,26 +38,25 @@ The header "psc_format.hpp" provides a switch between these format variants.
 To build use from project dir:
 <pre>
 autoreconf -fis
-./configure --prefix=/usr...
+./configure --prefix=/usr
 make
 </pre>
-If you prefer "out of tree" do:
+If you prefer to compile "out of tree" do:
 <pre>
 autoreconf -fis
 mkdir build
 cd build
-../configure --prefix=/usr...
+../configure --prefix=/usr
 make
 </pre>
-Using usr is a suggestion, as other locations may require some lib/pkg/-path tweaking
-for later steps to find this lib, so use it,
-unless you know what your are doing, as always ;)
+Using <code>/usr</code> is a suggestion, as other locations may require some lib/pkg/-path tweaking
+for later steps to find this lib, so use it, unless you know what you are doing, as always ;)
 
-The build-scripts adhere to to the auto-make conventions,
+The build-scripts adhere to the autotools conventions,
 this is: [wave hand] there is no default optimization.
 So if you are interested in getting the best build for your local machine use:
 <pre>
-make  CXXFLAGS="-mtune=native -march=native -O3"
+make CXXFLAGS="-mtune=native -march=native -O3"
 </pre>
 
 ## Windows
@@ -96,10 +95,12 @@ The lib requires to be installed before use so (on linux run as root):
 <pre>
 make install
 </pre>
-If you dont like it (on linux run as root):
+If you don't like it (on linux run as root):
 <pre>
 make uninstall
 </pre>
+
+### Autotools issues
 
 The autotools will not always adapt to version changes.
 e.g. when using make you might get a message like
@@ -135,7 +136,7 @@ But this is a work in progress so there might still be messages spilled on stdou
 
 ### LogView
 
-- if you wan't to use LogView with syslog, as there is no universal syslog format you may need to adapt the LogViewSyslog::parse method
+- if you want to use LogView with syslog, as there is no universal syslog format you may need to adapt the LogViewSyslog::parse method
 
 ## Structure
 
