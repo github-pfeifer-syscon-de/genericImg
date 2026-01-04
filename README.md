@@ -38,6 +38,14 @@ autoreconf -fis
 ./configure --prefix=/usr...
 make
 </pre>
+If you prefer "out of tree" do:
+<pre>
+autoreconf -fis
+mkdir build
+cd build
+../configure --prefix=/usr...
+make
+</pre>
 Using usr is a suggestion, as other locations may require some lib/pkg/-path tweaking
 for later steps to find this lib, so use it,
 unless you know what your are doing, as always ;)
