@@ -3,12 +3,8 @@ Some basic functions (some related to imaging) used by my projects.
 
 ## Minimum requirements
 
-- a compiler supporting C++20 (preferable Gcc >= 13, others may work as well, check source for "gcc","GNUC" to adapt some functions for some systems)
+- a compiler supporting C++20 (preferable Gcc >= 13, others may work as well, check source for "gcc","GNUC" and the compiler options in Makefile.am)
 - Gnu autotools
-- the project can be downloaded with
-<pre>
-git clone https://github.com/github-pfeifer-syscon-de/genericImg
-</pre>
 - The configure step is where needed dependencies will popup
 (so look for "checking for ..." and see if the answer is "yes"
 if not install additional packages).
@@ -33,6 +29,14 @@ apt-get install libfmt-dev
 and check configure.ac for "uncomment to use libfmt...".
 The header "psc_format.hpp" provides a switch between these format variants.
 
+# Building
+
+The build-scripts do not adhere to the autotools convention
+[wave hand] there is no default optimization.
+As here i expect some more user like usage, and i tried to make it work as much as 
+possible "out of the box" with gcc/clang.
+If your don't like gcc/clang the Makefile options need some adaption...
+
 ## Any Linux
 
 To build use from project dir:
@@ -51,13 +55,6 @@ make
 </pre>
 Using <code>/usr</code> is a suggestion, as other locations may require some lib/pkg/-path tweaking
 for later steps to find this lib, so use it, unless you know what you are doing, as always ;)
-
-The build-scripts adhere to the autotools conventions,
-this is: [wave hand] there is no default optimization.
-So if you are interested in getting the best build for your local machine use:
-<pre>
-make CXXFLAGS="-mtune=native -march=native -O3"
-</pre>
 
 ## Windows
 

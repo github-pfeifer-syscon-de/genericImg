@@ -484,7 +484,7 @@ TreeNodeModel::get_iter_vfunc(const Path& path, iterator& iter) const
         return false;
     }
     auto item = m_root;
-    for (size_t i = 0; i < path.size(); ++i) {
+    for (Gtk::TreePath::size_type i = 0; i < static_cast<Gtk::TreePath::size_type>(path.size()); ++i) {
         size_t idx = path[i];
         if (idx >= item->getSize()) {
             std::cout << "searching idx " << idx << " from " << item->getSize() << " failed" << std::endl;

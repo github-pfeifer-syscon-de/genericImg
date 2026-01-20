@@ -13,17 +13,33 @@ AM_CPPFLAGS = \
 	$(FONTCONFIG_CFLAGS) \
 	$(GLIBMM_CFLAGS)
 
-libgenericimg_la_CFLAGS = \
-	-std=c17 -Wpedantic -Wall -Wconversion
-
 lib_LTLIBRARIES = libgenericimg.la
-
-libgenericimg_la_CXXFLAGS = \
-	-Wpedantic -Wall -Wconversion
 
 libgenericimg_la_LDFLAGS = \
 	@EXTRA_LDFLAGS@ \
 	-version-info @version_info@
+
+# this is a no-tech approach,
+#  if you don't like gcc/clang, it this should also work without these options
+#  most options originate from https://github.com/cpp-best-practices/cmake_template/blob/main/cmake/Hardening.cmake
+#    -W... the usual warings
+#    GLIBC++ Assertions (vector[], string[], ...) enabled
+#    g++/clang -fstack-protector-strong enabled
+#    g++/clang -fcf-protection enabled
+#    undefined behaviour sanitizer
+if RELEASE
+libgenericimg_la_CXXFLAGS = -mtune=native -march=native -O3
+else
+libgenericimg_la_CFLAGS = -Wall
+libgenericimg_la_CXXFLAGS = -Wall \
+        -Wconversion \
+        -Wpedantic \
+        -D_GLIBCXX_ASSERTIONS \
+        -fstack-protector-strong \
+        -fcf-protection \
+        -fsanitize=undefined
+libgenericimg_la_LDFLAGS += -fsanitize=undefined
+endif
 
 libgenericimg_la_SOURCES = \
 	resources.c \
