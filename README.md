@@ -83,7 +83,7 @@ make CXXFLAGS="-mtune=native -march=native -O3"
 It may save you time when switching enviroments to do a fresh clone,
 as some prefixes may be embedded into intermediate files.
 I tried to adapt the following readme to use the
-the ${MINGW...} enviroment, but if i missed one, replace
+the ${MINGW...} environment, but if i missed one, replace
 "mingw-w64-x86_64" with ${MINGW_PACKAGE_PREFIX}.
 
 ## Any system
@@ -96,6 +96,28 @@ If you don't like it (on linux run as root):
 <pre>
 make uninstall
 </pre>
+
+### Install handling 
+
+The above method depends on using install and uninstall symmetrically.
+To make this clearer say you misspell `./configure --prefix=/use` (that's my favorite)
+and `make install` will do whatever it was told and create `/use`.
+You realize your mistake and correct the `/use` to `/usr` and install 
+into to correct location.
+If you are attentive you may do a `make uninstall` for the incorrect location,
+if not the wrong files will sit there forever.
+
+Another issue arises if you are a bit lazy leave out the `make uninstall`
+on an update and just use `make install`. For most cases that will be fine...
+But if with the upgrade a file should have been removed, it will stay in its
+location and cause various issues e.g. an include-file in an unexpected location
+may ruin your day.
+
+My suggestion is to use a package manager for you operating system 
+(at least for linux this should not be too difficult). 
+As an example there is a `PKGBUILD` (for use in `build`, unmaintained) 
+that works for me with Arch-Linux. Requires the extra step to install
+the package but avoids the issues mentioned above. 
 
 ### Autotools issues
 
