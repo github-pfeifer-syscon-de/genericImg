@@ -115,9 +115,10 @@ may ruin your day.
 
 My suggestion is to use a package manager for you operating system 
 (at least for linux this should not be too difficult). 
-As an example there is a `PKGBUILD` (for use in `build`, unmaintained) 
-that works for me with Arch-Linux. Requires the extra step to install
-the package but avoids the issues mentioned above. 
+As an example there is a `PKGBUILD` that works for me with Arch-Linux 
+(it uses a separate `build` directory, unmaintained)). 
+Requires the extra step to install the package but avoids the issues mentioned above.
+As an additional bonus, this will be sensitive to existing files ...  
 
 ### Autotools issues
 

@@ -1,5 +1,5 @@
 pkgname=genericimg
-pkgver=r148.8e67d5d
+pkgver=r150.5a0c704
 pkgrel=1
 pkgdesc="helping lib"
 arch=("x86_64")
@@ -11,7 +11,7 @@ provides=()
 conflicts=()
 replaces=()
 options=()
-source=('config.status')
+source=('configure.ac')
 sha256sums=('SKIP')
 
 pkgver() {
@@ -20,23 +20,27 @@ pkgver() {
 
 prepare() {
     cd "${startdir}"
-#    PKGDEST="$startdir/build/pkg" 
-#    autoreconf -fis
-}
-
-check() {
-    cd "${startdir}"
-    make -k check
+    echo "prepare ${PWD} ---------------------------------------------"
+    autoreconf -fis
+    mkdir -p build
 }
 
 
 build() {
-    cd "${startdir}"
+    cd "${startdir}"/build
+    echo "build ${PWD} ---------------------------------------------"
     ../configure --prefix=/usr --with-sysdlog
     make 
 }
 
+check() {
+    cd "${startdir}"/build
+    echo "check ${PWD} ---------------------------------------------"
+    make -k check
+}
+
 package() {
-    cd "${startdir}"
+    cd "${startdir}"/build
+    echo "package ${PWD} ---------------------------------------------"
     make DESTDIR="${pkgdir}/" install
 }
