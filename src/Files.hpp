@@ -28,10 +28,10 @@
 namespace psc::util {
 
 class Files {
-
+public:
     /**
      * getSrcRelativeDir
-     *   resolve the relative PACKAGE_SRC_DIR (given realtive to executable) to a absoulte path
+     *   resolve the relative PACKAGE_SRC_DIR (given relative to executable) as an absolute path
      *   expects the current working directory unchanged from start
      * @Param execPath set as argv[0]
      * @Param packageSrcDir set as macro PACKAGE_SRC_DIR
