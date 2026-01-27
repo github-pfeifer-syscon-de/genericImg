@@ -22,7 +22,8 @@
 
 namespace psc::util {
 
-std::string psc_Files::getSrcRelativeDir(
+std::string
+Files::getSrcRelativeDir(
               Glib::StdStringView execPath
             , Glib::StdStringView packageSrcDir
             , Glib::StdStringView relPath)
@@ -38,13 +39,13 @@ std::string psc_Files::getSrcRelativeDir(
 }
 
 std::string
-psc_Files::getExtension(const Glib::RefPtr<Gio::File>& file)
+Files::getExtension(const Glib::RefPtr<Gio::File>& file)
 {   // reference StringUtils as it was created there
     return StringUtils::getExtension(file);
 }
 
 std::string
-psc_Files::getExtension(const std::string& filename)
+Files::getExtension(const std::string& filename)
 {   // reference StringUtils as it was created there
     return StringUtils::getExtension(filename);
 }
