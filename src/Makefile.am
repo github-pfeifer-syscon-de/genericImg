@@ -71,7 +71,7 @@ libgenericimg_la_SOURCES = \
 	KeyfileTableManager.cpp \
 	TableProperties.cpp \
 	StringUtils.cpp \
-	Files.cpp \
+	psc_Files.cpp \
 	ThreadWorker.cpp \
 	TreeNodeModel.cpp \
 	Plot.cpp \
@@ -121,7 +121,7 @@ pkginclude_HEADERS = \
 	KeyfileTableManager.hpp \
 	TableProperties.hpp \
 	StringUtils.hpp \
-	Files.hpp \
+	psc_Files.hpp \
 	ThreadWorker.hpp \
 	TreeNodeModel.hpp \
 	PdfExport.hpp \

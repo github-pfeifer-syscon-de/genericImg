@@ -27,7 +27,7 @@
 
 namespace psc::util {
 
-class Files {
+class psc_Files {
 public:
     /**
      * getSrcRelativeDir
