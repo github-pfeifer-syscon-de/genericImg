@@ -39,13 +39,9 @@ If your don't like gcc/clang the Makefile options need some adaption...
 
 ## Any Linux
 
-To build use from project dir:
-<pre>
-autoreconf -fis
-./configure --prefix=/usr
-make
-</pre>
-If you prefer to compile "out of tree" do:
+To build use from project dir use 
+(the out of tree compile is preferred,
+in tree may work as well, but is not tested):
 <pre>
 autoreconf -fis
 mkdir build
@@ -77,7 +73,9 @@ pacman -S ${MINGW_PACKAGE_PREFIX}-libexif
 Then it should be possible to clone&build the project:
 <pre>
 autoreconf -fis
-./configure --prefix=${MINGW_PREFIX}
+mkdir build
+cd build
+../configure --prefix=${MINGW_PREFIX}
 make CXXFLAGS="-mtune=native -march=native -O3"
 </pre>
 It may save you time when switching enviroments to do a fresh clone,
@@ -99,6 +97,7 @@ make uninstall
 
 ### Install handling 
 
+The following may apply if you are not expecting to install this once.  
 The above method depends on using install and uninstall symmetrically.
 To make this clearer say you misspell `./configure --prefix=/use` (that's my favorite)
 and `make install` will do whatever it was told and create `/use`.
@@ -116,7 +115,7 @@ may ruin your day.
 My suggestion is to use a package manager for you operating system 
 (at least for linux this should not be too difficult). 
 As an example there is a `PKGBUILD` that works for me with Arch-Linux 
-(it uses a separate `build` directory, unmaintained)). 
+(it uses a separate `build` directory, and is unmaintained). 
 Requires the extra step to install the package but avoids the issues mentioned above.
 As an additional bonus, this will be sensitive to existing files ...  
 

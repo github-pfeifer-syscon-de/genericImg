@@ -20,7 +20,7 @@ libgenericimg_la_LDFLAGS = \
 	-version-info @version_info@
 
 # this is a no-tech approach,
-#  if you don't like gcc/clang, it this should also work without these options
+#  if you don't like gcc/clang, this should also work without these options
 #  most options originate from https://github.com/cpp-best-practices/cmake_template/blob/main/cmake/Hardening.cmake
 #    -W... the usual warings
 #    GLIBC++ Assertions (vector[], string[], ...) enabled
@@ -71,6 +71,7 @@ libgenericimg_la_SOURCES = \
 	KeyfileTableManager.cpp \
 	TableProperties.cpp \
 	StringUtils.cpp \
+	Files.cpp \
 	ThreadWorker.cpp \
 	TreeNodeModel.cpp \
 	Plot.cpp \
@@ -120,6 +121,7 @@ pkginclude_HEADERS = \
 	KeyfileTableManager.hpp \
 	TableProperties.hpp \
 	StringUtils.hpp \
+	Files.hpp \
 	ThreadWorker.hpp \
 	TreeNodeModel.hpp \
 	PdfExport.hpp \
