@@ -29,14 +29,6 @@ apt-get install libfmt-dev
 and check configure.ac for "uncomment to use libfmt...".
 The header "psc_format.hpp" provides a switch between these format variants.
 
-# Building
-
-The build-scripts do not adhere to the autotools convention
-[wave hand] there is no default optimization.
-As here i expect some more user like usage, and i tried to make it work as much as 
-possible "out of the box" with gcc/clang.
-If your don't like gcc/clang the Makefile options need some adaption...
-
 ## Any Linux
 
 To build use from project dir use 
@@ -76,7 +68,7 @@ autoreconf -fis
 mkdir build
 cd build
 ../configure --prefix=${MINGW_PREFIX}
-make CXXFLAGS="-mtune=native -march=native -O3"
+make 
 </pre>
 It may save you time when switching enviroments to do a fresh clone,
 as some prefixes may be embedded into intermediate files.
@@ -128,6 +120,13 @@ e.g. when using make you might get a message like
 </pre>
 in that case remove the offending intermediate file and
 retry to build (in some cases it might help to use autoreconf).
+
+The build-scripts do not adhere to the autotools convention
+[wave hand] there is no default optimization.
+As I expect some more user like usage,
+and tried to make this work right out of the box with gcc/clang
+(sorry maintainers, if you feel this is bad idea please make a suggestion).
+If your don't like gcc/clang the Makefile.am export statements need some adaption.
 
 ## Logging
 
