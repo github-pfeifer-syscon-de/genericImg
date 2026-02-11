@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include "LogImpl.hpp"
-#include "config.h"
+#include "genericimg_config.h"
 
 #ifdef SYSDLOG
 #define SD_JOURNAL_SUPPRESS_LOCATION    // avoid default location fields

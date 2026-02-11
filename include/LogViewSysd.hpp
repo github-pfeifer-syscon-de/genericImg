@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "config.h"
+#include "genericimg_config.h"
 #ifdef SYSDLOG
 
 #include <chrono>
@@ -26,7 +26,6 @@
 #include <iterator> // For std::forward_iterator_tag
 #include <limits>
 
-#include "config.h"
 #define SD_JOURNAL_SUPPRESS_LOCATION    // avoid default location fields
 #include <systemd/sd-journal.h>
 
@@ -34,10 +33,7 @@
 
 
 
-namespace psc {
-namespace log {
-
-
+namespace psc::log {
 
 class LogViewSysdJournal
 {
@@ -151,7 +147,6 @@ private:
 
 
 
-} /* namespace log */
-} /* namespace psc */
+} /* namespace psc::log */
 
 #endif

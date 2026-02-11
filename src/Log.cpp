@@ -19,7 +19,7 @@
 #include <ctime>
 #include <iostream>
 
-#include "config.h"
+#include "genericimg_config.h"
 #include "Log.hpp"
 #include "LogImpl.hpp"
 

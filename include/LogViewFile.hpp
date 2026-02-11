@@ -26,8 +26,7 @@
 #include "LogView.hpp"
 
 
-namespace psc {
-namespace log {
+namespace psc::log {
 
 typedef std::chrono::time_point<std::chrono::system_clock> SystemTime;
 
@@ -124,5 +123,4 @@ protected:
 };
 
 
-} /* namespace log */
-} /* namespace psc */
+} /* namespace psc::log */

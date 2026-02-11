@@ -21,14 +21,14 @@
 #include <fstream>
 #include <format>
 #include <memory>
-#include <Log.hpp>
-#include <LogView.hpp>
-#include <LogViewFile.hpp>
-#include <LogViewSysd.hpp>
-#include <LogViewSyslog.hpp>
-#include <DateUtils.hpp>
 
-#include "config.h"
+#include "genericimg_config.h"
+#include "Log.hpp"
+#include "LogView.hpp"
+#include "LogViewFile.hpp"
+#include "LogViewSysd.hpp"
+#include "LogViewSyslog.hpp"
+#include "DateUtils.hpp"
 
 static bool
 test_log()

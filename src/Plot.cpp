@@ -21,7 +21,7 @@
 #include <functional>
 
 #include "Plot.hpp"
-#include "config.h"
+#include "genericimg_config.h"
 
 namespace psc::ui {
 

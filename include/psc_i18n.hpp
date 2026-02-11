@@ -24,5 +24,5 @@
 
 
 
-//#include "config.h"
+//#include "genericimg_config.h"
 //#define _(String) gettext(String)

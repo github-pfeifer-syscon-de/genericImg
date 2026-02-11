@@ -26,7 +26,7 @@
 #include "PdfExport.hpp"
 #include "PdfFont.hpp"
 #include "PdfPage.hpp"
-#include "config.h"
+#include "genericimg_config.h"
 
 namespace psc::pdf
 {

@@ -21,11 +21,10 @@
 #include <source_location>
 
 #include "Log.hpp"
-#include "config.h"
+#include "genericimg_config.h"
 
 
-namespace psc {
-namespace log {
+namespace psc::log {
 
 #ifdef SYSDLOG
 class SysdPlugin
@@ -72,8 +71,7 @@ public:
 };
 
 
-} /* namespace log */
-} /* namespace psc */
+} /* namespace psc::log */
 
 
 

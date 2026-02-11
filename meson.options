@@ -1,0 +1,6 @@
+# choose log-texpt
+#   sys = syslog
+#   sysd = systemd-log
+#   user = log in user-home
+option('log', type : 'combo', choices : ['sys', 'sysd', 'user'], value : 'user'
+        , description : 'Preferred log e.g. syslog, systemd-log, or log in ~/log (is default)')

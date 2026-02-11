@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-#include "config.h"
+#include "genericimg_config.h"
 #include "LogView.hpp"
 
 #ifdef SYSDLOG

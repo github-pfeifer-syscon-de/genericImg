@@ -4,9 +4,9 @@ Some basic functions (some related to imaging) used by my projects.
 ## Minimum requirements
 
 - a compiler supporting C++20 (preferable Gcc >= 13, others may work as well, check source for "gcc","GNUC" and the compiler options in Makefile.am)
-- Gnu autotools
+- The build system was switched to meson
 - The configure step is where needed dependencies will popup
-(so look for "checking for ..." and see if the answer is "yes"
+(so look for "Dependency ..." and see if the answer is "yes"
 if not install additional packages).
 
 ## Debian
@@ -26,7 +26,7 @@ you may add:
 <pre>
 apt-get install libfmt-dev
 </pre>
-and check configure.ac for "uncomment to use libfmt...".
+and check meson.build for "uncomment to use libfmt...".
 The header "psc_format.hpp" provides a switch between these format variants.
 
 ## Any Linux
@@ -35,14 +35,23 @@ To build use from project dir use
 (the out of tree compile is preferred,
 in tree may work as well, but is not tested):
 <pre>
+meson setup build -Dprefix=/usr -Dlog=YOUR_PREFERRED_LOGGING
+cd build
+meson compile
+</pre>
+Using <code>/usr</code> is a suggestion, as other locations may require some lib/pkg/-path tweaking
+for later steps to find this lib, so use it, unless you know what you are doing, as always ;)
+
+Since the use of meson is not included for all the following
+projects they can still be build with autotools
+(those with configure.ac file in project dir):
+<pre>
 autoreconf -fis
 mkdir build
 cd build
 ../configure --prefix=/usr
 make
 </pre>
-Using <code>/usr</code> is a suggestion, as other locations may require some lib/pkg/-path tweaking
-for later steps to find this lib, so use it, unless you know what you are doing, as always ;)
 
 ## Windows
 
@@ -55,7 +64,6 @@ But once you have selected a flavor you have to stick with it.
 
 First install the prerequisits:
 <pre>
-pacman -S git
 pacman -S base-devel
 pacman -S ${MINGW_PACKAGE_PREFIX}-gcc
 pacman -S ${MINGW_PACKAGE_PREFIX}-autotools
@@ -64,14 +72,10 @@ pacman -S ${MINGW_PACKAGE_PREFIX}-libexif
 </pre>
 Then it should be possible to clone&build the project:
 <pre>
-autoreconf -fis
-mkdir build
+meson setup build -Dprefix=${MINGW_PREFIX}
 cd build
-../configure --prefix=${MINGW_PREFIX}
-make 
+meson compile
 </pre>
-It may save you time when switching enviroments to do a fresh clone,
-as some prefixes may be embedded into intermediate files.
 I tried to adapt the following readme to use the
 the ${MINGW...} environment, but if i missed one, replace
 "mingw-w64-x86_64" with ${MINGW_PACKAGE_PREFIX}.
@@ -80,11 +84,11 @@ the ${MINGW...} environment, but if i missed one, replace
 
 The lib requires to be installed before use so (on linux run as root):
 <pre>
-make install
+meson install
 </pre>
 If you don't like it (on linux run as root):
 <pre>
-make uninstall
+meson uninstall
 </pre>
 
 ### Install handling 
@@ -111,30 +115,13 @@ As an example there is a `PKGBUILD` that works for me with Arch-Linux
 Requires the extra step to install the package but avoids the issues mentioned above.
 As an additional bonus, this will be sensitive to existing files ...  
 
-### Autotools issues
-
-The autotools will not always adapt to version changes.
-e.g. when using make you might get a message like
-<pre>
-"libtool: You should recreate aclocal.m4 with macros from libtool ..."
-</pre>
-in that case remove the offending intermediate file and
-retry to build (in some cases it might help to use autoreconf).
-
-The build-scripts do not adhere to the autotools convention
-[wave hand] there is no default optimization.
-As I expect some more user like usage,
-and tried to make this work right out of the box with gcc/clang
-(sorry maintainers, if you feel this is bad idea please make a suggestion).
-If your don't like gcc/clang the Makefile.am export statements need some adaption.
-
 ## Logging
 
 Now included is some basic logging support.
 The default logging will be written to user home into the <code>log</code> directory.
 
 If configured with:
-<code>--with-sysdlog</code>
+<code>-Dlog=sysd</code>
 systemd journal will be used as default log.
 Query with e.g.:
 <code>journalctl SYSLOG_IDENTIFIER="glglobe"</code>
@@ -142,8 +129,8 @@ The log is created with extended fields to see these use
 <code>-o verbose --output-fields=CODE_FILE,CODE_LINE,CODE_FUNC,MESSAGE</code>.
 
 As a alternative configure option:
-<code>--with-syslog</code>
-is supported to use syslog  (as it seems out there are some distros that wave with their hand and say "you don't need systemd").
+<code>-Dlog=sys</code>
+is supported to use syslog.
 
 To change the log level the application config file e.g. <code>~/.config/glglobe.conf</code> may support in main section e.g.:
 <pre>
@@ -170,3 +157,9 @@ genericImg (used almost everywhere i think)
 + nomad
 </pre>
 
+## Portability
+
+The change to meson as build system was done
+to reduce the dependency on a specific compiler.
+But within the sources there may still be
+some reference to macros that are gcc specific.

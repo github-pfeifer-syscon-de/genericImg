@@ -19,16 +19,15 @@
 
 #pragma once
 
-// as this has no Api dependencies allow usage free usage
-//#include "config.h"
+// as this has no Api dependencies allow free usage
+//#include "genericimg_config.h"
 //#ifdef SYSLOG
 
 
 #include "LogViewFile.hpp"
 
 
-namespace psc {
-namespace log {
+namespace psc::log {
 
 class LogViewSyslog;
 
@@ -71,6 +70,5 @@ protected:
 };
 
 
-} /* namespace log */
-} /* namespace psc */
+} /* namespace psc::log */
 

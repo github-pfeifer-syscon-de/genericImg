@@ -1,46 +1,45 @@
+# use this from build (use "meson setup build" to prepare directory)
 pkgname=genericimg
-pkgver=r150.5a0c704
+pkgver=r156.1707437
 pkgrel=1
 pkgdesc="helping lib"
 arch=("x86_64")
 url="https://github.com/github-pfeifer-syscon-de/genericImg"
 license=('GPL3')
 depends=('gtkmm3' )
-makedepends=('automake')
+makedepends=('meson')
 provides=()
 conflicts=()
 replaces=()
 options=()
-source=('configure.ac')
-sha256sums=('SKIP')
+source=()   # beware this creates links in src
+sha256sums=()
 
 pkgver() {
     printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
-    cd "${startdir}"
-    echo "prepare ${PWD} ---------------------------------------------"
-    autoreconf -fis
-    mkdir -p build
+    cd "${startdir}/.."
+#    echo "prepare ${PWD} ---------------------------------------------"
+    meson setup build -Dprefix=/usr -Dlog=user
 }
 
 
 build() {
-    cd "${startdir}"/build
+    cd "${startdir}"
     echo "build ${PWD} ---------------------------------------------"
-    ../configure --prefix=/usr --with-sysdlog
-    make 
+    meson compile 
 }
 
 check() {
-    cd "${startdir}"/build
+    cd "${startdir}"
     echo "check ${PWD} ---------------------------------------------"
-    make -k check
+    meson test --print-errorlogs 
 }
 
 package() {
-    cd "${startdir}"/build
+    cd "${startdir}"
     echo "package ${PWD} ---------------------------------------------"
-    make DESTDIR="${pkgdir}/" install
+    meson install --destdir "$pkgdir"
 }

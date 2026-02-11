@@ -20,7 +20,7 @@
 
 #include <glibmm.h>
 #include <gdkmm.h>
-#include <pangomm-1.4/pangomm.h>
+#include <pangomm.h>
 
 class KeyConfig
 {

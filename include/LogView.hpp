@@ -35,8 +35,7 @@
 
 #include "Log.hpp"
 
-namespace psc {
-namespace log {
+namespace psc::log {
 
 // as i implemented timing with std::chrono first
 //   and realized later that c++20 is not available for e.g. debian
@@ -286,7 +285,6 @@ protected:
 
 
 
-} /* namespace log */
-} /* namespace psc */
+} /* namespace psc::log */
 
 
