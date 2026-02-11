@@ -3,7 +3,7 @@ Some basic functions (some related to imaging) used by my projects.
 
 ## Minimum requirements
 
-- a compiler supporting C++20 (preferable Gcc >= 13, others may work as well, check source for "gcc","GNUC" and the compiler options in Makefile.am)
+- a compiler supporting C++20 (preferable Gcc >= 13, others may work as well, check source for "gcc","GNUC" )
 - The build system was switched to meson
 - The configure step is where needed dependencies will popup
 (so look for "Dependency ..." and see if the answer is "yes"
@@ -77,8 +77,8 @@ cd build
 meson compile
 </pre>
 I tried to adapt the following readme to use the
-the ${MINGW...} environment, but if i missed one, replace
-"mingw-w64-x86_64" with ${MINGW_PACKAGE_PREFIX}.
+the `${MINGW...}` environment, but if i missed one, replace
+`"mingw-w64-x86_64"` with `${MINGW_PACKAGE_PREFIX}`.
 
 ## Any system
 
@@ -95,11 +95,11 @@ meson uninstall
 
 The following may apply if you are not expecting to install this once.  
 The above method depends on using install and uninstall symmetrically.
-To make this clearer say you misspell `./configure --prefix=/use` (that's my favorite)
+To make this clearer say you misspell `-Dprefix=/usr` (that's my favorite)
 and `make install` will do whatever it was told and create `/use`.
 You realize your mistake and correct the `/use` to `/usr` and install 
 into to correct location.
-If you are attentive you may do a `make uninstall` for the incorrect location,
+If you are attentive you may do a `meson uninstall` for the incorrect location,
 if not the wrong files will sit there forever.
 
 Another issue arises if you are a bit lazy leave out the `make uninstall`
@@ -157,9 +157,3 @@ genericImg (used almost everywhere i think)
 + nomad
 </pre>
 
-## Portability
-
-The change to meson as build system was done
-to reduce the dependency on a specific compiler.
-But within the sources there may still be
-some reference to macros that are gcc specific.
