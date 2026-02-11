@@ -1,9 +1,11 @@
 project('genericimg', 'c', 'cpp'
-    , default_options: ['c_std=c11', 'cpp_std=c++20']
+    , default_options: ['c_std=c11'
+                       , 'cpp_std=c++20'
+                       , 'buildtype=debugoptimized'
+                       , 'warning_level=3']
     , license : 'GPL-3.0'
     , meson_version: '>= 1.9.0'
-    , version: '0.4.8'
-    , default_options: ['buildtype=debug', 'warning_level=3'])
+    , version: '0.4.8')
 project_description = 'Common Gui functions for psc projects'
 
 gtkmm3_deps     = dependency('gtkmm-3.0')

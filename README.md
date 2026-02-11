@@ -95,7 +95,7 @@ meson uninstall
 
 The following may apply if you are not expecting to install this once.  
 The above method depends on using install and uninstall symmetrically.
-To make this clearer say you misspell `-Dprefix=/usr` (that's my favorite)
+To make this clearer say you misspell `-Dprefix=/use` (that's my favorite)
 and `make install` will do whatever it was told and create `/use`.
 You realize your mistake and correct the `/use` to `/usr` and install 
 into to correct location.

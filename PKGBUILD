@@ -28,18 +28,15 @@ prepare() {
 
 build() {
     cd "${startdir}"
-    echo "build ${PWD} ---------------------------------------------"
     meson compile 
 }
 
 check() {
     cd "${startdir}"
-    echo "check ${PWD} ---------------------------------------------"
     meson test --print-errorlogs 
 }
 
 package() {
     cd "${startdir}"
-    echo "package ${PWD} ---------------------------------------------"
     meson install --destdir "$pkgdir"
 }
