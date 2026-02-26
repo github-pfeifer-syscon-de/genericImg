@@ -13,7 +13,7 @@ if not install additional packages).
 
 Use the following commands to get the prerequisits (run with sudo or as root):
 <pre>
-apt-get install git build-essential automake libtool
+apt-get install git build-essential meson libtool
 apt-get install libgtkmm-3.0-dev
 apt-get install libexif-dev
 apt-get install libjson-glib-dev
@@ -66,7 +66,7 @@ First install the prerequisits:
 <pre>
 pacman -S base-devel
 pacman -S ${MINGW_PACKAGE_PREFIX}-gcc
-pacman -S ${MINGW_PACKAGE_PREFIX}-autotools
+pacman -S ${MINGW_PACKAGE_PREFIX}-meson
 pacman -S ${MINGW_PACKAGE_PREFIX}-gtkmm3
 pacman -S ${MINGW_PACKAGE_PREFIX}-libexif
 </pre>
@@ -78,7 +78,8 @@ meson compile
 </pre>
 I tried to adapt the following readme to use the
 the `${MINGW...}` environment, but if i missed one, replace
-`"mingw-w64-x86_64"` with `${MINGW_PACKAGE_PREFIX}`.
+`"mingw-w64-x86_64"` with `${MINGW_PACKAGE_PREFIX}`
+as this will adapt to the used shell/flavor.
 
 ## Any system
 
