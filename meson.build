@@ -46,7 +46,7 @@ public_headers = include_directories('include')
 conf = configuration_data()
 conf.set       ('SYSDLOG', get_option('log') == 'sysd')
 conf.set       ('SYSLOG', get_option('log') == 'sys')
-conf.set_quoted('VERSION', meson.project_version())     # Surround the version in quotes to make it a C string
+conf.set_quoted('GENERICIMG_VERSION', meson.project_version())     # Surround the version in quotes to make it a C string
 conf.set       ('USE_PDF', libharu_deps.found())
 subdir('include')
 subdir('res')
@@ -66,7 +66,6 @@ deps = [ gtkmm3_deps
 sources += app_resources
 project_target = both_libraries(meson.project_name()
     , sources
-    , app_resources
     , install : true
     , dependencies: deps
     , gnu_symbol_visibility : 'default'         # visibility was hidden, but selected visible for compatibility

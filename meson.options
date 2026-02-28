@@ -1,4 +1,4 @@
-# choose log-texpt
+# choose log-target
 #   sys = syslog
 #   sysd = systemd-log
 #   user = log in user-home

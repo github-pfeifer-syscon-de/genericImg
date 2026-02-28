@@ -121,3 +121,6 @@
 /nbproject/private/.save/
 /pkg/
 /compile_commands.json
+/build/
+/.idea/
+/build.sh
