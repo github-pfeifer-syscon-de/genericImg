@@ -19,10 +19,10 @@ apt-get install libexif-dev
 apt-get install libjson-glib-dev
 </pre>
 
-### C++20 Support 
+### C++20 Support
 If you stick to an older gcc version e.g. &lt; 13
-(the major issue is the missing support for std::format) 
-you may add: 
+(the major issue is the missing support for std::format)
+you may add:
 <pre>
 apt-get install libfmt-dev
 </pre>
@@ -31,7 +31,7 @@ The header "psc_format.hpp" provides a switch between these format variants.
 
 ## Any Linux
 
-To build use from project dir use 
+To build use from project dir use
 (the out of tree compile is preferred,
 in tree may work as well, but is not tested):
 <pre>
@@ -92,13 +92,25 @@ If you don't like it (on linux run as root):
 meson uninstall
 </pre>
 
-### Install handling 
+### Troubleshooting
 
-The following may apply if you are not expecting to install this once.  
+Since changing the environment comes with some implications here some tips:
+
+if you find yourself stuck when updating:
+- remove and recreate the build directory
+   (this is mostly my fault as iterating of some alterations and old pieces may be getting into the way).
+- remove and clone the project directory,
+    this helps to improve the insight as old files may be confusing.
+- update the dependcies major changes are covered by version changes,
+    but minor corrections may not.
+
+### Install handling
+
+The following may apply if you are not expecting to install this once.
 The above method depends on using install and uninstall symmetrically.
 To make this clearer say you misspell `-Dprefix=/use` (that's my favorite)
 and `make install` will do whatever it was told and create `/use`.
-You realize your mistake and correct the `/use` to `/usr` and install 
+You realize your mistake and correct the `/use` to `/usr` and install
 into to correct location.
 If you are attentive you may do a `meson uninstall` for the incorrect location,
 if not the wrong files will sit there forever.
@@ -109,12 +121,12 @@ But if with the upgrade a file should have been removed, it will stay in its
 location and cause various issues e.g. an include-file in an unexpected location
 may ruin your day.
 
-My suggestion is to use a package manager for you operating system 
-(at least for linux this should not be too difficult). 
-As an example there is a `PKGBUILD` that works for me with Arch-Linux 
-(it uses a separate `build` directory, and is unmaintained). 
+My suggestion is to use a package manager for you operating system
+(at least for linux this should not be too difficult).
+As an example there is a `PKGBUILD` that works for me with Arch-Linux
+(it uses a separate `build` directory, and is unmaintained).
 Requires the extra step to install the package but avoids the issues mentioned above.
-As an additional bonus, this will be sensitive to existing files ...  
+As an additional bonus, this will be sensitive to existing files ...
 
 ## Logging
 
