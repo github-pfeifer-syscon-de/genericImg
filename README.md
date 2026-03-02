@@ -97,7 +97,7 @@ meson uninstall
 Since changing the environment comes with some implications here some tips:
 
 if you find yourself stuck when updating:
-- remove and recreate the build directory
+- remove and recreate the build directory e.g. use <pre>meson setup build --reconfigure --wipe</pre>
    (this is mostly my fault as iterating of some alterations and old pieces may be getting into the way).
 - remove and clone the project directory,
     this helps to improve the insight as old files may be confusing.
