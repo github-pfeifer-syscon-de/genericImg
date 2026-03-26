@@ -116,6 +116,3 @@ protected:
     static constexpr auto CONF_GROUP_MAIN{"main"};
 };
 
-// these templates fail for build with debian/gcc < 15, fix: for now disable them ... sry breaks dependent image builds
-template class ImageView<Gtk::ApplicationWindow,GtkApplicationWindow>;
-template class ImageView<Gtk::Window,GtkWindow>;

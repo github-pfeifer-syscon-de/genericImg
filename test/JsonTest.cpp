@@ -64,7 +64,7 @@ valueTest()
     if (!sval.isString() || sval.getString() != "abc") {
         return false;
     }
-    psc::json::JsonValue ival(4711l);
+    psc::json::JsonValue ival(static_cast<int64_t>(4711));
     std::cout << "valueTest int " << ival.getInt() << std::endl;
     if (!ival.isInt() || ival.getInt() != 4711l) {
         return false;

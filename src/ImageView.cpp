@@ -567,3 +567,7 @@ ImageView<T,G>::getMode()
 {
     return m_mode;
 }
+
+// template instantiation for used cases
+template class ImageView<Gtk::ApplicationWindow,GtkApplicationWindow>;
+template class ImageView<Gtk::Window,GtkWindow>;
