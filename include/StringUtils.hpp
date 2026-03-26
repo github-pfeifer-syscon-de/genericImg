@@ -53,7 +53,7 @@ public:
     static void trim(std::string &s);
     [[deprecated("see lower(size_t)")]]
     static Glib::ustring lower(const Glib::ustring &s, int start = 0);
-#if __GNUC__ > 14
+#ifdef  __amd64__
     static inline Glib::ustring lower(const Glib::ustring &str, size_t start = 0)
     {
         return Glib::ustring{str.substr(0, start) + str.substr(start).lowercase()};
