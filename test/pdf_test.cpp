@@ -27,7 +27,7 @@
 #include "PdfFont.hpp"
 #include "PdfImage.hpp"
 
-// check the create pdf-files
+// check create pdf-files manually
 
 
 // as there were some thoughts about distributing type1 fonts
@@ -146,20 +146,21 @@ ttf_test()
 {
     auto pdfEncoding{"UTF-8"};
     auto pdfExport{std::make_shared<psc::pdf::PdfExport>()};
-    auto font = pdfExport->createFontTTFMatch("sans-serif", pdfEncoding, false);
+    auto fontTtf = pdfExport->createFontTTFMatch("sans-serif", pdfEncoding, false);
+    auto fontBase = pdfExport->createFont(psc::pdf::PdfExport::BASE14FONT_HELVECTICA);
     auto page1 = pdfExport->createPage();
 
-    std::cout << "size " << font->getSize() << std::endl;
-    std::cout << "   ascent " << font->getAscent() << std::endl;
-    std::cout << "   capHeight " << font->getCapHeight() << std::endl;
-    std::cout << "   descent " << font->getDescent() << std::endl;
-    std::cout << "   leading " << font->getLeading() << std::endl;
+    std::cout << "size " << fontTtf->getSize() << std::endl;
+    std::cout << "   ascent " << fontTtf->getAscent() << std::endl;
+    std::cout << "   capHeight " << fontTtf->getCapHeight() << std::endl;
+    std::cout << "   descent " << fontTtf->getDescent() << std::endl;
+    std::cout << "   leading " << fontTtf->getLeading() << std::endl;
 
-    auto font14 = font->derive(14.0f);
-    drawGrid(page1, font);
+    auto font14 = fontTtf->derive(14.0f);
+    drawGrid(page1, fontTtf);
     drawChars(page1, font14, 0);
     auto page2 = pdfExport->createPage();
-    drawGrid(page2, font);
+    drawGrid(page2, fontTtf);
     drawChars(page2, font14, 1);
     auto page3 = pdfExport->createPage();
     std::vector<Glib::ustring> lines;
@@ -167,7 +168,7 @@ ttf_test()
     lines.push_back("1: bbbbbbbbüüü");
     lines.push_back("2: ccccccccööö");
     lines.push_back("3: ddddddddßßß");
-    page3->setFont(font);
+    page3->setFont(fontBase);
     page3->setTextPos(X_MARGIN, gridHeight);
     page3->drawTextLines(lines);
     lines.clear();

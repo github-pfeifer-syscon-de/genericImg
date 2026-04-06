@@ -17,7 +17,9 @@
  */
 
 #include <iostream>
+#include <cstring>
 
+#include "StringUtils.hpp"
 #include "PdfFont.hpp"
 #include "PdfExport.hpp"
 #include "PdfPage.hpp"
@@ -41,7 +43,10 @@ PdfFont::PdfFont(HPDF_Doc pdf, std::string_view detail_font_name, std::string_vi
 : m_encoding{encoding}
 , m_size{size}
 {
-    auto font = HPDF_GetFont(pdf, detail_font_name.data(), encoding.data());
+    if (m_encoding.empty()) {
+        m_encoding = "CP1252";  // default to smth. 8bit that is supported by glib + pdf
+    }
+    auto font = HPDF_GetFont(pdf, detail_font_name.data(), m_encoding.c_str());
     m_font = std::make_shared<PdfFontRef>(font);
 }
 
@@ -67,7 +72,7 @@ PdfFont::derive(float size)
 std::string
 PdfFont::encodeText(const Glib::ustring& us)
 {
-    if (m_encoding.empty() || m_encoding == "UTF-8") {
+    if (m_encoding == "UTF-8") {
         return us;
     }
     if (!m_converter) {
