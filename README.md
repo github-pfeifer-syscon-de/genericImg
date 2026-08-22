@@ -82,14 +82,6 @@ the `${MINGW...}` environment, but if i missed one, replace
 `"mingw-w64-x86_64"` with `${MINGW_PACKAGE_PREFIX}`
 as this will adapt to the used shell/flavor.
 
-After using this for some years there seem to be issues
-with local support, so use:
-<pre>
-export LANG="C"
-export LC_CTYPE="C"
-</pre>
-to esure the programs will start (results in english display...).
-
 ## Any system
 
 The lib requires to be installed before use so (on linux run as root):
