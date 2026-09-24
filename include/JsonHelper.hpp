@@ -31,11 +31,11 @@ namespace psc::json {
 class JsonException : public std::exception
 {
 public:
-    JsonException(const Glib::ustring& msg);
+    JsonException(const std::string& msg);
 
     virtual const char * what() const noexcept;
 private:
-    Glib::ustring swhat;
+    std::string swhat;
 };
 
 // simplify usage of c-glib-json
@@ -49,6 +49,7 @@ public:
     void load_from_file(const Glib::ustring& file);
     void load_data(const Glib::RefPtr<Glib::ByteArray>& data);
     void load_data(const gchar* data);
+    void load_data(GInputStream* strm);
     JsonObject* get_root_object();
     std::shared_ptr<psc::json::JsonObj> getRootObj();
     JsonArray* get_root_array();

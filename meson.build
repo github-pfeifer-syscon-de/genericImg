@@ -5,7 +5,7 @@ project('genericimg', 'c', 'cpp'
                        , 'warning_level=3']
     , license : 'GPL-3.0'
     , meson_version: '>= 1.7.0'
-    , version: '0.4.8')
+    , version: '0.4.9')
 # meson is complaing about the version but this is for backward compatiblity ...
 project_description = 'Common Gui functions for psc projects'
 
