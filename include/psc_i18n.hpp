@@ -22,7 +22,8 @@
 // prefere common conventions
 #include <glib/gi18n.h>
 
-
+// the libintl sprintf defition messes with Glib::ustring::sprintf
+#undef sprintf
 
 //#include "genericimg_config.h"
 //#define _(String) gettext(String)
