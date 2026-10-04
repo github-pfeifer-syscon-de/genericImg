@@ -139,7 +139,7 @@ test_string_util()
             std::cout << "[" << i << "]=\"" << tok[i] << "\"" << std::endl;
         }
         return false;
-    }
+     }
     auto file = Gio::File::create_for_path("/home/abc/x.yz.cpp");
     auto ext = StringUtils::getExtension(file);
     if (ext != "cpp") {
@@ -173,7 +173,7 @@ test_string_util()
         }
         std::cout << "Split each not as expected " << splitE.size() << "!" << std::endl;
         return false;
-    }
+      }
     auto splitC = StringUtils::splitConsec(std::string("abc   def ghi   "), ' ');
     if (splitC.size() != 3
       ||splitC[0] != "abc"
@@ -184,11 +184,68 @@ test_string_util()
         }
         std::cout << "Split consec not as expected " << splitC.size() << "!" << std::endl;
         return false;
-    }
+      }
     std::string upstr{"ABCDEF4435adr"};
     auto low = StringUtils::lowerStd(upstr);
     if (low != "abcdef4435adr") {
         std::cout << "std::string lower not as expected given " << upstr << " got " << low << "!" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+static bool
+split_test()
+{
+    Glib::ustring in{" 7.69721813200005,47.543327027 öäüß 7.65610908800005,47.5505540720001 "};
+    uint32_t cnt{};
+    std::vector<Glib::ustring> exp{
+        "7.69721813200005,47.543327027"
+        ,"öäüß"
+        ,"7.65610908800005,47.5505540720001"
+        ,};
+    if (!StringUtils::splitNotify(in
+        , Glib::Unicode::isspace
+        , [&](std::size_t pos, std::size_t len) {
+        if (cnt > exp.size()) {
+            std::cout << "StringUtils::splitNotify cnt " << cnt << " exceeds " << exp.size() << std::endl;
+            return false;
+        }
+        auto part = in.substr(pos, len);
+        if (exp[cnt] != part) {
+            std::cout << "StringUtils::splitNotify\n"
+                      << " exp \"" << exp[cnt] << "\"\n"
+                      << " got \"" << part << "\""  << std::endl;
+            return false;
+        }
+        ++cnt;
+        return true;
+    })) {
+        return false;
+    }
+    std::string s_in{" 7.69721813200005,47.543327027 7.65610908800005,47.5505540720001 "};
+    cnt = 0;
+    std::vector<std::string> s_exp{
+        "7.69721813200005,47.543327027"
+        ,"7.65610908800005,47.5505540720001"
+        ,};
+    if (!StringUtils::splitNotify(s_in
+        , Glib::Unicode::isspace        // the std::isspace returns int ... and the widening seems acceptable
+        , [&](std::size_t pos, std::size_t len) {
+        if (cnt > s_exp.size()) {
+            std::cout << "StringUtils::splitNotify cnt " << cnt << " exceeds " << s_exp.size() << std::endl;
+            return false;
+        }
+        auto part = s_in.substr(pos, len);
+        if (s_exp[cnt] != part) {
+            std::cout << "StringUtils::splitNotify\n"
+                      << " exp \"" << s_exp[cnt] << "\"\n"
+                      << " got \"" << part << "\""  << std::endl;
+            return false;
+        }
+        ++cnt;
+        return true;
+    })) {
         return false;
     }
     return true;
@@ -203,6 +260,9 @@ int main(int argc, char** argv)
     }
     if (!test_string_util()) {
         return 2;
+    }
+    if (!split_test()) {
+        return 3;
     }
 
     return 0;

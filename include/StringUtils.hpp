@@ -67,11 +67,16 @@ public:
     static void split(const Glib::ustring &line, char delim, std::vector<Glib::ustring> &ret);
     // like split but works with repeated delimiters
     static void splitRepeat(const Glib::ustring &line, gunichar delim, std::vector<Glib::ustring> &ret);
+    // to avoid allocation use callback
+    //   templates are not that helpful for this case
+    static bool
+    splitNotify(const Glib::ustring& text, std::function<bool(gunichar)> charClass, std::function<bool(std::size_t pos, std::size_t len)> notify);
+    static bool
+    splitNotify(const std::string& text, std::function<bool(char)> charClass, std::function<bool(std::size_t pos, std::size_t len)> notify);
     // split but consider text in quotes as no split
     //   as quotes are removed from the resulting string
     //   you need to put quote+quote to get one quote in output
     static std::vector<Glib::ustring> splitQuoted(const Glib::ustring &line, gunichar delim = ' ', gunichar quote = '"');
-
     static Glib::ustring replaceAll(const Glib::ustring& text, const Glib::ustring& replace, const Glib::ustring& with);
    // simple fix for the ustring <-> char8_t incompatibility
     static inline Glib::ustring u8str(const char8_t* cnst) {

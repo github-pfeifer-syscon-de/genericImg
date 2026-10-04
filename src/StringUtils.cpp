@@ -369,3 +369,72 @@ StringUtils::getExtension(const std::string& filename)
     }
     return "";
 }
+
+bool
+StringUtils::splitNotify(const Glib::ustring& text
+    , std::function<bool(gunichar)> charClass
+    , std::function<bool(std::size_t pos, std::size_t len)> notify)
+{
+    auto pos = text.begin();    // prefer iterator that doesn't need calculation of index
+    std::size_t ipos{};
+    while (pos != text.end()) {
+        while (pos != text.end()
+           && charClass(*pos)) {  // skip preceeding/following chars of class
+            ++pos;
+            ++ipos;
+        }
+        if (pos == text.end()) {   // dont notify for just blank
+            break;
+        }
+        auto end = pos;
+        auto iend{ipos};
+        while (end != text.end()
+           && !charClass(*end)) {
+            ++end;
+            ++iend;
+        }
+        if (end != pos) {
+            if (!notify(ipos, iend - ipos)) {
+                return false;
+            }
+        }
+        pos = end;
+        ipos = iend;
+    }
+    return true;
+}
+
+
+bool
+StringUtils::splitNotify(const std::string& text
+    , std::function<bool(char)> charClass
+    , std::function<bool(std::size_t pos, std::size_t len)> notify)
+{
+    auto pos = text.begin();    // prefer iterator that doesn't need calculation of index
+    std::size_t ipos{};
+    while (pos != text.end()) {
+        while (pos != text.end()
+           && charClass(*pos)) {  // skip preceeding/following chars of class
+            ++pos;
+            ++ipos;
+        }
+        if (pos == text.end()) {   // dont notify for just blank
+            break;
+        }
+        auto end{pos};
+        auto iend{ipos};
+        while (end != text.end()
+           && !charClass(*end)) {
+            ++end;
+            ++iend;
+        }
+        if (end != pos) {
+            if (!notify(ipos, iend - ipos)) {
+                return false;
+            }
+        }
+        pos = end;
+        ipos = iend;
+    }
+    return true;
+}
