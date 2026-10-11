@@ -14,9 +14,10 @@ gdk3_deps       = dependency('gdk-3.0')
 glibmm2_deps    = dependency('glibmm-2.4 giomm-2.4')
 libpng_deps     = dependency('libpng')
 libexif_deps    = dependency('libexif', version : '>= 0.6.21')
-jsonglib1_deps  = dependency('json-glib-1.0', version : '>= 0.8')
+jsonglib1_deps  = dependency('json-glib-1.0', version : '>= 1.0')
 fontconfig_deps = dependency('fontconfig')
 thread_deps     = dependency('threads')
+
 #uncomment to use libfmt e.g. with gcc < 13 see README.md
 #libfmt_deps     = dependency('fmt')
 
@@ -37,6 +38,8 @@ foreach cflag : disable_flags
     endif
 endforeach
 libharu_deps = declare_dependency(dependencies : cc.find_library('hpdf', required: false))
+# this was added as an option (that might be available at most places)
+sqllite_deps = declare_dependency(dependencies : cc.find_library('sqlite3', required: false))
 
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 # localedir = share/locale
@@ -50,6 +53,7 @@ conf.set       ('SYSDLOG', get_option('log') == 'sysd')
 conf.set       ('SYSLOG', get_option('log') == 'sys')
 conf.set_quoted('GENERICIMG_VERSION', meson.project_version())     # Surround the version in quotes to make it a C string
 conf.set       ('USE_PDF', libharu_deps.found())
+conf.set       ('USE_SQLLITE3', sqllite_deps.found())
 subdir('include')
 subdir('res')
 subdir('src')
@@ -63,6 +67,7 @@ deps = [ gtkmm3_deps
        , thread_deps
        , libharu_deps
        , sysdlog_deps
+       , sqllite_deps
        ]
 # append resource.c
 sources += app_resources

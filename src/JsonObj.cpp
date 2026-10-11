@@ -77,7 +77,7 @@ JsonValue::JsonValue(JsonNode* node)
 
 JsonValue::~JsonValue()
 {
-    if (m_node) {
+    if (m_node != nullptr) {
         json_node_unref(m_node);
         m_node = nullptr;
     }
@@ -161,7 +161,7 @@ bool
 JsonValue::getBool()
 {
     if (isBool()) {
-        return json_node_get_boolean(m_node);
+        return static_cast<bool>(json_node_get_boolean(m_node));
     }
     return false;
 }
@@ -239,9 +239,11 @@ JsonValue::generate(uint32_t indent)
         json_generator_set_pretty(jsonGen, true);
     }
     json_generator_set_root(jsonGen, m_node);
-    g_autofree GString* gstr = g_string_sized_new(GENERATE_INIT_STRING_SIZE);
+    GString* gstr = g_string_sized_new(GENERATE_INIT_STRING_SIZE);
     json_generator_to_gstring(jsonGen, gstr);
-    return Glib::ustring(gstr->str);
+    Glib::ustring ustr{gstr->str};
+    g_string_free(gstr, TRUE);
+    return ustr;
 }
 
 
@@ -293,7 +295,9 @@ JsonObj::set(Glib::UStringView key, gint64 val)
 void
 JsonObj::set(Glib::UStringView key, const PtrJsonValue& value)
 {
-    json_object_set_member(m_jsonObj, key.c_str(), value->getNode());
+    // need to ref to keep refcount. as set_object_member "takes" the reference
+    auto refNode = json_node_ref(value->getNode());
+    json_object_set_member(m_jsonObj, key.c_str(), refNode);
 }
 
 void
@@ -382,12 +386,16 @@ void JsonArr::add(Glib::UStringView value)
 
 void JsonArr::add(const PtrJsonValue& value)
 {
-    json_array_add_element(m_jsonArr, value->getNode());
+    // need to ref to keep refcount. as set_array_member "takes" the reference
+    auto refNode = json_node_ref(value->getNode());
+    json_array_add_element(m_jsonArr, refNode);
 }
 
 void JsonArr::add(const PtrJsonObj& obj)
 {
-    json_array_add_object_element(m_jsonArr, obj->getObj());
+    // need to ref to keep refcount. as set_array_member "takes" the reference
+    auto refObj = json_object_ref(obj->getObj());
+    json_array_add_object_element(m_jsonArr, refObj);
 }
 
 PtrJsonValue

@@ -20,11 +20,14 @@
 #include <glibmm.h>
 #include <giomm.h>
 #include <cstring>
+#include <cstdio>
 
 #include "JsonObj.hpp"
 #include "JsonHelper.hpp"
 
 // the main intention is to check these functions with valgrind (who owns the returned data, just to be sure)
+// This will appear using only Gio::init...
+//   in use at exit: 123,941 bytes in 1,679 blocks
 
 static bool
 readTest()
@@ -37,7 +40,7 @@ readTest()
     JsonObject* root = helper.get_root_object();
     auto value = json_object_get_string_member(root, "root");
     std::cout << "Read value " << "\"" << value << "\"" << std::endl;
-    return !std::strcmp(value, "abc");
+    return !static_cast<bool>(std::strcmp(value, "abc"));
 }
 
 static bool
@@ -69,7 +72,6 @@ valueTest()
     if (!ival.isInt() || ival.getInt() != 4711l) {
         return false;
     }
-
     psc::json::JsonValue bval(true);
     std::cout << "valueTest bool " << std::boolalpha << bval.getBool() << std::endl;
     if (!bval.isBool() || bval.getBool() != true) {
@@ -94,27 +96,74 @@ valueTest()
 static bool
 arrayTest()
 {
-    auto iarr = std::make_shared<psc::json::JsonArr>(8);
-    iarr->add({123, 456, 789});
-    psc::json::JsonValue aval(iarr);
-    if (!aval.isArray()
-      || aval.getArray()->getSize() != 3
-      || aval.getArray()->get(2)->getInt() != 789) {
-        std::cout << "arrayTest int expected 789 got " << aval.getArray()->get(2)->getInt() << std::endl;
-        return false;
+    std::cout << "Use arr as node" << std::endl;
+    {
+        auto iarr = std::make_shared<psc::json::JsonArr>(8);
+        iarr->add({123, 456, 789});
+        psc::json::JsonValue aval(iarr);
+        if (!aval.isArray()
+          || aval.getArray()->getSize() != 3
+          || aval.getArray()->get(2)->getInt() != 789) {
+            std::cout << "arrayTest int expected 789 got " << aval.getArray()->get(2)->getInt() << std::endl;
+            return false;
+        }
     }
-    psc::json::JsonArr farr(8);
-    farr.add({1.23, 4.56, 7.89});
-    if (farr.getSize() != 3
-     || farr[2]->getDouble() != 7.89) {
-        std::cout << "arrayTest float expected 7.89 for " << farr[2]->getDouble() << std::endl;
-        return false;
+    std::cout << "Use arr as is" << std::endl;
+    {
+        psc::json::JsonArr farr(8);
+        farr.add({1.23, 4.56, 7.89});
+        if (farr.getSize() != 3
+         || farr[2]->getDouble() != 7.89) {
+            std::cout << "arrayTest float expected 7.89 for " << farr[2]->getDouble() << std::endl;
+            return false;
+        }
     }
-
+    std::cout << "Add obj to arr" << std::endl;
+    {
+        psc::json::JsonArr oarr(8);
+        {   // decay the original object
+            auto obj = std::make_shared<psc::json::JsonObj>();
+            obj->set("val", "123");
+            //auto node = std::make_shared<psc::json::JsonValue>(obj);
+            oarr.add(obj);
+        }
+        auto gen = oarr.generate();
+        if (oarr.getSize() != 1
+         || gen != "[{\"val\":\"123\"}]") {
+            std::cout << "arrayTest object expected  " << gen << std::endl;
+            return false;
+        }
+    }
     return true;
 }
 
+static bool
+glibtest(int indent)
+{
+    //
+    g_autoptr(JsonObject) obj = json_object_new();
+    json_object_set_string_member(obj, "root", "abc");
+    {
+        JsonObject* inner = json_object_new();
+        json_object_set_string_member(inner, "chld", "def");
+        json_object_set_object_member(obj, "inner", inner);
+    }
 
+    g_autoptr(JsonNode) node = json_node_new(JSON_NODE_OBJECT);
+    json_node_init_object(node, obj);
+    g_autoptr(JsonGenerator) jsonGen = json_generator_new();
+    if (indent > 0) {
+        json_generator_set_indent(jsonGen, indent);
+        json_generator_set_indent_char(jsonGen, ' ');
+        json_generator_set_pretty(jsonGen, true);
+    }
+    json_generator_set_root(jsonGen, node);
+    GString* gstr = g_string_sized_new(1024);
+    json_generator_to_gstring(jsonGen, gstr);
+    std::printf("glibtest %s\n", gstr->str);
+    g_string_free(gstr, TRUE); // the autofree is ...
+   return true;
+}
 
 int main(int argc, char** argv)
 {
@@ -132,6 +181,9 @@ int main(int argc, char** argv)
     }
     if (!arrayTest()) {
         return 4;
+    }
+    if (!glibtest(2)) {
+        return 5;
     }
     return 0;
 }
