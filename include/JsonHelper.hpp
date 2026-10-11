@@ -32,6 +32,7 @@ class JsonException : public std::exception
 {
 public:
     JsonException(const std::string& msg);
+    virtual ~JsonException() = default;
 
     virtual const char * what() const noexcept;
 private:
