@@ -17,8 +17,6 @@
  */
 
 #include <iostream>
-#include <glibmm.h>
-#include <giomm.h>
 #include <vector>
 #include <format>
 

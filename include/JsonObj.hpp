@@ -19,6 +19,8 @@
 #pragma once
 
 #include <memory>
+#include <glibmm.h>
+#include <giomm.h>
 #include <type_traits>
 #include <json-glib/json-glib.h>
 
