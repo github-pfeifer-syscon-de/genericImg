@@ -17,10 +17,13 @@
  */
 
 #include <iostream>
-
+#include <glibmm.h>
+#include <giomm.h>
 #include <vector>
+#include <format>
 
 #include "JsonObj.hpp"
+#include "JsonHelper.hpp"
 
 namespace psc::json {
 
@@ -229,23 +232,59 @@ JsonValue::getArray()
 
 #pragma GCC diagnostic pop
 
-Glib::ustring
-JsonValue::generate(uint32_t indent)
+JsonGenerator*
+JsonValue::generatePrepare(uint32_t indent)
 {
-    g_autoptr(JsonGenerator) jsonGen = json_generator_new();
+    JsonGenerator* jsonGen = json_generator_new();
     if (indent > 0) {
         json_generator_set_indent(jsonGen, indent);
         json_generator_set_indent_char(jsonGen, ' ');
         json_generator_set_pretty(jsonGen, true);
     }
     json_generator_set_root(jsonGen, m_node);
+    return jsonGen;
+}
+
+Glib::ustring
+JsonValue::generate(uint32_t indent)
+{
+    JsonGenerator* jsonGen = generatePrepare(indent);
     GString* gstr = g_string_sized_new(GENERATE_INIT_STRING_SIZE);
     json_generator_to_gstring(jsonGen, gstr);
     Glib::ustring ustr{gstr->str};
     g_string_free(gstr, TRUE);
+    g_object_unref(jsonGen);
     return ustr;
 }
 
+void	
+JsonValue::generate(const std::string& file, uint32_t indent)
+{
+    JsonGenerator* jsonGen = generatePrepare(indent);
+    GError *error{};
+    json_generator_to_file(jsonGen, file.c_str(), &error);
+    g_object_unref(jsonGen);
+    if (error != nullptr) {
+	auto msg = std::format("Error {} saving to file {}", error->message, file);
+	g_error_free(error);
+	throw JsonException(msg);
+    }
+}
+	
+void
+JsonValue::generate(const Glib::RefPtr<Gio::OutputStream>& ostream, uint32_t indent)
+{
+    JsonGenerator* jsonGen = generatePrepare(indent);
+    json_generator_set_root(jsonGen, m_node);
+    GError* error{};
+    json_generator_to_stream(jsonGen, ostream->gobj(), nullptr, &error);
+    g_object_unref(jsonGen);
+    if (error != nullptr) {
+	auto msg = std::format("Error {} writing stream", error->message);
+	g_error_free(error);
+	throw JsonException(msg);
+    }
+}
 
 //    case JSON_NODE_ARRAY:
 //        auto jsonArr = json_node_dup_array(node);
@@ -351,6 +390,24 @@ JsonObj::generate(uint32_t indent)
     JsonValue val{node};
     return val.generate(indent);
 }
+	
+void
+JsonObj::generate(const std::string& file, uint32_t indent)
+{
+    g_autoptr(JsonNode) node = json_node_new(JSON_NODE_OBJECT);
+    json_node_init_object(node, m_jsonObj);
+    JsonValue val{node};
+    val.generate(file, indent);
+}
+	
+void
+JsonObj::generate(const Glib::RefPtr<Gio::OutputStream>& ostrm, uint32_t indent)
+{
+    g_autoptr(JsonNode) node = json_node_new(JSON_NODE_OBJECT);
+    json_node_init_object(node, m_jsonObj);
+    JsonValue val{node};
+    val.generate(ostrm, indent);
+}
 
 JsonObject*
 JsonObj::getObj()
@@ -433,5 +490,22 @@ JsonArr::generate(uint32_t indent)
     return val.generate(indent);
 }
 
+void
+JsonArr::generate(const std::string& file, uint32_t indent)
+{
+    g_autoptr(JsonNode) node = json_node_new(JSON_NODE_ARRAY);
+    json_node_init_array(node, m_jsonArr);
+    JsonValue val(node);
+    return val.generate(file, indent);
+}
+
+void
+JsonArr::generate(const Glib::RefPtr<Gio::OutputStream>& ostrm, uint32_t indent)
+{
+    g_autoptr(JsonNode) node = json_node_new(JSON_NODE_ARRAY);
+    json_node_init_array(node, m_jsonArr);
+    JsonValue val(node);
+    return val.generate(ostrm, indent);
+}
 
 } /* namespace psc::json */

@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <glibmm.h>
-#include <gio/gio.h>
 #include <memory>
 #include <type_traits>
 #include <json-glib/json-glib.h>
@@ -62,7 +60,11 @@ public:
     bool isArray();
     PtrJsonArr getArray();
     Glib::ustring generate(uint32_t indent = 0);
+    void generate(const std::string& file, uint32_t indent = 0);
+    void generate(const Glib::RefPtr<Gio::OutputStream>& ostream, uint32_t indent = 0);
 protected:
+    JsonGenerator* generatePrepare(uint32_t indent);
+
     static constexpr size_t GENERATE_INIT_STRING_SIZE{256};
 private:
     JsonNode* m_node;
@@ -86,6 +88,8 @@ public:
     PtrJsonArr createArr(Glib::UStringView key, guint size = 0);
     PtrJsonValue getValue(Glib::UStringView key);
     Glib::ustring generate(uint32_t indent = 0);
+    void generate(const std::string& file, uint32_t indent = 0);
+    void generate(const Glib::RefPtr<Gio::OutputStream>& ostrm, uint32_t indent = 0);
     JsonObject* getObj();
 private:
     JsonObject* m_jsonObj;
@@ -137,6 +141,8 @@ public:
         }
     }
     Glib::ustring generate(uint32_t indent = 0);
+    void generate(const std::string& file, uint32_t indent = 0);
+    void generate(const Glib::RefPtr<Gio::OutputStream>& ostrm, uint32_t indent = 0);
     PtrJsonValue get(guint idx);
     PtrJsonValue operator[](guint idx);
     guint getSize();
