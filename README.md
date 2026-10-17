@@ -20,14 +20,9 @@ apt-get install libjson-glib-dev
 </pre>
 
 ### C++20 Support
-If you stick to an older gcc version e.g. &lt; 13
-(the major issue is the missing support for std::format)
-you may add:
-<pre>
-apt-get install libfmt-dev
-</pre>
-and check meson.build for "uncomment to use libfmt...".
-The header "psc_format.hpp" provides a switch between these format variants.
+This should work gcc version e.g. &gt;= 13
+The format workaround with psc_format.hpp
+may provide some workaround...
 
 ## Any Linux
 

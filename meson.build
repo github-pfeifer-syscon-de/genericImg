@@ -5,7 +5,7 @@ project('genericimg', 'c', 'cpp'
                        , 'warning_level=3']
     , license : 'GPL-3.0'
     , meson_version: '>= 1.7.0'
-    , version: '0.4.11')
+    , version: '0.4.12')
 # meson is complaing about the version but this is for backward compatiblity ...
 project_description = 'Common Gui functions for psc projects'
 
@@ -18,7 +18,8 @@ jsonglib1_deps  = dependency('json-glib-1.0', version : '>= 1.0')
 fontconfig_deps = dependency('fontconfig')
 thread_deps     = dependency('threads')
 
-#uncomment to use libfmt e.g. with gcc < 13 see README.md
+#uncomment to use libfmt e.g. with gcc < 13 see psc_format.hpp
+# needs: apt-get install libfmt-dev
 #libfmt_deps     = dependency('fmt')
 
 if get_option('log') == 'sysd'
@@ -39,7 +40,9 @@ foreach cflag : disable_flags
 endforeach
 libharu_deps = declare_dependency(dependencies : cc.find_library('hpdf', required: false))
 # this was added as an option (that might be available at most places)
-sqllite_deps = declare_dependency(dependencies : cc.find_library('sqlite3', required: false))
+#   and by intention don't declare it, so it is not forced for everyone
+sqlite_lib = cc.find_library('sqlite3', required: false)
+sqlite_deps = declare_dependency(dependencies : sqlite_lib)
 
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 # localedir = share/locale
@@ -53,7 +56,7 @@ conf.set       ('SYSDLOG', get_option('log') == 'sysd')
 conf.set       ('SYSLOG', get_option('log') == 'sys')
 conf.set_quoted('GENERICIMG_VERSION', meson.project_version())     # Surround the version in quotes to make it a C string
 conf.set       ('USE_PDF', libharu_deps.found())
-conf.set       ('USE_SQLLITE3', sqllite_deps.found())
+conf.set       ('USE_SQLITE3', sqlite_lib.found())
 subdir('include')
 subdir('res')
 subdir('src')
@@ -67,7 +70,7 @@ deps = [ gtkmm3_deps
        , thread_deps
        , libharu_deps
        , sysdlog_deps
-       , sqllite_deps
+       , sqlite_deps
        ]
 # append resource.c
 sources += app_resources

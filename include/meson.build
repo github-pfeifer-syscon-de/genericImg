@@ -49,6 +49,11 @@ if libharu_deps.found()
 	,'PdfPage.hpp' ]
 endif
 
+if sqlite_lib.found()
+	project_headers += [
+	'Sqlite.hpp'
+	]
+endif
 # Make this library usable from the system's
 # package manager.
 install_headers(project_headers, subdir : meson.project_name())

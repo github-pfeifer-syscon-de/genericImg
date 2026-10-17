@@ -21,8 +21,10 @@
 #include <iostream>
 
 // simplify format switching,
-// alias them with our namespace
-
+// alias them with our namespace (obsoleted)
+//   for fallback in meson.build enable
+//   #libfmt_deps = ...
+// if you are really despreate you may try ...
 
 #if __cplusplus >= 202002L
 #include <format>

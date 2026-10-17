@@ -43,3 +43,10 @@ pdf_test = executable('pdf_test'
     , link_with : project_target)
 test('pdf_test', pdf_test)
 
+if sqlite_lib.found()
+    sql_test = executable('sql_test'
+        ,'sql_test.cpp'
+        , dependencies        : [sqlite_deps]
+        , include_directories : public_headers
+        , link_with : project_target)
+endif

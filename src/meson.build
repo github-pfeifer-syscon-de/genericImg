@@ -43,3 +43,7 @@ if libharu_deps.found()
 	,'PdfPage.cpp' )
 endif
 
+if sqlite_lib.found()
+	sources += files(
+		'Sqlite.cpp')
+endif
