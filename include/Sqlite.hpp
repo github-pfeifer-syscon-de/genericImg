@@ -252,6 +252,11 @@ public:
     int64_t getRowCount();
     std::vector<std::string> getColumnNames();
     std::vector<int> getResultTypes();
+    /**
+     * @param col the column index
+     * @return on best effort if null "" will be returned,
+     *         the see the difference to value "" use getResultTypes
+     */
     std::string getString(int col);
     double getDouble(int col);
     int64_t getLong(int col);
@@ -261,6 +266,7 @@ public:
     void setString(int bindIdx, const std::string& value);
     void setDouble(int bindIdx, double value);
     void setLong(int bindIdx, int64_t value);
+    void setNull(int bindIdx);
 
 protected:
     int getColumnIdx(const std::string& name);

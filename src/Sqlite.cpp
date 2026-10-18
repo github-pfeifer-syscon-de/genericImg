@@ -245,18 +245,27 @@ SqlLiteStmt::getColumnNames()
 std::string
 SqlLiteStmt::getString(int col)
 {
+    if (sqlite3_column_type(m_stmt, col) == SQLITE_NULL) {
+        return "";
+    }
     return {reinterpret_cast<const char*>(sqlite3_column_text(m_stmt, col))};
 }
 
 double
 SqlLiteStmt::getDouble(int col)
 {
+    if (sqlite3_column_type(m_stmt, col) == SQLITE_NULL) {
+        return 0.0;
+    }
     return sqlite3_column_double(m_stmt, col);
 }
 
 int64_t
 SqlLiteStmt::getLong(int col)
 {
+    if (sqlite3_column_type(m_stmt, col) == SQLITE_NULL) {
+        return 0l;
+    }
     return sqlite3_column_int64(m_stmt, col);
 }
 
@@ -332,6 +341,18 @@ SqlLiteStmt::setLong(int bindIdx, int64_t value)
         throw SqlException(std::format("SqlLiteStmt::setLong idx {} error {}", bindIdx, sqlite3_errmsg(m_sqlLite->getDb())));
     }
 }
+
+void SqlLiteStmt::setNull(int bindIdx)
+{
+    if (bindIdx <= 0) {
+        throw SqlException(std::format("SqlLiteStmt::setNull idx {} value must be > 0", bindIdx));
+    }
+    auto rc = sqlite3_bind_null(m_stmt, bindIdx);
+    if (rc != SQLITE_OK) {
+        throw SqlException(std::format("SqlLiteStmt::setNull idx {} error {}", bindIdx, sqlite3_errmsg(m_sqlLite->getDb())));
+    }
+}
+
 
 SqlLite::SqlLite(const std::string& name)
 {
