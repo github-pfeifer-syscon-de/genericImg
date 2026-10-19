@@ -140,7 +140,7 @@ class SqlNumColumn
 {
 public:
     SqlNumColumn(const std::string& name, int size, int decimals = 0, bool nullable = true, bool primaryKey = false)
-    : SqlColumn(name, SQLITE_FLOAT, size, nullable, primaryKey)
+    : SqlColumn(name, size > 8 || decimals > 0 ? SQLITE_FLOAT : SQLITE_INTEGER, size, nullable, primaryKey)
     , m_decimals{decimals}
     {
     }
@@ -255,7 +255,7 @@ public:
     /**
      * @param col the column index
      * @return on best effort if null "" will be returned,
-     *         the see the difference to value "" use getResultTypes
+     *         to see the difference to value "" use getResultTypes
      */
     std::string getString(int col);
     double getDouble(int col);
@@ -305,6 +305,179 @@ public:
 private:
     sqlite3* m_db{};
 };
+
+class SqlBuilder
+{
+public:
+    virtual ~SqlBuilder() = default;
+protected:
+    SqlBuilder(SqlLite* sqlLite, const PtrSqlTable& table)
+    : m_sqlLite{sqlLite}
+    , m_table{table}
+    {
+    }
+    SqlBuilder(SqlLite* sqlLite, const std::string& tableName)
+    : m_sqlLite{sqlLite}
+    , m_tableName{tableName}
+    {
+    }
+    virtual PtrSqlLiteStmt build() = 0;
+    std::string getTableName() {
+        if (!m_tableName.empty()) {
+            return m_tableName;
+        }
+        return m_table->getName();
+    }
+    SqlLite* m_sqlLite;
+    PtrSqlTable m_table;
+    std::string m_tableName;
+};
+
+enum class OrderBy {
+    None
+    ,Ascending
+    ,Descending
+    ,
+};
+
+enum class JoinBy {
+    And
+    ,Or
+    ,
+};
+
+
+class SqlWhereBuilder
+: public SqlBuilder
+{
+public:
+    virtual ~SqlWhereBuilder() = default;
+
+    SqlWhereBuilder* addWhere(const std::string where) {
+	if (!m_where.empty()) {
+	    m_where += getJoinExpr();
+	}
+	m_where += where;
+        return this;
+    }
+    SqlWhereBuilder* addOrderBy(const std::string order, OrderBy orderBy = OrderBy::None);
+    SqlWhereBuilder* setJoin(JoinBy join) {
+        m_join = join;
+        return this;
+    }
+protected:
+    SqlWhereBuilder(SqlLite* sqlLite, const PtrSqlTable& table)
+    : SqlBuilder(sqlLite, table)
+    {
+    }
+    SqlWhereBuilder(SqlLite* sqlLite, const std::string& tableName)
+    : SqlBuilder(sqlLite, tableName)
+    {
+    }
+    std::string getJoinExpr();
+    std::string buildTail();
+    std::string m_where;
+    std::string m_order;
+    JoinBy m_join;
+};
+
+class SqlSelectBuilder
+: public SqlWhereBuilder
+{
+public:
+    SqlSelectBuilder(SqlLite* sqlLite, const PtrSqlTable& table)
+    : SqlWhereBuilder(sqlLite, table)
+    {
+    }
+    SqlSelectBuilder(SqlLite* sqlLite, const std::string& tableName)
+    : SqlWhereBuilder(sqlLite, tableName)
+    {
+    }
+    virtual ~SqlSelectBuilder() = default;
+    SqlSelectBuilder* addSelect(const std::string& select) {
+        if (!m_select.empty()) {
+            m_select += ',';
+        }
+        m_select += select;
+        return this;
+    }
+    PtrSqlLiteStmt build() override;
+protected:
+    std::string m_select;
+};
+
+class SqlUpdateBuilder
+: public SqlWhereBuilder
+{
+public:
+    SqlUpdateBuilder(SqlLite* sqlLite, const PtrSqlTable& table)
+    : SqlWhereBuilder(sqlLite, table)
+    {
+    }
+    SqlUpdateBuilder(SqlLite* sqlLite, const std::string& tableName)
+    : SqlWhereBuilder(sqlLite, tableName)
+    {
+    }
+    virtual ~SqlUpdateBuilder() = default;
+    SqlUpdateBuilder* addUpdate(const std::string& update, bool useBind = true) {
+        if (!m_update.empty()) {
+            m_update += ',';
+        }
+        m_update += update;
+        if (useBind) {
+            m_update += "=?";
+        }
+        return this;
+    }
+    PtrSqlLiteStmt build() override;
+protected:
+    std::string m_update;
+};
+
+class SqlDeleteBuilder
+: public SqlWhereBuilder
+{
+public:
+    SqlDeleteBuilder(SqlLite* sqlLite, const PtrSqlTable& table)
+    : SqlWhereBuilder(sqlLite, table)
+    {
+    }
+    SqlDeleteBuilder(SqlLite* sqlLite, const std::string& tableName)
+    : SqlWhereBuilder(sqlLite, tableName)
+    {
+    }
+    virtual ~SqlDeleteBuilder() = default;
+    PtrSqlLiteStmt build() override;
+protected:
+};
+
+class SqlInsertBuilder
+: public SqlBuilder
+{
+public:
+    SqlInsertBuilder(SqlLite* sqlLite, const PtrSqlTable& table)
+    : SqlBuilder(sqlLite, table)
+    {
+    }
+    SqlInsertBuilder(SqlLite* sqlLite, const std::string& tableName)
+    : SqlBuilder(sqlLite, tableName)
+    {
+    }
+    virtual ~SqlInsertBuilder() = default;
+    SqlInsertBuilder* addInsert(const std::string& insertColumn) {
+        if (!m_insert.empty()) {
+            m_insert += ',';
+        }
+        m_insert += insertColumn;
+        ++m_insertCount;
+        return this;
+    }
+    PtrSqlLiteStmt build() override;
+protected:
+    std::string m_insert;
+    int m_insertCount{};
+};
+
 
 // this contains some presumptions:
 //   single primary key

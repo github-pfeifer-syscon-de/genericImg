@@ -24,44 +24,103 @@
 #include <string>
 
 static bool
-test_sql()
+test_sql(psc::sql::SqlLite* sqlLite, const psc::sql::PtrSqlTable& gn250)
 {
     bool ret{};
     try {
-        psc::sql::SqlLite sqlLite("db.sqlite");
-        psc::sql::PtrSqlTable gn250 = std::make_shared<psc::sql::SqlTable>("gn250");
-        gn250->addColumns(std::make_shared<psc::sql::SqlVarcharColumn>("nnid", 16, false,true));
-        gn250->addColumns(std::make_shared<psc::sql::SqlVarcharColumn>("name", SQLITE3_TEXT, 255));
-        sqlLite.create(gn250);
-        auto ins = sqlLite.insert(gn250);
+        auto ins = sqlLite->insert(gn250);
         ins->setString(1, "ghj5");
         ins->setString(2, "Naaaaaaaaame");
+        ins->setDouble(3, 3.14);
         if (ins->exec() == SQLITE_CONSTRAINT) {
             std::cout << "Insert constraint violation!" << std::endl;
         }
-        auto ins2 = sqlLite.insert(gn250);
-        ins2->setString(1, "ghj6");
-        ins2->setString(2, "Naaaaaaaaame");
-        if (ins2->exec() == SQLITE_CONSTRAINT) {
+        ins->setString(1, "ghj6");
+        ins->setString(2, "Naaaaaaaaame");
+        ins->setDouble(3, 6.28);
+        if (ins->exec() == SQLITE_CONSTRAINT) {
             std::cout << "Insert constraint violation!" << std::endl;
         }
-
-        auto stmt = sqlLite.select(gn250, "*", "");
+        auto stmt = sqlLite->select(gn250, "*", "");
         auto names = stmt->getColumnNames();
         size_t n{};
+        bool complete{true};
         while (stmt->next()) {
-            if (n == 0) {
-                auto types = stmt->getResultTypes();
-                for (size_t i = 0; i < names.size(); ++i) {
-                    std::cout << "Name " << names[i] << " type " << types[i] << std::endl;
+            auto types = stmt->getResultTypes();
+            //for (size_t i = 0; i < names.size(); ++i) {
+            //    std::cout << "Name " << names[i] << " type " << types[i] << std::endl;
+            //}
+            std::cout << "Row with " << names.size() << " columns" << std::endl;
+            for (int i = 0; i < static_cast<int>(names.size()); ++i) {
+                if (types[i] == SQLITE3_TEXT) {
+                    auto data = stmt->getString(i);
+                    std::cout << "    " << names[i] << "=\"" << data << "\"" << std::endl;
+                    if (i == 0 && ((n == 0 && data != "ghj5") || (n == 1 && data != "ghj6"))) {
+                        complete = false;
+                    }
+                    if (i == 1 && data != "Naaaaaaaaame") {
+                        complete = false;
+                    }
+                }
+                else {
+                    auto data = stmt->getDouble(i);
+                    std::cout << "    " << names[i] << "=" << data << "" << std::endl;
+                    if ((n == 0 && data != 3.14) || (n == 1 && data != 6.28)) {
+                        complete = false;
+                    }
                 }
             }
-            std::cout << "Row " << names.size() << std::endl;
-            for (int i = 0; i < static_cast<int>(names.size()); ++i) {
-                auto data = stmt->getString(i);
-                std::cout << "    " << names[i] << "=" << data << std::endl;
-            }
             ++n;
+        }
+        ret = complete && n == 2;
+    }
+    catch (const std::exception& err) {
+        std::cout << "Error " << err.what() << std::endl;
+    }
+    return ret;
+}
+
+static bool
+test_build(psc::sql::SqlLite* sqlLite, const psc::sql::PtrSqlTable& gn250)
+{
+    bool ret = false;
+    try {
+        psc::sql::SqlUpdateBuilder upd{sqlLite, gn250};
+        upd.addUpdate("name")
+            ->addWhere("nnid=?");
+        auto upStmt = upd.build();
+        upStmt->setString(1, "Name");
+        upStmt->setString(2, "ghj6");
+        upStmt->exec();
+        psc::sql::SqlSelectBuilder sel{sqlLite, gn250};
+        sel.addSelect("count(*)");
+        sel.addWhere("name='Name'");
+        auto selStmt = sel.build();
+        int64_t n{};
+        if (selStmt->next()) {
+            n = selStmt->getLong(0);
+        }
+        if (n != 1) {
+            std::cout << "test_build (1) expected count 1 got " << n << std::endl;
+            return false;
+        }
+        psc::sql::SqlDeleteBuilder del{sqlLite, gn250};
+        auto delStmt = del.build();
+        delStmt->exec();
+        psc::sql::SqlInsertBuilder ins{sqlLite, gn250};
+        auto insStmt = ins.build();
+        insStmt->setString(1, "ghj7");
+        insStmt->setString(2, "Name");
+        insStmt->setLong(3, 67);
+        insStmt->exec();
+        auto selStmt2 = sel.build();
+        n = {};
+        if (selStmt2->next()) {
+            n = selStmt2->getLong(0);
+        }
+        if (n != 1) {
+            std::cout << "test_build (2) expected count 1 got " << n << std::endl;
+            return false;
         }
         ret = true;
     }
@@ -75,9 +134,22 @@ int main(int argc, char** argv)
 {
     //std::setlocale(LC_ALL, "");      // make locale dependent, and make glib accept u8 const !!!
     //Glib::init();
+    std::filesystem::path db("db.sqlite");
+    if (std::filesystem::exists(db)) {
+        std::filesystem::remove(db);
+    }
+    psc::sql::SqlLite sqlLite(db.string());
+    psc::sql::PtrSqlTable gn250 = std::make_shared<psc::sql::SqlTable>("gn250");
+    gn250->addColumns(std::make_shared<psc::sql::SqlVarcharColumn>("nnid", 16, false,true));
+    gn250->addColumns(std::make_shared<psc::sql::SqlVarcharColumn>("name", 32));
+    gn250->addColumns(std::make_shared<psc::sql::SqlNumColumn>("num", 10, 5));
+    sqlLite.create(gn250);
 
-    if (!test_sql()) {
+    if (!test_sql(&sqlLite, gn250)) {
         return 1;
+    }
+    if (!test_build(&sqlLite, gn250)) {
+        return 2;
     }
     return 0;
 }
