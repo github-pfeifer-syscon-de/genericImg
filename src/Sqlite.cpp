@@ -457,7 +457,7 @@ SqlLite::execute(const std::string& sql)
 
 SqlWhereBuilder*
 SqlWhereBuilder::addOrderBy(const std::string order, OrderBy orderBy) {
-    if (m_order.empty()) {
+    if (!m_order.empty()) {
         m_order += ',';
     }
     m_order += order;
