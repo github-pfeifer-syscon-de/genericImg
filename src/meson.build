@@ -45,5 +45,6 @@ endif
 
 if sqlite_lib.found()
 	sources += files(
-		'Sqlite.cpp')
+		'Database.cpp'
+		, 'Sqlite.cpp')
 endif

@@ -24,7 +24,7 @@
 #include <string>
 
 static bool
-test_sql(psc::sql::SqlLite* sqlLite, const psc::sql::PtrSqlTable& gn250)
+test_sql(const std::shared_ptr<psc::sql::SqlLite>& sqlLite, const psc::sql::PtrSqlTable& gn250)
 {
     bool ret{};
     try {
@@ -81,7 +81,7 @@ test_sql(psc::sql::SqlLite* sqlLite, const psc::sql::PtrSqlTable& gn250)
 }
 
 static bool
-test_build(psc::sql::SqlLite* sqlLite, const psc::sql::PtrSqlTable& gn250)
+test_build(const std::shared_ptr<psc::sql::SqlLite>& sqlLite, const psc::sql::PtrSqlTable& gn250)
 {
     bool ret = false;
     try {
@@ -138,17 +138,17 @@ int main(int argc, char** argv)
     if (std::filesystem::exists(db)) {
         std::filesystem::remove(db);
     }
-    psc::sql::SqlLite sqlLite(db.string());
+    auto sqlLite =std::make_shared<psc::sql::SqlLite>(db.string());
     psc::sql::PtrSqlTable gn250 = std::make_shared<psc::sql::SqlTable>("gn250");
     gn250->addColumns(std::make_shared<psc::sql::SqlVarcharColumn>("nnid", 16, false,true));
     gn250->addColumns(std::make_shared<psc::sql::SqlVarcharColumn>("name", 32));
     gn250->addColumns(std::make_shared<psc::sql::SqlNumColumn>("num", 10, 5));
-    sqlLite.create(gn250);
+    sqlLite->create(gn250);
 
-    if (!test_sql(&sqlLite, gn250)) {
+    if (!test_sql(sqlLite, gn250)) {
         return 1;
     }
-    if (!test_build(&sqlLite, gn250)) {
+    if (!test_build(sqlLite, gn250)) {
         return 2;
     }
     return 0;

@@ -370,7 +370,7 @@ SqlLite::~SqlLite()
     }
 }
 
-std::unique_ptr<SqlLiteStmt>
+PtrSqlStatement
 SqlLite::prepareStatement(const std::string& stmt)
 {
     return std::make_unique<SqlLiteStmt>(this, stmt);
@@ -399,14 +399,14 @@ SqlLite::create(const PtrSqlTable& table)
     execute(table->getCreate());
 }
 
-std::unique_ptr<SqlLiteStmt>
+PtrSqlStatement
 SqlLite::insert(const PtrSqlTable& table)
 {
     return prepareStatement(table->getInsert());
 }
 
 
-std::unique_ptr<SqlLiteStmt>
+PtrSqlStatement
 SqlLite::select(const PtrSqlTable& table, const std::string& fields, const std::string& where)
 {
     std::string select{table->getSelect(fields)};
@@ -417,7 +417,7 @@ SqlLite::select(const PtrSqlTable& table, const std::string& fields, const std::
     return prepareStatement(select);
 }
 
-PtrSqlLiteStmt
+PtrSqlStatement
 SqlLite::update(const PtrSqlTable& table, const std::vector<PtrSqlColumn>& cols, const std::string& where)
 {
     std::string update{table->getUpdate(cols)};
@@ -428,7 +428,7 @@ SqlLite::update(const PtrSqlTable& table, const std::vector<PtrSqlColumn>& cols,
     return prepareStatement(update);
 }
 
-PtrSqlLiteStmt
+PtrSqlStatement
 SqlLite::deleteFrom(const PtrSqlTable& table, const std::string& where)
 {
     std::string update{table->getDeleteFrom()};
@@ -455,106 +455,5 @@ SqlLite::execute(const std::string& sql)
     }
 }
 
-SqlWhereBuilder*
-SqlWhereBuilder::addOrderBy(const std::string order, OrderBy orderBy) {
-    if (!m_order.empty()) {
-        m_order += ',';
-    }
-    m_order += order;
-    if (orderBy == OrderBy::Ascending) {
-        m_order += " ASC";
-    }
-    else if (orderBy == OrderBy::Descending) {
-        m_order += " DESC";
-    }
-    return this;
-}
-
-std::string
-SqlWhereBuilder::getJoinExpr() {
-    if (m_join == JoinBy::Or) {
-        return {" OR "};
-    }
-    return {" AND "};
-}
-
-std::string
-SqlWhereBuilder::buildTail() {
-    std::string sql;
-    sql.reserve(m_where.length() + m_order.length() + 32);
-    if (!m_where.empty()) {
-        sql += " WHERE ";
-        sql += m_where;
-    }
-    if (!m_order.empty()) {
-        sql += " ORDER BY ";
-        sql += m_order;
-    }
-    return sql;
-}
-
-PtrSqlLiteStmt
-SqlSelectBuilder::build() {
-    std::string sql("SELECT ");
-    sql.reserve(m_select.length() + m_where.length() + m_order.length() + 128);
-    if (!m_select.empty()) {
-        sql += m_select;
-    }
-    else {
-        sql += '*';
-    }
-    sql += " FROM ";
-    sql += getTableName();
-    sql += buildTail();
-    return m_sqlLite->prepareStatement(sql);
-}
-
-PtrSqlLiteStmt
-SqlUpdateBuilder::build()
-{
-    std::string sql("UPDATE ");
-    sql.reserve(m_update.length() + m_where.length() + m_order.length() + 128);
-    sql += getTableName();
-    sql += " SET ";
-    sql += m_update;
-    sql += buildTail();
-    return m_sqlLite->prepareStatement(sql);
-}
-
-PtrSqlLiteStmt
-SqlDeleteBuilder::build()
-{
-    std::string sql("DELETE FROM ");
-    sql.reserve(m_where.length() + m_order.length() + 64);
-    sql += getTableName();
-    sql += buildTail();
-    return m_sqlLite->prepareStatement(sql);
-}
-
-PtrSqlLiteStmt
-SqlInsertBuilder::build() {
-    std::string sql("INSERT INTO ");
-    sql.reserve(m_insert.length() + m_insertCount*2 + 64);
-    sql += getTableName();
-    if (m_insert.empty()) {
-        if (!m_table) {
-            throw SqlException("The combination of using a tableName and no insert columns is not supported.");
-        }
-        for (auto &col : m_table->getColumns()) {
-            addInsert(col->getName());
-        }
-    }
-    sql += " (";
-    sql += m_insert;
-    sql += ") VALUES (";
-    for (int i = 0; i < m_insertCount; ++i) {
-        if (i > 0) {
-            sql += ',';
-        }
-        sql += '?';
-    }
-    sql += ')';
-    return m_sqlLite->prepareStatement(sql);
-}
 
 } // namespace psc::sql
