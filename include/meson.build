@@ -51,7 +51,8 @@ endif
 
 if sqlite_lib.found()
 	project_headers += [
-	'Sqlite.hpp'
+	'Database.hpp'
+	,'Sqlite.hpp'
 	]
 endif
 # Make this library usable from the system's
