@@ -194,15 +194,24 @@ SqlLiteStmt::next()
     return rc == SQLITE_ROW;
 }
 
-int
+Result
 SqlLiteStmt::exec()
 {
     auto rc = sqlite3_step(m_stmt);
-    if (rc != SQLITE_OK && rc != SQLITE_CONSTRAINT && rc != SQLITE_DONE) {
+    if (rc == SQLITE_ERROR) {
         throw SqlException(std::format("SQL error {} exec executing {}", sqlite3_errmsg(m_sqlLite->getDb()), m_sql));
     }
+    if (rc == SQLITE_ROW) {
+        return Result::ResultRows;
+    }
     sqlite3_reset(m_stmt);  // make stmt ready for next bind
-    return rc;
+    if (rc == SQLITE_CONSTRAINT) {
+        return Result::ConstraintViolated;
+    }
+    if (rc == SQLITE_DONE) {
+        return Result::Done;
+    }
+    return Result::Ok;
 }
 
 

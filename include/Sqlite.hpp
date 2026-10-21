@@ -47,7 +47,7 @@ public:
     // this is intended for dml e.g. insert
     //   @return same as sqlite e.g. constrain violated for existing data e.g. SQLITE_CONSTRAINT
     //   @Exception for probably "unfixable" errors from client side
-    int exec() override;
+    Result exec() override;
     int64_t getRowCount() override;
     std::vector<std::string> getColumnNames() override;
     std::vector<Datatype> getResultTypes() override;

@@ -32,12 +32,19 @@ enum class Datatype {
     ,
 };
 
-
 enum class DbType {
     None
     , Sqlite
     , Mysql
     , Postgres
+    ,
+};
+
+enum class Result {
+    Ok
+    ,ConstraintViolated
+    ,ResultRows
+    ,Done
     ,
 };
 
@@ -62,7 +69,7 @@ public:
 
     virtual void reset() = 0;   // make stmt ready for next bind
     virtual bool next() = 0;    // this is intended for selects
-    virtual int exec() = 0;
+    virtual Result exec() = 0;  // this is intended for generic statement
     virtual int64_t getRowCount() = 0;
     virtual std::vector<std::string> getColumnNames() = 0;
     virtual std::vector<Datatype> getResultTypes() = 0;
@@ -543,8 +550,8 @@ public:
             stmt->setDouble(n, value);
         });
     }
-    int exec() {
-        int ret;
+    Result exec() {
+        Result ret;
         if (m_cnt == 0) {
             ret = m_insert->exec();
         }

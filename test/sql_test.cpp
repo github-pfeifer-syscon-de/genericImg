@@ -32,13 +32,13 @@ test_sql(const std::shared_ptr<psc::sql::SqlLite>& sqlLite, const psc::sql::PtrS
         ins->setString(1, "ghj5");
         ins->setString(2, "Naaaaaaaaame");
         ins->setDouble(3, 3.14);
-        if (ins->exec() == SQLITE_CONSTRAINT) {
+        if (ins->exec() == psc::sql::Result::ConstraintViolated) {
             std::cout << "Insert constraint violation!" << std::endl;
         }
         ins->setString(1, "ghj6");
         ins->setString(2, "Naaaaaaaaame");
         ins->setDouble(3, 6.28);
-        if (ins->exec() == SQLITE_CONSTRAINT) {
+        if (ins->exec() == psc::sql::Result::ConstraintViolated) {
             std::cout << "Insert constraint violation!" << std::endl;
         }
         auto stmt = sqlLite->select(gn250, "*", "");
