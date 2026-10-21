@@ -98,6 +98,7 @@ public:
     explicit Database(const Database& other) = delete;
     virtual ~Database() = default;
 
+    static bool isAvailable(DbType dbType);
     static std::vector<DbType> availableTypes();
     static std::shared_ptr<Database> create(DbType dbType, const std::string& name);
     virtual void execute(const std::string& stmt) = 0;

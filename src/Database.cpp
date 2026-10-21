@@ -29,6 +29,18 @@
 
 namespace psc::sql {
 
+bool
+Database::isAvailable(DbType dbType)
+{
+    auto types = availableTypes();
+    for (auto type : types) {
+        if (type == dbType) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::vector<DbType>
 Database::availableTypes()
 {
