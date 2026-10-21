@@ -80,6 +80,16 @@ public:
 };
 
 using PtrSqlStatement = std::unique_ptr<SqlStatement>;
+class Metadata;
+using PtrMetadata = std::unique_ptr<Metadata>;
+class SqlSelectBuilder;
+using PtrSqlSelectBuilder = std::unique_ptr<SqlSelectBuilder>;
+class SqlUpdateBuilder;
+using PtrSqlUpdateBuilder = std::unique_ptr<SqlUpdateBuilder>;
+class SqlDeleteBuilder;
+using PtrSqlDeleteBuilder = std::unique_ptr<SqlDeleteBuilder>;
+class SqlInsertBuilder;
+using PtrSqlInsertBuilder = std::unique_ptr<SqlInsertBuilder>;
 
 class Database
 {
@@ -96,6 +106,15 @@ public:
     virtual void commit() = 0;
     virtual void rollback() = 0;
     virtual void create(const PtrSqlTable& table) = 0;
+    virtual PtrMetadata getMetadata() = 0;
+    virtual PtrSqlSelectBuilder buildSelect(const PtrSqlTable& table);
+    virtual PtrSqlSelectBuilder buildSelect(const std::string& tableNanme);
+    virtual PtrSqlInsertBuilder buildInsert(const PtrSqlTable& table);
+    virtual PtrSqlInsertBuilder buildInsert(const std::string& tableName);
+    virtual PtrSqlUpdateBuilder buildUpdate(const PtrSqlTable& table);
+    virtual PtrSqlUpdateBuilder buildUpdate(const std::string& tableName);
+    virtual PtrSqlDeleteBuilder buildDelete(const PtrSqlTable& table);
+    virtual PtrSqlDeleteBuilder buildDelete(const std::string& tableName);
 
 };
 
@@ -301,15 +320,15 @@ class SqlBuilder
 {
 public:
     virtual ~SqlBuilder() = default;
-protected:
-    SqlBuilder(const PtrDatabase& sqlLite, const PtrSqlTable& table)
-    : m_sqlLite{sqlLite}
-    , m_table{table}
-    {
+    void setTable(const PtrSqlTable& table) {
+        m_table = table;
     }
-    SqlBuilder(const PtrDatabase& sqlLite, const std::string& tableName)
-    : m_sqlLite{sqlLite}
-    , m_tableName{tableName}
+    void setTableName(const std::string& tableName) {
+        m_tableName = tableName;
+    }
+protected:
+    SqlBuilder(Database* db)
+    : m_db{db}
     {
     }
     virtual PtrSqlStatement build() = 0;
@@ -319,7 +338,7 @@ protected:
         }
         return m_table->getName();
     }
-    PtrDatabase m_sqlLite;
+    Database* m_db;
     PtrSqlTable m_table;
     std::string m_tableName;
 };
@@ -357,12 +376,8 @@ public:
         return this;
     }
 protected:
-    SqlWhereBuilder(const PtrDatabase& sqlLite, const PtrSqlTable& table)
-    : SqlBuilder(sqlLite, table)
-    {
-    }
-    SqlWhereBuilder(const PtrDatabase& sqlLite, const std::string& tableName)
-    : SqlBuilder(sqlLite, tableName)
+    SqlWhereBuilder(Database* db)
+    : SqlBuilder(db)
     {
     }
     std::string getJoinExpr();
@@ -376,12 +391,8 @@ class SqlSelectBuilder
 : public SqlWhereBuilder
 {
 public:
-    SqlSelectBuilder(const PtrDatabase& sqlLite, const PtrSqlTable& table)
-    : SqlWhereBuilder(sqlLite, table)
-    {
-    }
-    SqlSelectBuilder(const PtrDatabase& sqlLite, const std::string& tableName)
-    : SqlWhereBuilder(sqlLite, tableName)
+    SqlSelectBuilder(Database* db)
+    : SqlWhereBuilder(db)
     {
     }
     virtual ~SqlSelectBuilder() = default;
@@ -401,12 +412,8 @@ class SqlUpdateBuilder
 : public SqlWhereBuilder
 {
 public:
-    SqlUpdateBuilder(const PtrDatabase& sqlLite, const PtrSqlTable& table)
-    : SqlWhereBuilder(sqlLite, table)
-    {
-    }
-    SqlUpdateBuilder(const PtrDatabase& sqlLite, const std::string& tableName)
-    : SqlWhereBuilder(sqlLite, tableName)
+    SqlUpdateBuilder(Database* db)
+    : SqlWhereBuilder(db)
     {
     }
     virtual ~SqlUpdateBuilder() = default;
@@ -429,12 +436,8 @@ class SqlDeleteBuilder
 : public SqlWhereBuilder
 {
 public:
-    SqlDeleteBuilder(const PtrDatabase& sqlLite, const PtrSqlTable& table)
-    : SqlWhereBuilder(sqlLite, table)
-    {
-    }
-    SqlDeleteBuilder(const PtrDatabase& sqlLite, const std::string& tableName)
-    : SqlWhereBuilder(sqlLite, tableName)
+    SqlDeleteBuilder(Database* db)
+    : SqlWhereBuilder(db)
     {
     }
     virtual ~SqlDeleteBuilder() = default;
@@ -446,12 +449,8 @@ class SqlInsertBuilder
 : public SqlBuilder
 {
 public:
-    SqlInsertBuilder(const PtrDatabase& sqlLite, const PtrSqlTable& table)
-    : SqlBuilder(sqlLite, table)
-    {
-    }
-    SqlInsertBuilder(const PtrDatabase& sqlLite, const std::string& tableName)
-    : SqlBuilder(sqlLite, tableName)
+    SqlInsertBuilder(Database* db)
+    : SqlBuilder(db)
     {
     }
     virtual ~SqlInsertBuilder() = default;
@@ -479,27 +478,27 @@ public:
     {
         PtrSqlColumn primaryColumn;
         int32_t n{1};
-        SqlUpdateBuilder updBld(sqlLite, table);
+        auto updBld = sqlLite->buildUpdate(table);
         for (auto& sqlCol : table->getColumns()) {
             if (sqlCol->isPrimaryKey()) {
                 primaryColumn = sqlCol;
                 m_insBindIdx = n;
             }
             else {
-                updBld.addUpdate(sqlCol->getName());
+                updBld->addUpdate(sqlCol->getName());
                 m_bindIdxMap.insert(std::pair(sqlCol->getName(), n));
                 ++n;
             }
         }
         m_updBindIdx = n;
-        SqlSelectBuilder selBld(sqlLite, table);
-        selBld.addSelect("COUNT(*)")
+        auto selBld = sqlLite->buildSelect(table);
+        selBld->addSelect("COUNT(*)")
             ->addWhere(primaryColumn->getName() + "=?");
-        m_select = selBld.build();
-        SqlInsertBuilder insBld(sqlLite, table);
-        m_insert = insBld.build();
-        updBld.addWhere(primaryColumn->getName() + "=?");
-        m_update = updBld.build();
+        m_select = selBld->build();
+        auto insBld = sqlLite->buildInsert(table);
+        m_insert = insBld->build();
+        updBld->addWhere(primaryColumn->getName() + "=?");
+        m_update = updBld->build();
     }
     void prepare(const std::string& keyValue) {
         m_select->reset();
@@ -563,6 +562,15 @@ private:
     PtrSqlStatement m_insert;
     PtrSqlStatement m_update;
     int64_t m_cnt;
+};
+
+class Metadata {
+public:
+    virtual ~Metadata() = default;
+
+    virtual PtrSqlStatement getTableList() = 0;
+    virtual PtrSqlStatement getObjectList(const std::string& tableName) = 0;
+    virtual PtrSqlStatement getObjectDetail(const std::string& type, const std::string& objectName) = 0;
 };
 
 } /* namespace psc::sql */

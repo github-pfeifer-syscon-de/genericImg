@@ -85,17 +85,17 @@ test_build(const std::shared_ptr<psc::sql::SqlLite>& sqlLite, const psc::sql::Pt
 {
     bool ret = false;
     try {
-        psc::sql::SqlUpdateBuilder upd{sqlLite, gn250};
-        upd.addUpdate("name")
+        auto upd = sqlLite->buildUpdate(gn250);
+        upd->addUpdate("name")
             ->addWhere("nnid=?");
-        auto upStmt = upd.build();
+        auto upStmt = upd->build();
         upStmt->setString(1, "Name");
         upStmt->setString(2, "ghj6");
         upStmt->exec();
-        psc::sql::SqlSelectBuilder sel{sqlLite, gn250};
-        sel.addSelect("count(*)");
-        sel.addWhere("name='Name'");
-        auto selStmt = sel.build();
+        auto sel = sqlLite->buildSelect(gn250);
+        sel->addSelect("count(*)");
+        sel->addWhere("name='Name'");
+        auto selStmt = sel->build();
         int64_t n{};
         if (selStmt->next()) {
             n = selStmt->getLong(0);
@@ -104,22 +104,54 @@ test_build(const std::shared_ptr<psc::sql::SqlLite>& sqlLite, const psc::sql::Pt
             std::cout << "test_build (1) expected count 1 got " << n << std::endl;
             return false;
         }
-        psc::sql::SqlDeleteBuilder del{sqlLite, gn250};
-        auto delStmt = del.build();
+        auto del = sqlLite->buildDelete(gn250);
+        auto delStmt = del->build();
         delStmt->exec();
-        psc::sql::SqlInsertBuilder ins{sqlLite, gn250};
-        auto insStmt = ins.build();
+        auto ins = sqlLite->buildInsert(gn250);
+        auto insStmt = ins->build();
         insStmt->setString(1, "ghj7");
         insStmt->setString(2, "Name");
         insStmt->setLong(3, 67);
         insStmt->exec();
-        auto selStmt2 = sel.build();
+        auto selStmt2 = sel->build();
         n = {};
         if (selStmt2->next()) {
             n = selStmt2->getLong(0);
         }
         if (n != 1) {
             std::cout << "test_build (2) expected count 1 got " << n << std::endl;
+            return false;
+        }
+        auto meta = sqlLite->getMetadata();
+        auto stmtTbl = meta->getTableList();
+        bool tableFound = false;
+        bool columnFound = false;
+        while (stmtTbl->next()) {
+            tableFound = true;
+            auto tableName = stmtTbl->getString("name");
+            auto tableType = stmtTbl->getString("type");
+            std::cout << tableType << " " << tableName << std::endl;
+            auto stmtDetail = meta->getObjectDetail("table", tableName);
+            while (stmtDetail->next()) {
+                columnFound = true;
+                auto detailName = stmtDetail->getString("name");
+                auto detailType = stmtDetail->getString("type");
+                std::cout << "   " << detailName << " " << detailType << std::endl;
+            }
+            std::cout << "-------" << std::endl;
+            auto stmtObj = meta->getObjectList(tableName);
+            while (stmtObj->next()) {
+                auto objType = stmtObj->getString("type");
+                auto objName = stmtObj->getString("name");
+                std::cout << "   " << objType << " " << objName  << std::endl;
+            }
+        }
+        if (!columnFound) {
+            std::cout << "test_build (3) expected column info not found!" << n << std::endl;
+            return false;
+        }
+        if (!tableFound) {
+            std::cout << "test_build (3) expected table info not found!" << n << std::endl;
             return false;
         }
         ret = true;

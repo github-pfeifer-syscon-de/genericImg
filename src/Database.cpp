@@ -37,6 +37,68 @@ Database::create(DbType dbType, const std::string& name)
     }
 }
 
+PtrSqlSelectBuilder
+Database::buildSelect(const PtrSqlTable& table)
+{
+    auto bld = std::make_unique<SqlSelectBuilder>(this);
+    bld->setTable(table);
+    return bld;
+}
+
+PtrSqlSelectBuilder
+Database::buildSelect(const std::string& tableName)
+{
+    auto bld =std::make_unique<SqlSelectBuilder>(this);
+    bld->setTableName(tableName);
+    return bld;
+}
+PtrSqlInsertBuilder
+Database::buildInsert(const PtrSqlTable& table)
+{
+    auto bld = std::make_unique<SqlInsertBuilder>(this);
+    bld->setTable(table);
+    return bld;
+}
+
+PtrSqlInsertBuilder
+Database::buildInsert(const std::string& tableName)
+{
+    auto bld = std::make_unique<SqlInsertBuilder>(this);
+    bld->setTableName(tableName);
+    return bld;
+}
+
+PtrSqlUpdateBuilder
+Database::buildUpdate(const PtrSqlTable& table)
+{
+    auto bld = std::make_unique<SqlUpdateBuilder>(this);
+    bld->setTable(table);
+    return bld;
+}
+
+PtrSqlUpdateBuilder
+Database::buildUpdate(const std::string& tableName)
+{
+    auto bld = std::make_unique<SqlUpdateBuilder>(this);
+    bld->setTableName(tableName);
+    return bld;
+}
+
+PtrSqlDeleteBuilder
+Database::buildDelete(const PtrSqlTable& table)
+{
+    auto bld = std::make_unique<SqlDeleteBuilder>(this);
+    bld->setTable(table);
+    return bld;
+}
+
+PtrSqlDeleteBuilder
+Database::buildDelete(const std::string& tableName) {
+    auto bld =std::make_unique<SqlDeleteBuilder>(this);
+    bld->setTableName(tableName);
+    return bld;
+}
+
 SqlWhereBuilder*
 SqlWhereBuilder::addOrderBy(const std::string order, OrderBy orderBy) {
     if (!m_order.empty()) {
@@ -88,7 +150,7 @@ SqlSelectBuilder::build() {
     sql += " FROM ";
     sql += getTableName();
     sql += buildTail();
-    return m_sqlLite->prepareStatement(sql);
+    return m_db->prepareStatement(sql);
 }
 
 PtrSqlStatement
@@ -100,7 +162,7 @@ SqlUpdateBuilder::build()
     sql += " SET ";
     sql += m_update;
     sql += buildTail();
-    return m_sqlLite->prepareStatement(sql);
+    return m_db->prepareStatement(sql);
 }
 
 PtrSqlStatement
@@ -110,7 +172,7 @@ SqlDeleteBuilder::build()
     sql.reserve(m_where.length() + m_order.length() + 64);
     sql += getTableName();
     sql += buildTail();
-    return m_sqlLite->prepareStatement(sql);
+    return m_db->prepareStatement(sql);
 }
 
 PtrSqlStatement
@@ -136,7 +198,7 @@ SqlInsertBuilder::build() {
         sql += '?';
     }
     sql += ')';
-    return m_sqlLite->prepareStatement(sql);
+    return m_db->prepareStatement(sql);
 }
 
 

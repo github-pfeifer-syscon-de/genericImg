@@ -399,6 +399,12 @@ SqlLite::create(const PtrSqlTable& table)
     execute(table->getCreate());
 }
 
+PtrMetadata
+SqlLite::getMetadata()
+{
+    return std::make_unique<SqliteMeta>(this);
+}
+
 PtrSqlStatement
 SqlLite::insert(const PtrSqlTable& table)
 {
@@ -453,6 +459,43 @@ SqlLite::execute(const std::string& sql)
         sqlite3_free(zErrMsg);
         throw SqlException(msg);
     }
+}
+
+SqliteMeta::SqliteMeta(SqlLite* sqlite)
+: m_sqlite{sqlite}
+{
+}
+
+PtrSqlStatement
+SqliteMeta::getTableList()
+{
+    //SqlSelectBuilder selTbl(m_sqlite, "sqlite_master");
+    auto selTbl = m_sqlite->buildSelect("pragma_table_list");   // prefere has the right selection shows sqlite comp.
+    selTbl->addSelect("*")
+      //  ->addWhere("type IN ('table','view','shadow','virtual')")
+        ->addOrderBy("name");
+    return selTbl->build();
+}
+
+PtrSqlStatement
+SqliteMeta::getObjectList(const std::string& tableName)
+{
+    auto selChld = m_sqlite->buildSelect("sqlite_master");
+    selChld->addSelect("*")
+        ->addWhere("tbl_name=?")
+        ->addOrderBy("type,name");
+    auto selectChld = selChld->build();
+    selectChld->setString(1, tableName);
+    return selectChld;
+}
+
+PtrSqlStatement
+SqliteMeta::getObjectDetail(const std::string& type, const std::string& objectName)
+{
+    auto selDetail = m_sqlite->buildSelect("pragma_" + type + "_info('" + objectName + "')");
+    selDetail->addSelect("*")
+        ->addOrderBy("cid");    // this should give creation order
+    return selDetail->build();
 }
 
 

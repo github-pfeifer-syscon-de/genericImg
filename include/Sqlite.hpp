@@ -102,8 +102,30 @@ public:
     PtrSqlStatement select(const PtrSqlTable& table, const std::string& fields, const std::string& where);
     PtrSqlStatement update(const PtrSqlTable& table, const std::vector<PtrSqlColumn>& cols, const std::string& where);
     PtrSqlStatement deleteFrom(const PtrSqlTable& table, const std::string& where);
+    PtrMetadata getMetadata() override;
 private:
     sqlite3* m_db{};
+};
+
+using PtrSqlLite = std::shared_ptr<SqlLite>;
+
+class SqliteMeta
+: public Metadata
+{
+public:
+    SqliteMeta(SqlLite* sqlite);
+    explicit SqliteMeta(const SqliteMeta& other) = delete;
+    virtual ~SqliteMeta() = default;
+
+    // get tables, views
+    PtrSqlStatement getTableList() override;
+    // get object e.g. index infos related to tableName
+    PtrSqlStatement getObjectList(const std::string& tableName) override;
+    // get details like columns for the type and name
+    PtrSqlStatement getObjectDetail(const std::string& type, const std::string& objectName) override;
+
+protected:
+    SqlLite* m_sqlite;
 };
 
 } // namespace psc::sql
