@@ -33,7 +33,9 @@ sources = files(
 	,'ThreadWorker.cpp'
 	,'TreeNodeModel.cpp'
 	,'Plot.cpp'
-	,'KeyConfig.cpp' )
+	,'KeyConfig.cpp'
+	,'Database.cpp'
+)
 
 if libharu_deps.found()
     sources += files(
@@ -45,6 +47,5 @@ endif
 
 if sqlite_lib.found()
 	sources += files(
-		'Database.cpp'
-		, 'Sqlite.cpp')
+		'Sqlite.cpp')
 endif

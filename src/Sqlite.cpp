@@ -27,10 +27,6 @@
 #undef DEBUG_SQLLITE
 
 namespace psc::sql {
-SqlException::SqlException(const std::string& error)
-: std::runtime_error(error)
-{
-}
 
 std::string
 SqlIndex::getCreate(const SqlTable* table) const

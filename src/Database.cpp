@@ -20,21 +20,42 @@
 #include <format>
 #include <map>
 
+#include "genericimg_config.h"
+#ifdef USE_SQLITE3
 #include "Sqlite.hpp"
+#endif
 #include "Database.hpp"
 
 
 namespace psc::sql {
 
+std::vector<DbType>
+Database::availableTypes()
+{
+    std::vector<DbType> types;
+#ifdef USE_SQLITE3
+    types.push_back(DbType::Sqlite);
+#endif
+    return types;
+}
+
+
 PtrDatabase
 Database::create(DbType dbType, const std::string& name)
 {
     switch (dbType) {
+#   ifdef USE_SQLITE3
     case DbType::Sqlite:
         return std::make_shared<SqlLite>(name);
+    #endif
     default:
         throw SqlException(std::format("The type {} is not implemeneted.", static_cast<int>(dbType)));
     }
+}
+
+SqlException::SqlException(const std::string& error)
+: std::runtime_error(error)
+{
 }
 
 PtrSqlSelectBuilder

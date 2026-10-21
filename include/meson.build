@@ -39,7 +39,9 @@ project_headers = [
 	,'ThreadWorker.hpp'
 	,'TreeNodeModel.hpp'
 	,'Plot.hpp'
-	,'KeyConfig.hpp' ]
+	,'KeyConfig.hpp'
+	,'Database.hpp'
+]
 
 if libharu_deps.found()
     project_headers += [
@@ -51,8 +53,7 @@ endif
 
 if sqlite_lib.found()
 	project_headers += [
-	'Database.hpp'
-	,'Sqlite.hpp'
+	'Sqlite.hpp'
 	]
 endif
 # Make this library usable from the system's

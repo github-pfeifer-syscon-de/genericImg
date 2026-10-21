@@ -40,7 +40,6 @@ foreach cflag : disable_flags
 endforeach
 libharu_deps = declare_dependency(dependencies : cc.find_library('hpdf', required: false))
 # this was added as an option (that might be available at most places)
-#   and by intention don't declare it, so it is not forced for everyone
 sqlite_lib = cc.find_library('sqlite3', required: false)
 sqlite_deps = declare_dependency(dependencies : sqlite_lib)
 
