@@ -65,7 +65,7 @@ public:
     virtual int exec() = 0;
     virtual int64_t getRowCount() = 0;
     virtual std::vector<std::string> getColumnNames() = 0;
-    virtual std::vector<int> getResultTypes() = 0;
+    virtual std::vector<Datatype> getResultTypes() = 0;
     virtual std::string getString(int col) = 0;
     virtual double getDouble(int col) = 0;
     virtual int64_t getLong(int col) = 0;

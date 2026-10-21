@@ -212,15 +212,33 @@ SqlLiteStmt::getRowCount()
     return sqlite3_data_count(m_stmt);
 }
 
-std::vector<int>
+std::vector<Datatype>
 SqlLiteStmt::getResultTypes()
 {
-    std::vector<int> ret;
+    std::vector<Datatype> ret;
     auto colCnt = sqlite3_column_count(m_stmt);
     ret.reserve(static_cast<size_t>(colCnt));
     for (int col = 0; col < colCnt; ++col) {
         auto type = sqlite3_column_type(m_stmt, col);
-        ret.push_back(type);
+        Datatype datatype;
+        switch(type) {
+        case SQLITE3_TEXT:
+            datatype = Datatype::Text;
+            break;
+        case SQLITE_INTEGER:
+            datatype = Datatype::Integer;
+            break;
+        case SQLITE_FLOAT:
+            datatype = Datatype::Numeric;
+            break;
+        case SQLITE_BLOB:
+            datatype = Datatype::Blob;
+            break;
+        default:    // e.g. SQLITE_NULL
+            datatype = Datatype::None;
+            break;
+        }
+        ret.push_back(datatype);
     }
     return ret;
 }

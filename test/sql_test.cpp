@@ -52,7 +52,7 @@ test_sql(const std::shared_ptr<psc::sql::SqlLite>& sqlLite, const psc::sql::PtrS
             //}
             std::cout << "Row with " << names.size() << " columns" << std::endl;
             for (int i = 0; i < static_cast<int>(names.size()); ++i) {
-                if (types[i] == SQLITE3_TEXT) {
+                if (types[i] == psc::sql::Datatype::Text) {
                     auto data = stmt->getString(i);
                     std::cout << "    " << names[i] << "=\"" << data << "\"" << std::endl;
                     if (i == 0 && ((n == 0 && data != "ghj5") || (n == 1 && data != "ghj6"))) {
@@ -144,6 +144,13 @@ test_build(const std::shared_ptr<psc::sql::SqlLite>& sqlLite, const psc::sql::Pt
                 auto objType = stmtObj->getString("type");
                 auto objName = stmtObj->getString("name");
                 std::cout << "   " << objType << " " << objName  << std::endl;
+                if (objType == "index") {
+                    auto stmtDetail = meta->getObjectDetail(objType, objName);
+                    while (stmtDetail->next()) {
+                        auto detailName = stmtDetail->getString("name");
+                        std::cout << "      " << detailName << std::endl;
+                    }
+                }
             }
         }
         if (!columnFound) {

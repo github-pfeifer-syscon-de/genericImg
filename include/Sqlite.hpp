@@ -42,30 +42,30 @@ public:
     explicit SqlLiteStmt(const SqlLiteStmt& other) = delete;
     virtual ~SqlLiteStmt();
 
-    void reset();   // make stmt ready for next bind
-    bool next();    // this is intended for selects
+    void reset() override;   // make stmt ready for next bind
+    bool next() override;    // this is intended for selects
     // this is intended for dml e.g. insert
     //   @return same as sqlite e.g. constrain violated for existing data e.g. SQLITE_CONSTRAINT
     //   @Exception for probably "unfixable" errors from client side
-    int exec();
-    int64_t getRowCount();
-    std::vector<std::string> getColumnNames();
-    std::vector<int> getResultTypes();
+    int exec() override;
+    int64_t getRowCount() override;
+    std::vector<std::string> getColumnNames() override;
+    std::vector<Datatype> getResultTypes() override;
     /**
      * @param col the column index
      * @return on best effort if null "" will be returned,
      *         to see the difference to value "" use getResultTypes
      */
-    std::string getString(int col);
-    double getDouble(int col);
-    int64_t getLong(int col);
-    std::string getString(const std::string& colName);
-    double getDouble(const std::string& colName);
-    int64_t getLong(const std::string& colName);
-    void setString(int bindIdx, const std::string& value);
-    void setDouble(int bindIdx, double value);
-    void setLong(int bindIdx, int64_t value);
-    void setNull(int bindIdx);
+    std::string getString(int col) override;
+    double getDouble(int col) override;
+    int64_t getLong(int col) override;
+    std::string getString(const std::string& colName) override;
+    double getDouble(const std::string& colName) override;
+    int64_t getLong(const std::string& colName) override;
+    void setString(int bindIdx, const std::string& value) override;
+    void setDouble(int bindIdx, double value) override;
+    void setLong(int bindIdx, int64_t value) override;
+    void setNull(int bindIdx) override;
 
 protected:
     int getColumnIdx(const std::string& name);
